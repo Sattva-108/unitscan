@@ -1,0 +1,15 @@
+Changelog by Sattva 21th April 2023 #1;
+- Addon is backported and ready to release.
+
+
+	To-Do List:
+Fix taint by right click on button in combat to close it.
+Add ability to copy names of NPCs in chat after using /unitscan.
+Find a way to not add a dead unit to button.
+Make keybinds in default Blizzard Keybindings menu for Add/Remove current Target, Click button, Close button.
+Add a slash command to disable scanning entirely.
+Make scanning in raids optional via slash command, by default disabled.
+Add optional model viewer, via slash command, by default disabled.
+Add ability to ignore certain rare via slash command.
+After adding new commands need to put them into /unitscan help command so that when someone do /unitscan to check for targets he doesnt get spammed with all of them.
+
