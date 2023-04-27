@@ -49,4 +49,4 @@ You could also make a macro to close a button
 
 3. Added ruRU database of rare mobs.
 
-#### `Changelog`, `To Do List` and `known bugs` can be viewed in [Changelog and Notes.txt](https://github.com/Sattva-108/unitscan-TBC-2.4.3/blob/main/unitscan/Changelog%20and%20Notes.txt) inside addon folder.
+#### `Changelog`, `To Do List` and `known bugs` can be viewed in [Changelog and Notes.txt](https://github.com/Sattva-108/unitscan-WoTLK-3.3.5/blob/main/unitscan/Changelog%20and%20Notes.txt) inside addon folder.
