@@ -5,8 +5,8 @@ Backport of **unitscan-rares** with extra functionality, that already has all ra
 
 
 ## Credit
-- Credit to [simon_hirsig](https://legacy.curseforge.com/members/simon_hirsig/projects)    
-- Code from [unitscan](https://legacy.curseforge.com/wow/addons/unitscan)    
+- Credit to [simon_hirsig](https://legacy.curseforge.com/members/simon_hirsig/projects) & [tablegrapes](https://legacy.curseforge.com/members/tablegrapes/projects)
+- Code from [unitscan](https://legacy.curseforge.com/wow/addons/unitscan) & [unitscan-rares](https://www.curseforge.com/wow/addons/unitscan-rares)
 
 
 ## Download & Installation
@@ -44,8 +44,9 @@ You could also make a macro
 You could also make a macro to close a button
 
 ```lua 
-/click uc
+/click unitscan_close
 ```
 
+3. Added ruRU database of rare mobs.
 
 #### `Changelog`, `To Do List` and `known bugs` can be viewed in [Changelog and Notes.txt](https://github.com/Sattva-108/unitscan-TBC-2.4.3/blob/main/unitscan/Changelog%20and%20Notes.txt) inside addon folder.
