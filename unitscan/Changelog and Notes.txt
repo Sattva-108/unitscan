@@ -1,9 +1,13 @@
+Changelog by Sattva 27th April 2023 #2;
+- Fixed button set raid target mark while in raid (was retail API).
+- Added ruRU - Russian client database of rare spawns. (other locales need volunteers) Its big work.
+- Some small fixes so unitscan don't conflict with other addons. (lower strata, rename close button).
+
 Changelog by Sattva 21th April 2023 #1;
 - Addon is backported and ready to release.
 
 
 	To-Do List:
-Fix taint by right click on button in combat to close it.
 Add ability to copy names of NPCs in chat after using /unitscan.
 Find a way to not add a dead unit to button.
 Make keybinds in default Blizzard Keybindings menu for Add/Remove current Target, Click button, Close button.
