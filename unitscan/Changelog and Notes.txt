@@ -2,6 +2,7 @@ Changelog by Sattva 27th April 2023 #2;
 - Fixed button set raid target mark while in raid (was retail API).
 - Added ruRU - Russian client database of rare spawns. (other locales need volunteers) Its big work.
 - Some small fixes so unitscan don't conflict with other addons. (lower strata, rename close button).
+- Added function to see name of found unit in chat if he was found during combat.
 
 Changelog by Sattva 21th April 2023 #1;
 - Addon is backported and ready to release.

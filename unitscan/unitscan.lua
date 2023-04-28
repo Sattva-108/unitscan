@@ -978,6 +978,9 @@ function unitscan.target(name)
 			unitscan.play_sound()
 			unitscan.flash.animation:Play()
 			unitscan.discovered_unit = name
+			if InCombatLockdown() then
+				print("|cFF00FF00unitscan found - |r |cffffff00" .. name .. "|r")
+			end
 		end
 	else
 		found[name] = false
@@ -1075,7 +1078,7 @@ function unitscan.LOAD()
 	end)
 
 	function button:set_target(name)
-		--make text of found NPC maximum 15 characters
+		-- string that adds name text to the button
 		self:SetText(name)
 		-- second code to set left and right click of button macro texts
 		self:SetAttribute("macrotext1", "/cleartarget\n/targetexact " .. name)
@@ -1286,7 +1289,7 @@ SlashCmdList["UNITSCAN"] = function(parameter)
 			end
 		end
 	elseif command == "nearby" then
-		unitscan.print("Is someone missing? Add it to your list with \"/unitscan name\"")
+		unitscan.print("Is someone missing? \n Add it to your list with \"/unitscan name\"")
 		for key,val in pairs(nearby_targets) do
 			if not (val == "Lumbering Horror" or val == "Spirit of the Damned" or val == "Bone Witch") then
 				unitscan.print(val)
@@ -1300,7 +1303,7 @@ SlashCmdList["UNITSCAN"] = function(parameter)
 		print(" - Adds/removes the 'name' from the unit scanner.")
 		-- print(" ")
 		unitscan.print("nearby")
-		print(" - Lists of rare mob names that are being scanned in your current zone.")
+		print(" - List of rare mob names that are being scanned in your current zone.")
 		-- print(" ")
 		if unitscan_targets then
 			if next(unitscan_targets) == nil then
