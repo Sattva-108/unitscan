@@ -17,20 +17,49 @@ unitscan:SetScript('OnEvent', function(_, event, arg1)
 		local _, instance_type = IsInInstance()
 		is_resting = IsResting()
 		nearby_targets = {}
-		SetCVar("Sound_EnableErrorSpeech", 0) -- you're welcome
+
 		if instance_type == "raid" or instance_type == "pvp" then return end
 		if loc == nil then return end
 
 		for name, zone in pairs(rare_spawns) do
-			local reaction = UnitReaction("player", name)
-			if not reaction or reaction < 4 then reaction = true else reaction = false end
-			if reaction and (loc == zone or string.match(loc, zone) or zone == "A H") then 
-				table.insert(nearby_targets, name)
+			if not unitscan_ignored[name] then
+				local reaction = UnitReaction("player", name)
+				if not reaction or reaction < 4 then reaction = true else reaction = false end
+				if reaction and (loc == zone or string.match(loc, zone) or zone == "A H") then 
+					table.insert(nearby_targets, name)
+				end
 			end
 		end
 		-- print("nearby_targets:", table.concat(nearby_targets, ", ")) -- Don't delete, it's a useful debug code to print what was added to the rare list scanning.
 	end
 end)
+
+
+function unitscan.refresh_nearby_targets()
+	-- print("Refreshed nearby rare list.")
+    local loc = GetRealZoneText()
+    local _, instance_type = IsInInstance()
+    is_resting = IsResting()
+    nearby_targets = {}
+    
+    if instance_type == "raid" or instance_type == "pvp" then return end
+    if loc == nil then return end
+    
+    for name, zone in pairs(rare_spawns) do
+        if not unitscan_ignored[name] then
+            local reaction = UnitReaction("player", name)
+            if not reaction or reaction < 4 then reaction = true else reaction = false end
+            if reaction and (loc == zone or string.match(loc, zone) or zone == "A H") then 
+                table.insert(nearby_targets, name)
+            end
+        end
+    end
+
+    -- print("nearby_targets:", table.concat(nearby_targets, ", "))
+end
+
+
+
 unitscan:RegisterEvent'ADDON_LOADED'
 unitscan:RegisterEvent'ADDON_ACTION_FORBIDDEN'
 unitscan:RegisterEvent'PLAYER_TARGET_CHANGED'
@@ -40,8 +69,11 @@ unitscan:RegisterEvent'PLAYER_UPDATE_RESTING'
 
 local BROWN = {.7, .15, .05}
 local YELLOW = {1, 1, .15}
-local CHECK_INTERVAL = .3
 unitscan_targets = {}
+unitscan_ignored = {}
+unitscan_defaults = {
+	CHECK_INTERVAL = .3,
+}
 local found = {}
 
 -- Check the current locale of the WoW client
@@ -65,7 +97,7 @@ if currentLocale == "enUS" or currentLocale == "enGB" then
 	["SISTER RIVEN"] = "Stonetalon Mountains",
 	["SORROW WING"] = "Stonetalon Mountains",
 	["TASKMASTER WHIPFANG"] = "Stonetalon Mountains",
-	["AEAN SWIFTRUNNER"] = "The Barrens",
+	["AEAN SWIFTRIVER"] = "The Barrens",
 	["AMBASSADOR BLOODRAGE"] = "The Barrens",
 	["BRONTUS"] = "The Barrens",
 	["CAPTAIN GEROGG HAMMERTOE"] = "The Barrens",
@@ -369,7 +401,7 @@ if currentLocale == "enUS" or currentLocale == "enGB" then
     ["SINGER"] = "Arathi Highlands",
     ["SKHOWL"] = "Alterac Mountains",
     ["SLARK"] = "Westfall",
-    ["SLAVE MASTER BLACKHEART"] = "Searing Gorge",
+    -- ["SLAVE MASTER BLACKHEART"] = "Searing Gorge", -- underground mob, may wanna disable
     ["SLUDGE BEAST"] = "The Barrens",
     ["SLUDGINN"] = "Wetlands",
     ["SMOLDAR"] = "Searing Gorge",
@@ -388,7 +420,7 @@ if currentLocale == "enUS" or currentLocale == "enGB" then
     ["TERRORSPARK"] = "Burning Steppes",
     ["TERROWULF PACKLORD"] = "Ashenvale",
     ["THAURIS BALGARR"] = "Burning Steppes",
-    -- ["THE CLEANER"] = "Eastern Plaugelands", -- doesnt drop anything and too much hp.
+    -- ["THE CLEANER"] = "Eastern Plaguelands", -- doesnt drop anything and too much hp.
     ["THE EVALCHARR"] = "Azshara",
     ["THE HUSK"] = "Western Plaguelands",
     ["THE ONGAR"] = "Felwood",
@@ -454,14 +486,13 @@ if currentLocale == "enUS" or currentLocale == "enGB" then
     ["MORCRUSH"] = "Blade's Edge Mountains",
     ["SPEAKER MAR'GROM"] = "Blade's Edge Mountains",
     ["ELDINARCUS"] = "Eversong Woods",
-    ["TRELGA"] = "Eversong Woods",
     ["DR. WHITHERLIMB"] = "Ghostlands",
     ["CRIPPLER"] = "Terokkar Forest",
     ["DOOMSAYER JURIM"] = "Terokkar Forest",
     ["OKREK"] = "Terokkar Forest",
     ["FENISSA THE ASSASSIN"] = "Bloodmyst Isle",
-    ["DOOMWALKER"] = "Shadowmoon Valley",
-    ["DOOM LORD KAZZAK"] = "Hellfire Peninsula",
+    -- ["DOOMWALKER"] = "Shadowmoon Valley", -- disabled world boss
+    -- ["DOOM LORD KAZZAK"] = "Hellfire Peninsula", -- disabled world boss
     -- WoTLK
     ["FUMBLUB GEARWIND"] = "Borean Tundra",
     ["ICEHORN"] = "Borean Tundra",
@@ -811,7 +842,7 @@ elseif currentLocale == "ruRU" then
     ["ПЕВИЦА"] = "Нагорье Арати",
     ["СКВОЙ"] = "Альтеракские горы",
     ["СЛАРК"] = "Западный Край",
-    ["ПОВЕЛИТЕЛЬ РАБОВ ЧЕРНОСЕРД"] = "Тлеющее ущелье",
+    -- ["ПОВЕЛИТЕЛЬ РАБОВ ЧЕРНОСЕРД"] = "Тлеющее ущелье", -- underground mob, may wanna disable
     ["СЛЯКОХЛЮП"] = "Степи",
     ["БОЛОТНЫЙ СЛЯКОЧ"] = "Болотина",
     ["СМОЛДАР"] = "Тлеющее ущелье",
@@ -864,6 +895,7 @@ elseif currentLocale == "ruRU" then
     -- Thanks to Macumba for finding these rares
 	["МАСТЕР ЛОПАТОРУК"] = "Бесплодные земли",
 	["ЧУДИЩЕ"] = "Черная гора",
+    ["ТРЕГЛА"] = "Леса Вечной Песни",
 	["ЗОМБИРОВАННЫЙ ДВОРЯНИН"] = "Мертвые копи",
 	["ТРИГОР ХЛЕСТУН"] = "Пещеры Стенаний",
 	["БОАН"] = "Пещеры Стенаний",
@@ -893,14 +925,13 @@ elseif currentLocale == "ruRU" then
     ["МОРКРУШ"] = "Острогорье",
     ["ПРОПОВЕДНИК МАРГРОМ"] = "Острогорье",
     ["ЭЛДИНАРКУС"] = "Леса Вечной Песни",
-    ["ТРЕГЛА"] = "Леса Вечной Песни",
     ["ДОКТОР БЕЛОРУЧКА"] = "Призрачные земли",
     ["РАСЧЛЕНИТЕЛЬ"] = "Лес Тероккар",
     ["ВЕСТНИК РОКА ДЖУРИМ"] = "Лес Тероккар",
     ["ОКРЕК"] = "Лес Тероккар",
     ["ФЕНИССА УБИЙЦА"] = "Остров Кровавой Дымки",
-    ["СУДЬБОЛОМ"] = "Долина Призрачной Луны",
-    ["ВЛАДЫКА СУДЕБ КАЗЗАК"] = "Полуостров Адского Пламени",
+    -- ["СУДЬБОЛОМ"] = "Долина Призрачной Луны", -- disabled world boss
+    -- ["ВЛАДЫКА СУДЕБ КАЗЗАК"] = "Полуостров Адского Пламени", -- disabled world boss
     -- WOTLK
     ["ФУМБЛУБ ВЕТРОЗУБ"] = "Борейская тундра",
     ["ЛЕДОРОГ"] = "Борейская тундра",
@@ -930,10 +961,444 @@ elseif currentLocale == "ruRU" then
     ["ТКАЧ УЖАСА"] = "Зул'Драк",
     ["ЧАСОВОЙ ЗУЛ'ДРАКА"] = "Зул'Драк",
     }
--- elseif currentLocale == "frFR" then
---     rare_spawns = {
---         ["Maréchal Dughan"] = "Forêt d'Elwynn",
---     }
+elseif currentLocale == "frFR" then
+    rare_spawns = {
+	["AZUROUS"] = "Berceau-de-l'Hiver",
+	["GÉNÉRAL COLBATANN"] = "Berceau-de-l'Hiver",
+	["KASHOCH LE RAVAGEUR"] = "Berceau-de-l'Hiver",
+	["DAME HEDERINE"] = "Berceau-de-l'Hiver",
+	["ALSHIRR SOUFFLÉAU"] = "Gangrebois",
+	["DESSECUS"] = "Gangrebois",
+	["IMMOLATUS"] = "Gangrebois",
+	["MONNOS L'ANCIEN"] = "Azshara",
+	["BARBE-D'ÉCAILLES"] = "Azshara",
+	["FRÈRE CORVICHÊNE"] = "Les Serres-Rocheuses",
+	["CONTREMAÎTRE GRÉEUR"] = "Les Serres-Rocheuses",
+	["SŒUR RIVEN"] = "Les Serres-Rocheuses",
+	["AILES DU DÉSESPOIR"] = "Les Serres-Rocheuses",
+	["SOUS-CHEF FOUETTECROC"] = "Les Serres-Rocheuses",
+	["AEAN ONDEVIVE"] = "Les Tarides",
+	["AMBASSADEUR RAGESANG"] = "Les Tarides",
+	["BRONTUS"] = "Les Tarides",
+	["CAPITAINE GEROGG MARTÈLORTEIL"] = "Les Tarides",
+	["ANCIENNE MYSTIQUE TRANCHEGROIN"] = "Les Tarides",
+	["GESHARAHAN"] = "Les Tarides",
+	["HAGG PLAIE-DES-TAURENS"] = "Les Tarides",
+	["HANNAH FEUILLELAME"] = "Les Tarides",
+	["MARCUS BEL"] = "Les Tarides",
+	["ROCHELANCE"] = "Les Tarides",
+	["SŒUR RATHTALON"] = "Les Tarides",
+	["VIF-CRINS"] = "Les Tarides",
+	["PEAU-PIQUANTE POURCEGART"] = "Les Tarides",
+	["TAKK LE BONDISSEUR"] = "Les Tarides",
+	["THORA PENNELUNE"] = "Les Tarides",
+	["CAPITAINE PLATE-DÉFENSE"] = "Durotar",
+	["GANGRETISSEUR ARROGG"] = "Durotar",
+	["SOUFRESANG"] = "Marécage d'Âprefange",
+	["SŒUR CINGLEHAINE"] = "Mulgore",
+	["TRANCHECOEUR"] = "Mille pointes",
+	["FERREGARD L’INVINCIBLE"] = "Mille pointes",
+	["DARDEUR"] = "Mille pointes",
+	["JIN'ZALLAH PORTE-SABLE"] = "Tanaris",
+	["CHEF DE GUERRE KRAZZILAK"] = "Tanaris",
+	["GRUFF"] = "Cratère d'Un'Goro",
+	["ROI MOSH"] = "Cratère d'Un'Goro",
+	["REX ASHIL"] = "Silithus",
+	["BOURREAU ÉCARLATE"] = "Maleterres de l'ouest",
+	["GRAND PRÊTRE ÉCARLATE"] = "Maleterres de l'ouest",
+	["TAMRA FOUDREPIQUE"] = "Contreforts de Hautebrande",
+	["NARILLASANZ"] = "Montagnes d'Alterac",
+	["GRIMUNGOUS"] = "Les Hinterlands",
+	["MITH'RETHIS L'ENCHANTEUR"] = "Les Hinterlands",
+	["DARBEL MONTROSE"] = "Hautes-terres d'Arathi",
+	["SOUILLEBEDON"] = "Hautes-terres d'Arathi",
+	["RUUL UNEPIERRE"] = "Hautes-terres d'Arathi",
+	["EMOGG LE BROYEUR"] = "Loch Modan",
+	["GOLEM DE SIÈGE"] = "Terres ingrates",
+	["GÉNÉRALISSIME MASTROGONDE"] = "Gorge des Vents brûlant",
+	["HEMATOS"] = "Steppes ardentes",
+	["SEIGNEUR-CAPITAINE WYRMAK"] = "Marais des Chagrins",
+	["JADE"] = "Marais des Chagrins",
+	["GRANDE PRÊTRESSE HAI'WATNA"] = "Vallée de Strangleronce",
+	["BOUCHER MOSH'OGG"] = "Vallée de Strangleronce",
+	["ANATHEMUS"] = "Terres ingrates",
+	["ZARICOTL"] = "Terres ingrates",
+	["DRAGON FÉERIQUE DÉVIANT"] = "Cavernes des lamentations",
+	["MESHLOK LE MOISSONNEUR"] = "Maraudon",
+	["CHASSEUR AVEUGLE"] = "Kraal de Tranchebauge",
+	["IMPLORATEUR DE LA TERRE HALMGAR"] = "Kraal de Tranchebauge",
+	["LANCEUR DE TRANCHEBAUGE"] = "Kraal de Tranchebauge",
+	["ZERILLIS"] = "Zul'Farrak",
+	["AZSHIR LE SANS-SOMMEIL"] = "Monastère écarlate",
+	["CHANTELOGE FORRESTIN"] = "Stratholme",
+	["KRÂN"] = "Stratholme",
+	["ECHINE-DE-PIERRE"] = "Stratholme",
+	["CAPITAINE LIGEMORT"] = "Donjon d'Ombrecroc",
+	["AMBASSADEUR SOMBREFER"] = "Gnomeregan",
+	["SEIGNEUR ROCCOR"] = "Profondeurs de Rochenoire",
+	["PANZOR L'INVINCIBLE"] = "Profondeurs de Rochenoire",
+	["PYROMANCIEN BLÉ-DU-SAVOIR"] = "Profondeurs de Rochenoire",
+	["VEREK"] = "Profondeurs de Rochenoire",
+	["GARDIEN STILGISS"] = "Profondeurs de Rochenoire",
+	["BANNOK HACHE-SINISTRE"] = "Pic Rochenoire",
+	["GANGREGARDE ARDENT"] = "Pic Rochenoire",
+	["CROC CRISTALLIN"] = "Pic Rochenoire",
+	["GHOK BOUNNEBAFFE"] = "Pic Rochenoire",
+	["SEIGNEUR DE BATAILLE PIERRE-DU-PIC"] = "Pic Rochenoire",
+	["BOUCHER PIERRE-DU-PIC"] = "Pic Rochenoire",
+	["SEIGNEUR MAGUS PIERRE-DU-PIC"] = "Pic Rochenoire",
+	["JED GUETTE-RUNES"] = "Pic Rochenoire",
+	["BRUEGAL POING-DE-FER"] = "La Prison",
+	["MINEUR JOHNSON"] = "Les Mortemines",
+	["BÂLHAFR L'INVAINCU"] = "Hache-tripes",
+	["MUSHGOG"] = "Hache-tripes",
+	["7:XT"] = "Terres ingrates",
+	["ONDULAME MAUDIT"] = "Désolace",
+	["ACHELLIOS LE BANNI"] = "Mille pointes",
+	["AKKRILUS"] = "Orneval",
+	["AKUBAR LE PROPHÈTE"] = "Terres foudroyées",
+	["ANTILOS"] = "Azshara",
+	["ANTILUS LE PLANEUR"] = "Féralas",
+	["APOTHICAIRE FALTHIS"] = "Orneval",
+	["ARAGA"] = "Montagnes d'Alterac",
+	["ARASH-ETHIS"] = "Féralas",
+	["AZZERE LA LAME CÉLESTE"] = "Les Tarides",
+	["BARNABUS"] = "Terres ingrates",
+	["BAYNE"] = "Clairières de Tirisfal",
+	["GROS SAMRAS"] = "Contreforts de Hautebrande",
+	["BJARN"] = "Dun Morogh",
+	["NOIREMOUSSE LE FÉTIDE"] = "Teldrassil",
+	["RUGISSANG LE TRAQUEUR"] = "Féralas",
+	["BOSS GALGOSH"] = "Loch Modan",
+	["ROCHECOEUR"] = "Les Carmines",
+	["BRACK"] = "Marche de l'Ouest",
+	["MARISA DU'PAIGE"] = "Marche de l'Ouest",
+	["BRISE-BRANCHE"] = "Orneval",
+	["BRÈCHEDENT"] = "Terres ingrates",
+	["BRISE-ÉPIEU"] = "Les Tarides",
+	["PIQUE-LES-YEUX"] = "Marécage d'Âprefange",
+	["CARNIVOUS LE CASSEUR"] = "Sombrivage",
+	["CLIQUETEUSE"] = "Les Carmines",
+	["CLACK LE SACCAGEUR"] = "Terres foudroyées",
+	["MATRIARCHE ZAVAS"] = "Cratère d'Un'Goro",
+	["COMMANDANT GANGRETROMBE"] = "Bois de la Pénombre",
+	["BENJ LE TEIGNEUX"] = "Montagnes d'Alterac",
+	["INSINUEUSE"] = "Contreforts de Hautebrande",
+	["ELITE CRAMOISIE"] = "Maleterres de l'ouest",
+	["CENTAURE MAUDIT"] = "Désolace",
+	["CYCLOK LE FOL"] = "Tanaris",
+	["COPISTE DE DALARAN"] = "Forêt des Pins argentés",
+	["VEUVE DE SOMBREBRUME"] = "Marécage d'Âprefange",
+	["FLÈCHE"] = "Marécage d'Âprefange",
+	["ECORCHEUR MORTEL"] = "Durotar",
+	["HURLEMORT"] = "Gangrebois",
+	["OEIL-DE-MORT"] = "Terres foudroyées",
+	["GUEULE-DU-TRÉPAS"] = "Steppes ardentes",
+	["NÉCRORATEUR SELENDRE"] = "Maleterres de l'est",
+	["DEEB"] = "Clairières de Tirisfal",
+	["TÊTE-DE-DIAMANT"] = "Féralas",
+	["TERRASSIER FORGEFLAMME"] = "Les Tarides",
+	["DISHU"] = "Les Tarides",
+	["MAÎTRE DE GUERRE GUEULE-DE-DRAGON"] = "Les Paluns",
+	["DÉRISEFFROI"] = "Terres foudroyées",
+	["DROGOTH LE VAGABOND"] = "Marécage d'Âprefange",
+	["DUGGAN MARTEAU-HARDI"] = "Maleterres de l'est",
+	["TRAQUEUR DU CRÉPUSCULE"] = "Teldrassil",
+	["AME EN PEINE POUDREUSE"] = "Zul'Farrak",
+	["ECK'ALOM"] = "Orneval",
+	["EDAN LE HURLEUR"] = "Dun Morogh",
+	["MASSACREUR EMILGUND"] = "Mulgore",
+	["INGÉNIEUR TOURBICOTON"] = "Les Tarides",
+	["CHAMPION DÉCHU"] = "Monastère écarlate",
+	["FERMIER DE SOLLIDEN"] = "Clairières de Tirisfal",
+	["GOLEM DE GUERRE DÉFAILLANT"] = "Gorge des Vents brûlant",
+	["FENOUILLARD"] = "Forêt d'Elwynn",
+	["OMBRE DE FELLICENT"] = "Clairières de Tirisfal",
+	["FENROS"] = "Bois de la Pénombre",
+	["FINGAT"] = "Marais des Chagrins",
+	["MANDEFEU RADISON"] = "Sombrivage",
+	["FLAGGLEMURK LE CRUEL"] = "Sombrivage",
+	["DÉCOUPEUR 4000"] = "Marche de l'Ouest",
+	["CONTREMAÎTRE GRILLS"] = "Les Tarides",
+	["CONTREMAÎTRE JERRIS"] = "Maleterres de l'ouest",
+	["CONTREMAÎTRE MARCRID"] = "Maleterres de l'ouest",
+	["VILCRIN"] = "Maleterres de l'ouest",
+	["FURIE SHELDA"] = "Teldrassil",
+	["GARNEG GRILLE-CRÂNE"] = "Les Paluns",
+	["PORTIER HURLERAGE"] = "Azshara",
+	["GÉNÉRAL CROCDANGOIFFE"] = "Azshara",
+	["GÉOMAÎTRESSE MOUCHETTE"] = "Durotar",
+	["GÉOMANCIEN DAGUE-DE-SILEX"] = "Hautes-terres d'Arathi",
+	["GÉOPRÊTRESSE GUKK'ROK"] = "Les Tarides",
+	["HURLEUR FANTOMATIQUE"] = "Mulgore",
+	["MARGOUILLOCHE"] = "Mille pointes",
+	["MARGOUILLEUR"] = "Dun Morogh",
+	["GLOUSSE"] = "Désolace",
+	["GILMORIAN"] = "Marais des Chagrins",
+	["GISH L'IMMOBILE"] = "Maleterres de l'est",
+	["GLOUGLOUG"] = "Vallée de Strangleronce",
+	["GNARL FRÈREFEUILLES"] = "Féralas",
+	["RONGE-LES-OS"] = "Les Paluns",
+	["CROQUETRIPE"] = "Forêt des Pins argentés",
+	["GORGON'OCH"] = "Steppes ardentes",
+	["GRAVIS LECOLLET"] = "Montagnes d'Alterac",
+	["GRAND-PÈRE ARCTIKUS"] = "Dun Morogh",
+	["GRAND OISEAU DE FEU"] = "Tanaris",
+	["GRETHEER"] = "Silithus",
+	["MORNEGUEULE"] = "Teldrassil",
+	["MÂCHINISTRE"] = "Alterac Valley",
+	["GRIZLAK"] = "Loch Modan",
+	["GRISON NEIGEPATTE"] = "Berceau-de-l'Hiver",
+	["GRUBTHOR"] = "Silithus",
+	["GRUFF MORD-VITE"] = "Forêt d'Elwynn",
+	["GRUKLASH"] = "Steppes ardentes",
+	["GRUNTER"] = "Terres foudroyées",
+	["HAARKA LE FÉROCE"] = "Tanaris",
+	["HAHK'ZOR"] = "Steppes ardentes",
+	["MARTELLÉCHINE"] = "Dun Morogh",
+	["HARB MONT-SOUILLÉ"] = "Mille pointes",
+	["HAYOC"] = "Marécage d'Âprefange",
+	["HED'MUSH LE POURRISSANT"] = "Maleterres de l'est",
+	["HEGGIN MOUSTACHE-DE-PIERRE"] = "Les Tarides",
+	["GRAND GÉNÉRAL ABBENDIS"] = "Maleterres de l'est",
+	["HISSPERAK"] = "Désolace",
+	["HUMAR LE FIER"] = "Les Tarides",
+	["OURAGANIEN"] = "Silithus",
+	["DOS-DE-FER"] = "Les Hinterlands",
+	["ECHINE-DE-FER"] = "Monastère écarlate",
+	["JALINDE DRAKE-D'ÉTÉ"] = "Les Hinterlands",
+	["JIMMY LE SAIGNANT"] = "Montagnes d'Alterac",
+	["KASKK"] = "Désolace",
+	["KAZON"] = "Les Carmines",
+	["KOVORK"] = "Hautes-terres d'Arathi",
+	["KREGG SOULAQUILLE"] = "Tanaris",
+	["KRELLACK"] = "Silithus",
+	["KRETHIS TISSOMBRE"] = "Forêt des Pins argentés",
+	["KURMOKK"] = "Vallée de Strangleronce",
+	["DAME HEDERINE"] = "Berceau-de-l'Hiver",
+	["DAME MIRELUNE"] = "Sombrivage",
+	["DAME SESSPIRA"] = "Azshara",
+	["DAME SZALLAH"] = "Féralas",
+	["DAME VESPIA"] = "Orneval",
+	["DAME VESPIRA"] = "Sombrivage",
+	["DAME ZEPHRIS"] = "Contreforts de Hautebrande",
+	["LAPRESS"] = "Silithus",
+	["GRAND CROCILISQUE DU LOCH"] = "Loch Modan",
+	["VEUVE SANGUINE"] = "Les Paluns",
+	["LEPRITHUS"] = "Marche de l'Ouest",
+	["LICILLIN"] = "Sombrivage",
+	["LO'GROSH"] = "Montagnes d'Alterac",
+	["SEIGNEUR BAUDROIE"] = "Marécage d'Âprefange",
+	["SEIGNEUR CONDAR"] = "Loch Modan",
+	["SEIGNEUR SOMBREFAUX"] = "Maleterres de l'est",
+	["SEIGNEUR MALATHROM"] = "Bois de la Pénombre",
+	["SEIGNEUR MALDAZZAR"] = "Maleterres de l'ouest",
+	["SEIGNEUR SAKRASIS"] = "Vallée de Strangleronce",
+	["SEIGNEUR SALVASSIO"] = "Sombrivage",
+	["CHEF PERDU"] = "Marais des Chagrins",
+	["CUISINIER PERDU"] = "Marais des Chagrins",
+	["AME ÉGARÉE"] = "Clairières de Tirisfal",
+	["LUPOS"] = "Bois de la Pénombre",
+	["MA'RUK WYRMÉCAILLE"] = "Les Paluns",
+	["MAGISTÈRE FALCOIFFE"] = "Azshara",
+	["MAGOSH"] = "Loch Modan",
+	["MAGRONOS L'INFLEXIBLE"] = "Terres foudroyées",
+	["SACCAGEUR DÉFECTUEUX"] = "Steppes ardentes",
+	["MALGIN BRASSELORGE"] = "Les Tarides",
+	["MAÎTRE TERRASSIER"] = "Marche de l'Ouest",
+	["MAÎTRE TROUILLEFFROI"] = "Azshara",
+	["MAZZRANACHE"] = "Mulgore",
+	["MEZZIR LE HURLEUR"] = "Berceau-de-l'Hiver",
+	["BAS-BOUEUX"] = "Les Paluns",
+	["HURLEUR DES BRUMES"] = "Orneval",
+	["MOJO LE TORDU"] = "Terres foudroyées",
+	["MOLOK L’ANÉANTISSEUR"] = "Hautes-terres d'Arathi",
+	["ROUGERONCE"] = "Marais des Chagrins",
+	["MONGRESS"] = "Gangrebois",
+	["MORGAINE LA RUSÉE"] = "Forêt d'Elwynn",
+	["MÈRE CROC"] = "Forêt d'Elwynn",
+	["MUAD"] = "Clairières de Tirisfal",
+	["MOLDAILERON"] = "Orneval",
+	["BRÛLEPATTE MEURTRIER"] = "Tanaris",
+	["NAL'TASZAR"] = "Les Serres-Rocheuses",
+	["NARAXIS"] = "Bois de la Pénombre",
+	["NARG LE SOUS-CHEF"] = "Forêt d'Elwynn",
+	["NEFARU"] = "Bois de la Pénombre",
+	["NIMAR LE POURFENDEUR"] = "Hautes-terres d'Arathi",
+	["CHÊNEPATTE"] = "Orneval",
+	["VIEUX SAUTE-FALAISE"] = "Les Hinterlands",
+	["VIEUX GRISEBEDAINE"] = "Féralas",
+	["VIEUX VILE MÂCHOIRE"] = "Forêt des Pins argentés",
+	["OLM LA SAGE"] = "Gangrebois",
+	["OMGORN L'EGARÉ"] = "Tanaris",
+	["VER DE LIMON"] = "Marécage d'Âprefange",
+	["PATRIARCHE AILE-FIÈRE"] = "Les Serres-Rocheuses",
+	["PRINCE KELLEN"] = "Désolace",
+	["PRINCE NAZJAK"] = "Hautes-terres d'Arathi",
+    ["PRINCE RAZE"] = "Orneval",
+    ["PUTRIDIUS"] = "Maleterres de l'ouest",
+    ["QIROT"] = "Féralas",
+    ["RAGEPATTE"] = "Gangrebois",
+    ["RAK'SHIRI"] = "Berceau-de-l'Hiver",
+    ["SEIGNEUR FORESTIER EPERLANCE"] = "Maleterres de l'est",
+    ["RATHORIAN"] = "Les Tarides",
+    ["RAVAGE"] = "Terres foudroyées",
+    ["MATRIARCHE RAVASAURE"] = "Cratère d'Un'Goro",
+    ["RÉGENT SERRES-DE-CORBEAU"] = "Forêt des Pins argentés",
+    ["MATRIARCHE TRANCHEGUEULES"] = "Les Paluns",
+    ["TRANCHESERRE"] = "Les Hinterlands",
+    ["REKK'TILAC"] = "Gorge des Vents brûlant",
+    ["RESSAN LE HARCELEUR"] = "Clairières de Tirisfal",
+    ["RETHEROKK LE BERSERKER"] = "Les Hinterlands",
+    ["CHASSECÔTES"] = "Les Carmines",
+    ["RIPPA"] = "Vallée de Strangleronce",
+    ["ARRACHÉCAILLE"] = "Marécage d'Âprefange",
+    ["RO'BARK"] = "Contreforts de Hautebrande",
+    ["ROHH LE SILENCIEUX"] = "Les Carmines",
+    ["ROLOCH"] = "Vallée de Strangleronce",
+    ["JOUFFLU LE CROQUANT"] = "Orneval",
+    ["COGNEUR POIL-PUTRIDE"] = "Forêt des Pins argentés",
+    ["GRONDEUR"] = "Terres ingrates",
+    ["SANDARR RAVADUNE"] = "Zul'farrak",
+    ["BRÛLAR"] = "Gorge des Vents brûlant",
+    ["VENTRÉCAILLE"] = "Vallée de Strangleronce",
+    ["SCARGIL"] = "Contreforts de Hautebrande",
+    ["INQUISITEUR ÉCARLATE"] = "Maleterres de l'ouest",
+    ["JUGE ÉCARLATE"] = "Maleterres de l'ouest",
+    ["FORGERON ÉCARLATE"] = "Maleterres de l'ouest",
+    ["AQUALON LE CHERCHEUR"] = "Les Carmines",
+    ["SENTINELLE AMARASSAN"] = "Les Serres-Rocheuses",
+    ["SERGENT PROMPTEGRIFFE"] = "Marche de l'Ouest",
+    ["SETIS"] = "Silithus",
+    ["BÊTE DES ÉGOUTS"] = "Hurlevent",
+    ["OMBREGRIFFE"] = "Sombrivage",
+    ["COMMANDANT OMBREFORGE"] = "Terres ingrates",
+    ["SHANDA LA TISSEUSE"] = "Loch Modan",
+    ["SHLEIPNARR"] = "Gorge des Vents brûlant",
+    ["MOISSONNEUR SILITHIDE"] = "Les Tarides",
+    ["RAVAGEUR SILITHIDE"] = "Mille pointes",
+    ["SINGER"] = "Hautes-terres d'Arathi",
+    ["GRYBOU"] = "Montagnes d'Alterac",
+    ["SLARK"] = "Marche de l'Ouest",
+	-- ["MAÎTRE DES ESCLAVES COEUR-NOIR"] = "Gorge des Vents brûlant", -- underground mob, may wanna disable
+    ["LIMACE BESTIALE"] = "Les Tarides",
+    ["BOUILLASSEUX"] = "Les Paluns",
+    ["FUMAR"] = "Gorge des Vents brûlant",
+    ["TRAVÉPIEU"] = "Mulgore",
+    ["GROGNEUR"] = "Féralas",
+    ["GRONDEFUSE"] = "Les Carmines",
+    ["GRONDECRIN"] = "Forêt des Pins argentés",
+    ["NIFLE LA MOQUEUSE"] = "Les Tarides",
+    ["SORIID LE DÉVOREUR"] = "Tanaris",
+    ["ECORCHEBILE"] = "Terres foudroyées",
+    ["SQUIDDIC"] = "Les Carmines",
+    ["SRI'SKULK"] = "Clairières de Tirisfal",
+    ["FURIE-DE-PIERRE"] = "Montagnes d'Alterac",
+    ["BRAS-DE-PIERRE"] = "Les Tarides",
+    ["MATRIARCHE TROTTEUSE"] = "Sombrivage",
+    ["LUEUR TERRIFIANTE"] = "Steppes ardentes",
+    ["CHEF DE MEUTE FRAYELOUP"] = "Orneval",
+    ["THAURIS BALGARR"] = "Steppes ardentes",
+    -- ["LE NETTOYEUR"] = "Maleterres de l'est",  -- doesnt drop anything and too much hp.
+    ["L'EVALCHARR"] = "Azshara",
+    ["LA BOGUE"] = "Maleterres de l'ouest",
+    ["L'ONGAR"] = "Gangrebois",
+    ["LE GRIFFU"] = "Mulgore",
+    ["LA RAZZA"] = "Hache-tripes",
+    ["LE JONC"] = "Les Hinterlands",
+    ["LA POURRITURE"] = "Marécage d'Âprefange",
+    ["THREGGIL"] = "Teldrassil",
+    ["GRONDETERRE"] = "Les Tarides",
+    ["THUROS DOIGTS-AGILES"] = "Forêt d'Elwynn",
+    ["GRUMEUX"] = "Dun Morogh",
+    ["ESPRIT TOURMENTÉ"] = "Clairières de Tirisfal",
+    ["SEIGNEUR DU CRÉPUSCULE EVERUN"] = "Silithus",
+    ["UHK'LOC"] = "Cratère d'Un'Goro",
+    ["URSOL'LOK"] = "Orneval",
+    ["URUSON"] = "Teldrassil",
+    ["FANTÔME DE VARO'THEN"] = "Azshara",
+    ["ANCIEN VENGEUR"] = "Les Serres-Rocheuses",
+    ["DROLATIX"] = "Vallée de Strangleronce",
+    ["VOLCHAN"] = "Steppes ardentes",
+    ["VULTROS"] = "Marche de l'Ouest",
+    ["GOLEM DE GUERRE"] = "Terres ingrates",
+    ["SEIGNEUR DE GUERRE KOLKANIS"] = "Durotar",
+    ["SEIGNEUR DE GUERRE THRESH'JIN"] = "Maleterres de l'est",
+    ["COMMANDANT DE LA GARDE ZALAPHIL"] = "Durotar",
+    ["FLÉTRICOEUR LE TRAQUEUR"] = "Les Hinterlands",
+    ["ZALAS FÂNÉCORCE"] = "Hautes-terres d'Arathi",
+    ["ZORA"] = "Silithus",
+    ["ZUL'BRIN VOILEBRANCHE"] = "Maleterres de l'est",
+    ["ZUL'AREK VOLAILLAÎNE"] = "Les Hinterlands",
+    -- Thanks to Macumba for finding these rares.	
+    -- ["SURVEILLANT NÉRUBIEN"] = "Maleterres de l'est", -- doesnt drop anything worth and too much hp.
+	["MAÎTRE DES FOUILLES PELLAPHLANGE"] = "Terres ingrates",
+	-- ["INTENDANT DU BOUCLIER BALAFRÉ"] = "Mont Rochenoire", -- doesnt drop anything worth
+	["LE BÉHÉMOTH"] = "Mont Rochenoire",
+	["TREGLA"] = "Bois des Chants éternels",
+	["NOBLE MANIPULÉ"] = "Les Mortemines",
+	["TRIGORE LE FLAGELLEUR"] = "Cavernes des lamentations",
+	["BOAHN"] = "Cavernes des lamentations",
+	["CROUSTILLE"] = "Désolace",
+	["ZEKKIS"] = "Le temple d'Atal'Hakkar",
+	["VEYZHAK LE CANNIBALE"] = "Le temple d'Atal'Hakkar",
+	-- TBC
+    ["SHADIKITH LE GLISSEUR"] = "Karazhan",
+    ["HYAKISS LA RÔDEUSE"] = "Karazhan",
+    ["RODAK LE RAVAGEUR"] = "Karazhan",
+    ["SANGREDENT"] = "Nagrand",
+    ["CHASSEUR DU VIDE YAR"] = "Nagrand",
+    ["BRO'GAZ SANS-CLAN"] = "Nagrand",
+    ["MARTICAR"] = "Marécage de Zangar",
+    ["RÔDEUR DES TOURBIÈRES"] = "Marécage de Zangar",
+    ["EMISSAIRE DE GLISSECROC"] = "Marécage de Zangar",
+    ["NURAMOC"] = "Raz-de-Néant",
+    ["PERMACOEUR LE PUNISSEUR"] = "Raz-de-Néant",
+    ["INGÉNIEUR EN CHEF LORTHANDER"] = "Raz-de-Néant",
+    ["AMBASSADEUR JERRIKAR"] = "Vallée d'Ombrelune",
+    ["COLLIDUS LE GUETTEUR-DIMENSIONNEL"] = "Vallée d'Ombrelune",
+    ["KRAATOR"] = "Vallée d'Ombrelune",
+    ["VORAKEM PARLERUINE"] = "Péninsule des Flammes infernales",
+    ["GOINFREPLEIN"] = "Péninsule des Flammes infernales",
+    ["MEKTHORG LE SAUVAGE"] = "Péninsule des Flammes infernales",
+    ["HEMATHION"] = "Les Tranchantes",
+    ["MORCRASE"] = "Les Tranchantes",
+    ["PORTE-PAROLE MAR'GROM"] = "Les Tranchantes",
+    ["ELDINARCUS"] = "Bois des Chants éternels",
+    ["DR GÂTEMEMBRE"] = "Les Terres fantômes",
+    ["ESTROPIEUR"] = "Forêt de Terokkar",
+    ["AUSPICE FUNESTE JURIM"] = "Forêt de Terokkar",
+    ["OKREK"] = "Forêt de Terokkar",
+    ["FENISSA L'ASSASSIN"] = "Ile de Brume-sang",
+    -- WOTLK
+    ["LARMAGAUCHE VENBRAYE"] = "Toundra Boréenne",
+    ["CORNEGLACE"] = "Toundra Boréenne",
+    ["VIEIL ÉCORCE-DE-CRISTAL"] = "Toundra Boréenne",
+    ["SURVIVANT D'INDU'LE AFFOLÉ"] = "Désolation des dragons",
+    ["GÉNÉRALISSIME ÉCARLATE DAION"] = "Désolation des dragons",
+    ["TUKEMUTH"] = "Désolation des dragons",
+    ["ARCTURIS"] = "Les Grisonnes",
+    ["GROCKLAR"] = "Les Grisonnes",
+    ["HAINE VENGERESSE"] = "Les Grisonnes",
+    ["SYREIAN LA SCULPTEUSE D'OS"] = "Les Grisonnes",
+    ["ROI PING"] = "Fjord Hurlant",
+    ["PEROBAS LE CARNASSIER"] = "Fjord Hurlant",
+    ["VIGDIS LA VIERGE DE GUERRE"] = "Fjord Hurlant",
+    ["GRAND THANE JORFUS"] = "La Couronne de glace",
+    ["HILDANA VOLEUSE-DE-MORT"] = "La Couronne de glace",
+    ["PUTRIDUS L'ANTIQUE"] = "La Couronne de glace",
+    ["AOTONA"] = "Bassin de Sholazar",
+    ["ROI KRUSH"] = "Bassin de Sholazar",
+    ["LOQUE'NAHAK"] = "Bassin de Sholazar",
+    ["DIRKEE"] = "Les pics Foudroyés",
+    ["SKOLL"] = "Les pics Foudroyés",
+    ["PROTO-DRAKE PERDU DANS LE TEMPS"] = "Les pics Foudroyés",
+    ["VYRAGOSA"] = "Les pics Foudroyés",
+    ["GONDRIA"] = "Zul'Drak",
+    ["GRIEGEN"] = "Zul'Drak",
+    ["TISSEUSE DE TERREUR"] = "Zul'Drak",
+    ["SENTINELLE DE ZUL'DRAK"] = "Zul'Drak",
+    }
 -- elseif currentLocale == "deDE" then
 --     rare_spawns = {
 --         ["Marschall Dughan"] = "Wald von Elwynn",
@@ -1218,7 +1683,7 @@ do
 			unitscan.button:set_target(unitscan.discovered_unit)
 			unitscan.discovered_unit = nil
 		end
-		if GetTime() - unitscan.last_check >= CHECK_INTERVAL then
+		if GetTime() - unitscan.last_check >= unitscan_defaults.CHECK_INTERVAL then
 			unitscan.last_check = GetTime()
 			for name in pairs(unitscan_targets) do
 				unitscan.target(name)
@@ -1235,6 +1700,13 @@ function unitscan.print(msg)
         DEFAULT_CHAT_FRAME:AddMessage("|cFF00FF00/unitscan|r " .. "|cffffff9a" .. msg .. "|r")
     end
 end
+
+function unitscan.ignoreprint(msg)
+    if DEFAULT_CHAT_FRAME then
+        DEFAULT_CHAT_FRAME:AddMessage("|cFF00FF00/unitscan ignore|r " .. "|cffff0000" .. msg .. "|r")
+    end
+end
+
 
 
 function unitscan.sorted_targets()
@@ -1280,6 +1752,51 @@ SlashCmdList["UNITSCAN"] = function(parameter)
 		else
 			unitscan.print("No target selected.")
 		end
+
+
+	elseif command == "interval" then
+		local newInterval = tonumber(args)
+		if newInterval then
+			unitscan_defaults.CHECK_INTERVAL = newInterval
+			unitscan.print("Check interval set to " .. newInterval)
+		else
+			unitscan.print("Invalid interval value. Usage: /unitscan interval <number>")
+		end
+
+
+	elseif command == "ignore" then
+		if args == "" then
+			-- print list of ignored NPCs
+			print("|cffff0000" .. " Ignore list " .. "|r"  .. "currently contains:")
+				for npc in pairs(unitscan_ignored) do
+					unitscan.ignoreprint(npc)
+				end
+
+				return
+		else
+	        local npc = string.upper(args)
+	        if rare_spawns[npc] == nil then
+	            -- NPC does not exist in rare_spawns table
+	            unitscan.print("|cffffff00" .. args .. "|r" .. " is not a valid rare spawn.")
+
+	            return
+	    end
+
+		if unitscan_ignored[npc] then
+			-- remove NPC from ignore list
+			unitscan_ignored[npc] = nil
+			unitscan.ignoreprint("- " .. npc)
+			unitscan.refresh_nearby_targets()
+		else
+			-- add NPC to ignore list
+			unitscan_ignored[npc] = true
+			unitscan.ignoreprint("+ " .. npc)
+			unitscan.refresh_nearby_targets()
+		end
+
+		return
+		end
+
 	elseif command == "name" then
 		unitscan.print("replace 'name' with npc you want to scan. usage: /unitscan <unit name>")
 	elseif command == "targets" then
@@ -1300,7 +1817,7 @@ SlashCmdList["UNITSCAN"] = function(parameter)
 		print(" - Adds/removes the name of your current target to the scanner.")
 		-- print(" ")
 		unitscan.print("name")
-		print(" - Adds/removes the 'name' from the unit scanner.")
+		print(" - Adds/removes the mob/player 'name' from the unit scanner.")
 		-- print(" ")
 		unitscan.print("nearby")
 		print(" - List of rare mob names that are being scanned in your current zone.")
@@ -1309,7 +1826,7 @@ SlashCmdList["UNITSCAN"] = function(parameter)
 			if next(unitscan_targets) == nil then
 				unitscan.print("Unit scanner is currently empty.")
 			else
-				print(" Unit scanner currently contains:")
+				print(" |cFF00FF00Unit scanner|r currently contains:")
 				for k, v in pairs(unitscan_targets) do
 					unitscan.print(tostring(k))
 				end

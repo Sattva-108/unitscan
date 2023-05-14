@@ -9,5 +9,5 @@
 ## Title: unitscan
 ## Version: 3.3.5
 ## Notes: Unit scanner with flashy alert 
-## SavedVariables: unitscan_targets
+## SavedVariables: unitscan_defaults, unitscan_targets, unitscan_ignored
 unitscan.lua
