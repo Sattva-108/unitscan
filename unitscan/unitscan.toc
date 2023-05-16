@@ -5,7 +5,7 @@
 ## X-GitHub-Project-Issues: https://github.com/Sattva-108/unitscan-WoTLK-3.3.5/issues
 ## X-GitHub-Project-Download: https://github.com/Sattva-108/unitscan-WoTLK-3.3.5/archive/refs/heads/main.zip
 
-## Author: shirsig, backport by Sattva
+## Author: shirsig, tablegrapes, backport by Sattva
 ## Title: unitscan
 ## Version: 3.3.5
 ## Notes: Unit scanner with flashy alert 

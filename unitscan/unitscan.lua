@@ -1,7 +1,30 @@
+--------------------------------------------------------------------------------------
+--	Backport and modifications by Sattva
+--	Credit to simon_hirsig & tablegrapes
+--	Credit to Macumba for checking all rares in list and then adding frFR database!
+--	Code from unitscan & unitscan-rares
+--------------------------------------------------------------------------------------
+
+
 local unitscan = CreateFrame'Frame'
 local forbidden
 local is_resting
 local deadscan = false
+
+--===== Check the current locale of the WoW client =====--
+local currentLocale = GetLocale()
+
+--===== Check for game version =====--
+local isTBC = select(4, GetBuildInfo()) == 20400 -- true if TBC 2.4.3
+local isWOTLK = select(4, GetBuildInfo()) == 30300 -- true if WOTLK 3.3.5
+
+
+
+---------------------------------------------------------------------------------------------------
+-- Functions mainly for restrictions and conditions for unit scanning, RAID mark setup conditions.
+---------------------------------------------------------------------------------------------------
+
+
 unitscan:SetScript('OnUpdate', function() unitscan.UPDATE() end)
 unitscan:SetScript('OnEvent', function(_, event, arg1)
 	if event == 'ADDON_LOADED' and arg1 == 'unitscan' then
@@ -35,6 +58,11 @@ unitscan:SetScript('OnEvent', function(_, event, arg1)
 end)
 
 
+-------------------------------------------------------------------------------------
+-- Function to refresh current rare mob list, after doing /unitscan ignore #unitname
+-------------------------------------------------------------------------------------
+
+
 function unitscan.refresh_nearby_targets()
 	-- print("Refreshed nearby rare list.")
     local loc = GetRealZoneText()
@@ -59,6 +87,10 @@ function unitscan.refresh_nearby_targets()
 end
 
 
+--------------------------------------------------------------------------------
+-- Events
+--------------------------------------------------------------------------------
+
 
 unitscan:RegisterEvent'ADDON_LOADED'
 unitscan:RegisterEvent'ADDON_ACTION_FORBIDDEN'
@@ -67,19 +99,44 @@ unitscan:RegisterEvent'ZONE_CHANGED_NEW_AREA'
 unitscan:RegisterEvent'PLAYER_LOGIN'
 unitscan:RegisterEvent'PLAYER_UPDATE_RESTING'
 
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+--===== Some Colors for borders of button =====--
 local BROWN = {.7, .15, .05}
 local YELLOW = {1, 1, .15}
+
+
+--------------------------------------------------------------------------------
+-- Creating SavedVariables DB tables here. 
+--------------------------------------------------------------------------------
+
+--===== DB Table for user-added targets via /unitscan "name" or /unitscan target =====--
 unitscan_targets = {}
+
+--===== DB Table for user-added rare spawns to ignore from scanning =====--
 unitscan_ignored = {}
+
+--===== DB Table for Default Settings =====--
 unitscan_defaults = {
 	CHECK_INTERVAL = .3,
 }
+
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+--===== Not a SavedVariables table to prevent spamming the alert. =====--
 local found = {}
 
--- Check the current locale of the WoW client
-local currentLocale = GetLocale()
 
--- Define the rare spawns table based on the current locale
+
+--------------------------------------------------------------------------------------
+-- Rare Databases corrected, translated by Sattva & Macumba & "that guy" from discord.
+-- Database is automatically set by current locale.
+--------------------------------------------------------------------------------------
+
+
 rare_spawns = {}
 if currentLocale == "enUS" or currentLocale == "enGB" then
     rare_spawns = {
@@ -963,6 +1020,7 @@ elseif currentLocale == "ruRU" then
     }
 elseif currentLocale == "frFR" then
     rare_spawns = {
+	-- Big Thanks to Macumba, https://github.com/Macumbafeh/ who made this translation!
 	["AZUROUS"] = "Berceau-de-l'Hiver",
 	["GÉNÉRAL COLBATANN"] = "Berceau-de-l'Hiver",
 	["KASHOCH LE RAVAGEUR"] = "Berceau-de-l'Hiver",
@@ -1399,6 +1457,452 @@ elseif currentLocale == "frFR" then
     ["TISSEUSE DE TERREUR"] = "Zul'Drak",
     ["SENTINELLE DE ZUL'DRAK"] = "Zul'Drak",
     }
+
+    elseif currentLocale == "zhCN" then
+    rare_spawns = {
+    -- Big Thanks to the Guy who prefered to stay anonymous for making this translation!
+	["埃苏罗斯"] = "冬泉谷",
+	["科巴塔恩将军"] = "冬泉谷",
+	["劫掠者卡苏克"] = "冬泉谷",
+	["赫达琳"] = "冬泉谷",
+	["奥辛尔·灵息"] = "费伍德森林",
+	["迪塞库斯"] = "费伍德森林",
+	["伊姆拉图斯"] = "费伍德森林",
+	["长者莫诺斯"] = "艾萨拉",
+	["鳞须海龟"] = "艾萨拉",
+	["拉文诺克修士"] = "石爪山脉",
+	["工头里格尔"] = "石爪山脉",
+	["瑞雯"] = "石爪山脉",
+	["悲哀之翼"] = "石爪山脉",
+	["工头维普弗恩"] = "石爪山脉",
+	["艾恩·流水"] = "贫瘠之地",
+	["布拉德雷大使"] = "贫瘠之地",
+	["布隆塔斯"] = "贫瘠之地",
+	["基洛戈·锤趾队长"] = "贫瘠之地",
+	["秘法师拉佐斯诺特"] = "贫瘠之地",
+	["格沙拉罕"] = "贫瘠之地",
+	["哈格"] = "贫瘠之地",
+	["汉娜·刃叶"] = "贫瘠之地",
+	["马库斯·拜尔"] = "贫瘠之地",
+	["石枪"] = "贫瘠之地",
+	["莱丝塔伦"] = "贫瘠之地",
+	["迅鬃斑马"] = "贫瘠之地",
+	["斯文格加特·矛鬃"] = "贫瘠之地",
+	["“跳跃者”塔克"] = "贫瘠之地",
+	["索拉·羽月"] = "贫瘠之地",
+	["獠牙队长"] = "杜隆塔尔",
+	["斯考恩"] = "杜隆塔尔",
+	["布雷姆戈"] = "尘泥沼泽",
+	["海特拉什"] = "莫高雷",
+	["撕心者"] = "千针石林",
+	["不可战胜的铁眼"] = "千针石林",
+	["邪刺恐蝎"] = "千针石林",
+	["唤沙者辛萨拉"] = "塔纳利斯",
+	["克莱吉拉克"] = "塔纳利斯",
+	["格鲁夫"] = "安戈洛环形山",
+	["暴龙之王摩什"] = "安戈洛环形山",
+	["雷克斯·亚希尔"] = "希利苏斯",
+	["血色刽子手"] = "西瘟疫之地",
+	["血色高阶牧师"] = "西瘟疫之地",
+	["塔尔玛·雷矛"] = "希尔斯布莱德丘陵",
+	["纳瑞尔拉萨斯"] = "奥特兰克山脉",
+	["格瑞姆格斯"] = "辛特兰",
+	["附魔师米瑟雷希斯"] = "辛特兰",
+	["达贝尔·蒙特罗斯"] = "阿拉希高地",
+	["弗尔伯利"] = "阿拉希高地",
+	["鲁尔·巨石"] = "阿拉希高地",
+	["摧毁者埃摩戈"] = "洛克莫丹",
+	["攻城魔像"] = "荒芜之地",
+	["路障"] = "荒芜之地",
+	["玛斯托格"] = "灼热峡谷",
+	["赫玛图斯"] = "燃烧平原",
+	["维尔玛克将军"] = "悲伤沼泽",
+	["玉龙"] = "悲伤沼泽",
+	["高阶祭司海瓦纳"] = "荆棘谷",
+	["莫什奥格屠夫"] = "荆棘谷", --*
+	["安纳塞姆斯"] = "荒芜之地",
+	["扎里科特"] = "荒芜之地",
+	["变异精灵龙"] = "哀嚎洞穴",
+	["收割者麦什洛克"] = "玛拉顿",
+	["盲眼猎手"] = "剃刀沼泽",
+	["唤地者哈穆加"] = "剃刀沼泽",
+	["剃刀沼泽刺鬃守卫"] = "剃刀沼泽",
+	["泽雷利斯"] = "祖尔法拉克",
+	["永醒的艾希尔"] = "血色修道院",
+	["弗雷斯特恩"] = "斯坦索姆",
+	["瑟斯库克"] = "斯坦索姆",
+	["石脊"] = "斯坦索姆",
+	["死亡之誓"] = "影牙城堡",
+	["黑铁大师"] = "诺莫瑞根",
+	["洛考尔"] = "黑石深渊", --*
+	["古拉鲁克"] = "黑石深渊", --*
+	["无敌的潘佐尔"] = "黑石深渊",
+	["控火师罗格雷恩"] = "黑石深渊",
+	["维雷克"] = "黑石深渊",
+	["典狱官斯迪尔基斯"] = "黑石深渊",
+	["班诺克·巨斧"] = "黑石塔",
+	["燃烧地狱卫士"] = "黑石塔",
+	["水晶之牙"] = "黑石塔",
+	["霍克·巴什古德"] = "黑石塔",
+	["尖石统帅"] = "黑石塔",
+	["尖石屠夫"] = "黑石塔",
+	["尖石首席法师"] = "黑石塔",
+	["杰德"] = "黑石塔",
+	["布鲁戈·铁拳"] = "暴风城监狱",
+	["矿工约翰森"] = "死亡矿井",
+	["无敌的斯卡尔"] = "厄运之槌",
+	["姆斯高格"] = "厄运之槌",
+	["7:XT"] = "荒芜之地",
+	["可憎的滑刃纳迦"] = "凄凉之地",
+	["被流放的阿切鲁斯"] = "千针石林",
+	["阿克瑞鲁斯"] = "灰谷",
+	["先知阿库巴尔"] = "诅咒之地",
+	["奥辛尔·灵息"] = "费伍德森林",
+	["安提里奥斯"] = "艾萨拉",
+	["滑翔者安蒂鲁斯"] = "菲拉斯",
+	["药剂师法尔瑟斯"] = "灰谷",
+	["阿拉加"] = "奥特兰克山脉",
+	["阿拉瑟希斯"] = "菲拉斯",
+	["天空之刃艾泽里"] = "贫瘠之地",
+	["巴纳布斯"] = "荒芜之地",
+	["贝恩"] = "提瑞斯法林地",
+	["萨姆拉斯"] = "希尔斯布莱德丘陵",
+	["游荡的冰爪熊"] = "丹莫罗",
+	["恶臭的黑苔兽"] = "泰达希尔",
+	["潜行者布拉多尔"] = "菲拉斯",
+	["大头目加尔高什"] = "洛克莫丹",
+	["波德哈特"] = "赤脊山",
+	["布拉克"] = "西部荒野",
+	["玛里莎·杜派格"] = "西部荒野",
+	["钳枝沼泽兽"] = "灰谷",
+	["断牙"] = "荒芜之地",
+	["断矛"] = "贫瘠之地",
+	["贼眼"] = "尘泥沼泽",
+	["卡尼沃斯"] = "黑海岸",
+	["查特"] = "赤脊山",
+	["掠夺者科拉克"] = "诅咒之地",
+	["萨瓦丝女王"] = "安戈洛环形山",
+	["指挥官菲斯托姆"] = "暮色森林",
+	["暴躁的本希"] = "奥特兰克山脉",
+	["克雷普塞斯"] = "希尔斯布莱德丘陵",
+	["红衣精英"] = "西瘟疫之地", --*
+	["被诅咒的半人马"] = "凄凉之地",
+	["疯狂的塞科洛克"] = "塔纳利斯",
+	["达拉然书记员"] = "银松森林",
+	["暗雾寡妇蛛"] = "尘泥沼泽",
+	["达尔特"] = "尘泥沼泽",
+	["死亡毒蝎"] = "杜隆塔尔",
+	["死亡之嚎"] = "费伍德森林",
+	["死眼"] = "诅咒之地",
+	["死亡之喉"] = "燃烧平原",
+	["亡语者塞伦德"] = "东瘟疫之地",
+	["迪布"] = "提瑞斯法林地",
+	["钻石头"] = "菲拉斯",
+	["矿工弗雷姆"] = "贫瘠之地",
+	["迪舒"] = "贫瘠之地",
+	["龙喉军官"] = "湿地",
+	["德雷斯克恩"] = "诅咒之地",
+	["咆哮者杜格斯"] = "尘泥沼泽",
+	["杜甘·蛮锤"] = "东瘟疫之地",
+	["暮色巡游者"] = "泰达希尔",
+	["灰尘怨灵"] = "祖尔法拉克",
+	["埃卡洛姆"] = "灰谷",
+	["饥饿的雪怪"] = "丹莫罗",
+	["执行者埃米尔冈德"] = "莫高雷",
+	["技师维尔雷格"] = "贫瘠之地",
+	["死灵勇士"] = "血色修道院",
+	["农夫索利丹"] = "提瑞斯法林地",
+	["未完善的作战傀儡"] = "灼热峡谷",
+	["费德菲尼尔"] = "艾尔文森林",
+	["菲林森特的阴影"] = "提瑞斯法林地",
+	["芬罗斯"] = "暮色森林",
+	["芬加特"] = "悲伤沼泽",
+	["召火者拉迪森"] = "黑海岸",
+	["残忍的弗拉格莫克"] = "黑海岸",
+	["死神4000型"] = "西部荒野",
+	["工头葛瑞尔斯"] = "贫瘠之地",
+	["工头杰瑞斯"] = "西瘟疫之地",
+	["工头玛希瑞德"] = "西瘟疫之地",
+	["弗曼恩"] = "西瘟疫之地",
+	["愤怒的谢尔达"] = "泰达希尔",
+	["加内格·焦颅"] = "湿地",
+	["拉格罗尔"] = "艾萨拉",
+	["方弗罗将军"] = "艾萨拉",
+	["吉欧洛德·杂斑"] = "杜隆塔尔",
+	["地占师弗林塔格"] = "阿拉希高地",
+	["土地祭司古科罗克"] = "贫瘠之地",
+	["鬼嚎"] = "莫高雷",
+	["吉比斯尼克"] = "千针石林",
+	["吉波维特"] = "丹莫罗",
+	["基格勒尔"] = "凄凉之地",
+	["基摩里安"] = "悲伤沼泽",
+	["僵硬的吉斯"] = "东瘟疫之地",
+	["戈鲁格尔"] = "荆棘谷",
+	["纳尔利夫"] = "菲拉斯",
+	["纳博恩"] = "湿地",
+	["血牙狼人"] = "银松森林",
+	["高戈诺奇"] = "燃烧平原",
+	["格拉维斯·斯里诺特"] = "奥特兰克山脉",
+	["霜鬃长老"] = "丹莫罗",
+	["巨型火鸟"] = "塔纳利斯",
+	["格雷瑟尔"] = "希利苏斯",
+	["格雷莫尔"] = "泰达希尔",
+	["格瑞图斯"] = "奥特兰克山谷", --*
+	["格瑞兹拉克"] = "洛克莫丹",
+	["雪爪灰熊怪"] = "冬泉谷",
+	["格鲁布索尔"] = "希利苏斯",
+	["格拉夫·疾齿"] = "艾尔文森林",
+	["格鲁克拉什"] = "燃烧平原",
+	["格朗特"] = "诅咒之地",
+	["贪婪的哈尔卡"] = "塔纳利斯",
+	["哈克佐尔"] = "燃烧平原",
+	["锤脊"] = "丹莫罗",
+	["哈尔伯·邪泉"] = "千针石林",
+	["哈尤克"] = "尘泥沼泽",
+	["腐烂者海德姆什"] = "东瘟疫之地",
+	["赫金·石须"] = "贫瘠之地",
+	["阿比迪斯将军"] = "东瘟疫之地",
+	["西斯普拉克"] = "凄凉之地",
+	["狮王休玛"] = "贫瘠之地",
+	["哈瑞坎尼安"] = "希利苏斯",
+	["铁背龟"] = "辛特兰",
+	["铁脊死灵"] = "血色修道院",
+	["加林德·夏龙"] = "辛特兰",
+	["流血者吉米"] = "奥特兰克山脉",
+	["卡斯克"] = "凄凉之地",
+	["卡松"] = "赤脊山",
+	["考沃克"] = "阿拉希高地",
+	["克雷格·尼哈鲁"] = "塔纳利斯",
+	["克里拉克"] = "希利苏斯",
+	["克雷希斯"] = "银松森林",
+	["库尔莫克"] = "荆棘谷",
+	["莫嘉泽尔"] = "黑海岸",
+	["瑟丝彼拉"] = "艾萨拉",
+	["莎尔莱"] = "菲拉斯",
+	["薇丝比娅"] = "灰谷",
+	["薇丝普拉"] = "黑海岸",
+	["塞菲莉斯"] = "希尔斯布莱德丘陵",
+	["拉普雷斯"] = "希利苏斯",
+	["大型洛克鳄"] = "洛克莫丹",
+	["吸血寡妇"] = "湿地",
+	["莱布里萨斯"] = "西部荒野",
+	["利斯林"] = "黑海岸",
+	["洛格罗什"] = "奥特兰克山脉",
+	["安戈雷尔"] = "尘泥沼泽",
+	["康达尔"] = "洛克莫丹",
+	["黑暗镰刀"] = "东瘟疫之地",
+	["玛拉索姆公爵"] = "暮色森林",
+	["玛达萨尔"] = "西瘟疫之地",
+	["萨克拉希斯"] = "荆棘谷",
+	["辛斯雷尔"] = "黑海岸",
+	["失落者酋长"] = "悲伤沼泽",
+	["失落者厨师"] = "悲伤沼泽",
+	["失落的灵魂"] = "提瑞斯法林地",
+	["鲁伯斯"] = "暮色森林",
+	["马鲁克·龙鳞"] = "湿地",
+	["玛济斯·鹰盔"] = "艾萨拉",
+	["玛高什"] = "洛克莫丹",
+	["顽强的玛古诺斯"] = "诅咒之地",
+	["失控的掠夺者"] = "燃烧平原",
+	["玛尔金·麦酒"] = "贫瘠之地",
+	["掘地工头目"] = "西部荒野",
+	["菲达雷德"] = "艾萨拉",
+	["马兹拉纳其"] = "莫高雷",
+	["嚎叫者米基尔"] = "冬泉谷",
+	["米尔洛"] = "湿地",
+	["迷雾嚎叫者"] = "灰谷",
+	["扭曲者莫吉尔"] = "诅咒之地",
+	["碎骨者穆罗克"] = "阿拉希高地",
+	["摩塔索恩"] = "悲伤沼泽",
+	["莫戈雷斯"] = "费伍德森林",
+	["狡猾的莫加尼"] = "艾尔文森林",
+	["母蜘蛛"] = "艾尔文森林",
+	["穆亚德"] = "提瑞斯法林地",
+	["玛戈芬"] = "灰谷",
+	["残忍的疱爪土狼"] = "塔纳利斯",
+	["纳尔塔萨"] = "石爪山脉",
+	["纳拉克西斯"] = "暮色森林",
+	["监工纳尔格"] = "艾尔文森林",
+	["奈法鲁"] = "暮色森林",
+	["屠戮者尼玛尔"] = "阿拉希高地",
+	["橡爪"] = "灰谷",
+	["海崖奔跳者"] = "辛特兰",
+	["灰腹老熊"] = "菲拉斯",
+	["维斯迦尔"] = "银松森林",
+	["智者奥尔姆"] = "费伍德森林",
+	["失落者奥姆高尔"] = "塔纳利斯",
+	["泥浆虫"] = "尘泥沼泽",
+	["巨翼雄兽"] = "石爪山脉",
+	["凯雷恩王子"] = "凄凉之地",
+	["纳兹加克王子"] = "阿拉希高地",
+    ["拉兹王子"] = "灰谷",
+    ["普特迪乌斯"] = "西瘟疫之地",
+    ["基洛特"] = "菲拉斯",
+    ["拉吉波尔"] = "费伍德森林",
+    ["拉克西里"] = "冬泉谷",
+    ["游侠之王霍克斯比尔"] = "东瘟疫之地",
+    ["拉索利安"] = "贫瘠之地",
+    ["毁灭"] = "诅咒之地",
+    ["暴掠龙女王"] = "安戈洛环形山",
+    ["鸦爪摄政者"] = "银松森林",
+    ["刺喉雌龙"] = "湿地",
+    ["锋爪"] = "辛特兰",
+    ["雷克提拉克"] = "灼热峡谷",
+    ["毒针雷萨恩"] = "提瑞斯法林地",
+    ["狂暴者雷瑟罗克"] = "辛特兰",
+    ["雷布查斯"] = "赤脊山",
+    ["瑞帕"] = "荆棘谷",
+    ["雷普斯凯尔"] = "尘泥沼泽",
+    ["洛巴尔克"] = "希尔斯布莱德丘陵",
+    ["沉默的罗恩"] = "赤脊山",
+    ["罗洛克"] = "荆棘谷",
+    ["洛吉什"] = "灰谷",
+    ["腐皮惩戒者"] = "银松森林",
+    ["拉姆布勒"] = "荒芜之地",
+    ["杉达尔·沙掠者"] = "祖尔法拉克",
+    ["斯卡尔德"] = "灼热峡谷",
+    ["金鳞蜥蜴"] = "荆棘谷",
+    ["斯卡基尔"] = "希尔斯布莱德丘陵",
+    ["血色质问者"] = "西瘟疫之地",
+    ["血色法官"] = "西瘟疫之地",
+    ["血色铁匠"] = "西瘟疫之地",
+    ["搜寻者埃库隆"] = "赤脊山",
+    ["哨兵阿玛拉珊"] = "石爪山脉",
+    ["利爪队长"] = "西部荒野",
+    ["瑟提斯"] = "希利苏斯",
+    ["下水道鳄鱼"] = "暴风城",
+    ["影爪"] = "黑海岸",
+    ["暗炉指挥官"] = "荒芜之地",
+    ["纺织者杉达"] = "洛克莫丹",
+    ["夏雷纳尔"] = "灼热峡谷",
+    ["异种收割者"] = "贫瘠之地",
+    ["异种破坏者"] = "千针石林",
+    ["歌唱者"] = "阿拉希高地",
+    ["斯格霍尔"] = "奥特兰克山脉",
+    ["斯拉克"] = "西部荒野",
+    ["奴隶主托恩·黑心"] = "灼热峡谷",
+    ["淤泥兽"] = "贫瘠之地",
+    ["斯拉丁"] = "湿地",
+    ["斯莫达尔"] = "灼热峡谷",
+    ["断矛"] = "莫高雷",
+    ["咆哮者"] = "菲拉斯",
+    ["斯纳弗莱尔"] = "赤脊山",
+    ["斯纳麦恩"] = "银松森林",
+    ["土狼斯诺特"] = "贫瘠之地",
+    ["吞噬者索利德"] = "塔纳利斯",
+    ["斯比弗雷尔"] = "诅咒之地",
+    ["斯奎迪克"] = "赤脊山",
+    ["瑟斯库克"] = "提瑞斯法林地",
+    ["狂怒的石元素"] = "奥特兰克山脉",
+    ["石臂"] = "贫瘠之地",
+    ["雌性森林陆行鸟"] = "黑海岸",
+    ["特罗斯巴克"] = "燃烧平原",
+    ["恐狼族长"] = "灰谷",
+    ["萨里斯·巴加尔"] = "燃烧平原",
+    -- ["清洁者"] = "东瘟疫之地", -- 不会掉落任何东西且血量太多.
+    ["伊夫卡尔"] = "艾萨拉",
+    ["哈斯克"] = "西瘟疫之地",
+    ["欧加尔"] = "费伍德森林",
+    ["扫荡者"] = "莫高雷",
+    ["拉扎尔"] = "厄运之槌",
+    ["雷克"] = "辛特兰",
+    ["腐烂者"] = "尘泥沼泽",
+    ["瑟雷基尔"] = "泰达希尔",
+    ["雷蹄蜥蜴"] = "贫瘠之地",
+    ["索罗斯·莱特芬格"] = "艾尔文森林",
+    ["狂暴的冬狼"] = "丹莫罗",
+    ["痛苦的灵魂"] = "提瑞斯法林地",
+    ["暮光之王艾沃兰"] = "希利苏斯",
+    ["乌卡洛克"] = "安戈洛环形山",
+    ["乌索洛克"] = "灰谷",
+    ["乌鲁森"] = "泰达希尔",
+    ["瓦罗森的幽灵"] = "艾萨拉",
+    ["狂怒的树人"] = "石爪山脉",
+    ["维里弗尼克斯"] = "荆棘谷",
+    ["沃尔查"] = "燃烧平原",
+    ["乌尔图斯"] = "西部荒野",
+    ["作战傀儡"] = "荒芜之地",
+    ["科卡尼斯"] = "杜隆塔尔",
+    ["塔雷什森"] = "东瘟疫之地",
+    ["指挥官萨拉菲尔"] = "杜隆塔尔",
+    ["漫步者维瑟哈特"] = "辛特兰",
+    ["扎拉斯·枯木"] = "阿拉希高地",
+    ["苏尔拉"] = "希利苏斯",
+    ["祖布林·扭枝"] = "东瘟疫之地",
+    ["祖拉雷克"] = "辛特兰",
+    -- 感谢Macumba找到这些稀有怪物
+    -- ["蛛怪监工"] = "东瘟疫之地", -- 不会掉落任何有价值的东西且血量太多
+	["挖掘专家舒尔弗拉格"] = "荒芜之地",
+	-- ["裂盾军需官"] = "黑石山", -- 不会掉任何有价值的东西
+	["贝哈默斯"] = "黑石山",
+	["被洗脑的贵族"] = "死亡矿井",
+	["鞭笞者特里高雷"] = "哀嚎洞穴",
+	["博艾恩"] = "哀嚎洞穴",
+	["硬壳蟹"] = "凄凉之地",
+	["泽基斯"] = "阿塔哈卡神庙",
+	["食尸者维萨克"] = "阿塔哈卡神庙",
+	-- TBC
+    ["滑翔者沙德基思"] = "卡拉赞",
+    ["潜伏者希亚奇斯"] = "卡拉赞",
+    ["蹂躏者洛卡德"] = "卡拉赞",
+    ["血齿鳄"] = "纳格兰",
+    ["空灵猎手亚尔"] = "纳格兰",
+    ["独行者布罗加斯"] = "纳格兰",
+    ["玛尔提卡"] = "赞加沼泽",
+    ["斯博格尔背叛者"] = "赞加沼泽",
+    ["盘牙大使"] = "赞加沼泽",
+    ["努拉莫克"] = "虚空风暴",
+    ["惩罚者埃沃考尔"] = "虚空风暴",
+    ["首席工程"] = "虚空风暴",
+    ["耶瑞卡尔大使"] = "影月谷",
+    ["扭曲观察者科里度斯"] = "影月谷",
+    ["克兰托尔"] = "影月谷",
+    ["沃拉克姆"] = "地狱火半岛",
+    ["弗尔古格"] = "地狱火半岛",
+    ["野蛮的麦索格"] = "地狱火半岛",
+    ["赫玛希恩"] = "刀锋山",
+    ["莫克拉什"] = "刀锋山",
+    ["演讲者玛尔高姆"] = "刀锋山",
+    ["埃迪纳库斯"] = "永歌森林",
+    ["特雷格拉"] = "永歌森林",
+    ["维斯利姆博士"] = "幽魂之地",
+    ["残骨骷髅"] = "泰罗卡森林",
+    ["灾难预言者尤瑞姆"] = "泰罗卡森林",
+    ["奥卡雷"] = "泰罗卡森林",
+    ["刺客芬妮萨"] = "秘血岛",
+    -- ["末日行者"] = "影月谷",	--* BOSS
+    -- ["末日领主卡扎克"] = "地狱火半岛", --* BOSS
+    -- WoTLK
+    ["方卜拉布·飞轮"] = "北风苔原",
+    ["冰角"] = "北风苔原",
+    ["水晶树皮"] = "北风苔原",
+    ["疯狂的因度雷幸存者"] = "龙骨荒野",
+    ["血色领主达尔因"] = "龙骨荒野",
+    ["图克姆斯"] = "龙骨荒野",
+    ["阿克图瑞斯"] = "灰熊丘陵", --*灵魂兽
+    ["格罗卡拉"] = "灰熊丘陵",
+    ["沸腾之怨"] = "灰熊丘陵",
+    ["雕骨者希蕾娜"] = "灰熊丘陵",
+    ["乒乒国王"] = "嚎风峡湾",
+    ["嗜血者比洛巴斯"] = "嚎风峡湾",
+    ["女战士维格蒂丝"] = "嚎风峡湾",
+    ["大领主约夫斯"] = "冰冠冰川",
+    ["海达娜·窃魂者"] = "冰冠冰川",
+    ["古老的普迪图斯"] = "冰冠冰川",
+    ["奥图纳"] = "索拉查盆地",
+    ["暴龙王克鲁什"] = "索拉查盆地",
+    ["洛卡纳哈"] = "索拉查盆地",  --*灵魂兽
+    ["迪尔奇"] = "风暴峭壁",
+    ["逐日"] = "风暴峭壁", --*灵魂兽
+    ["迷失始祖幼龙"] = "风暴峭壁",
+    ["维拉苟萨"] = "风暴峭壁",
+	["瓦尔"] = "达拉然", --*达拉然竞技场下水道鳄鱼
+    ["古德利亚"] = "祖达克", --*灵魂兽
+    ["戈雷根"] = "祖达克",
+    ["恐惧织网者"] = "祖达克",
+    ["祖达克斥候"] = "祖达克",
+    }
+
 -- elseif currentLocale == "deDE" then
 --     rare_spawns = {
 --         ["Marschall Dughan"] = "Wald von Elwynn",
@@ -1417,6 +1921,11 @@ else
 end
 
 
+--------------------------------------------------------------------------------
+-- Play sound if wasn't played recently.
+--------------------------------------------------------------------------------
+
+
 do
 	local last_played
 	
@@ -1428,6 +1937,12 @@ do
 		end
 	end
 end
+
+
+--------------------------------------------------------------------------------
+-- Main function to scan for targets.
+--------------------------------------------------------------------------------
+
 
 function unitscan.target(name)
 	forbidden = false
@@ -1451,6 +1966,12 @@ function unitscan.target(name)
 		found[name] = false
 	end
 end
+
+
+--------------------------------------------------------------------------------
+-- Functions that creates button, and other visuals during alert.
+--------------------------------------------------------------------------------
+
 
 function unitscan.LOAD()
 	UIParent:UnregisterEvent'ADDON_ACTION_FORBIDDEN'
@@ -1516,7 +2037,7 @@ function unitscan.LOAD()
 	button:SetClampedToScreen(true)
 
 	-- code to enable ctrl-click to move (it has nothing to do with left and right click function)
-	 button:SetScript('OnMouseDown', function(self)
+	button:SetScript('OnMouseDown', function(self)
 	    if IsControlKeyDown() then
 	        self:RegisterForClicks("AnyDown", "AnyUp")
 	        self:StartMoving()
@@ -1572,9 +2093,18 @@ function unitscan.LOAD()
 		title_background:SetTexCoord(0, .9765625, 0, .3125)
 		title_background:SetAlpha(.8)
 
+
+		--===== Create Title (UNIT name) =====--
 		local title = button:CreateFontString(nil, 'OVERLAY')
 		--title:SetWordWrap(false)
-		title:SetFont([[Fonts\FRIZQT__.TTF]], 14)
+
+		--===== Fix for UNIT name in Chinese, should i add zhTW? =====--
+		if currentLocale == "zhCN" and isWOTLK then
+			title:SetFont([[Fonts\ZYHei.ttf]], 14)
+		else	
+			title:SetFont([[Fonts\FRIZQT__.TTF]], 14)
+		end
+
 		title:SetShadowOffset(1, -1)
 		title:SetPoint('TOPLEFT', title_background, 0, 0)
 		title:SetPoint('RIGHT', title_background)
@@ -1675,6 +2205,12 @@ function unitscan.LOAD()
 	end
 end
 
+
+--------------------------------------------------------------------------------
+-- Function to scan for units with conditions. 
+--------------------------------------------------------------------------------
+
+
 do
 	unitscan.last_check = GetTime()
 	function unitscan.UPDATE()
@@ -1695,11 +2231,18 @@ do
 	end
 end
 
+
+--------------------------------------------------------------------------------
+-- Prints to add prefix to message and color text.
+--------------------------------------------------------------------------------
+
+
 function unitscan.print(msg)
     if DEFAULT_CHAT_FRAME then
         DEFAULT_CHAT_FRAME:AddMessage("|cFF00FF00/unitscan|r " .. "|cffffff9a" .. msg .. "|r")
     end
 end
+
 
 function unitscan.ignoreprint(msg)
     if DEFAULT_CHAT_FRAME then
@@ -1707,6 +2250,9 @@ function unitscan.ignoreprint(msg)
     end
 end
 
+--------------------------------------------------------------------------------
+-- Function for sorting targets alphabetically. For user QOL.
+--------------------------------------------------------------------------------
 
 
 function unitscan.sorted_targets()
@@ -1717,6 +2263,12 @@ function unitscan.sorted_targets()
 	sort(sorted_targets, function(key1, key2) return key1 < key2 end)
 	return sorted_targets
 end
+
+
+--------------------------------------------------------------------------------
+-- Function to add current target to the scanning list.
+--------------------------------------------------------------------------------
+
 
 function unitscan.toggle_target(name)
 	local key = strupper(name)
@@ -1729,15 +2281,18 @@ function unitscan.toggle_target(name)
 		unitscan.print('+ ' .. key)
 	end
 end
+
+
+--------------------------------------------------------------------------------
+-- Slash Commands /unitscan
+--------------------------------------------------------------------------------
+
 	
 SlashCmdList["UNITSCAN"] = function(parameter)
 	local _, _, command, args = string.find(parameter, "(%a+)%s*(.*)")
 	
-	if command == "" then
-		unitscan.print("/unitscan target - Add the name of your current target to the scanner.")
-		unitscan.print("/unitscan <name>        - Adds/removes the 'name' from the unit scanner.")
-		unitscan.print("/unitscan nearby        - Lists the nearby units in the same zone.")
-	elseif command == "target" then
+	--===== Slash to put current player target to the unit scanning list. =====--	
+	if command == "target" then
 		local targetName = UnitName("target")
 		if targetName then
 			local key = strupper(targetName)
@@ -1753,7 +2308,7 @@ SlashCmdList["UNITSCAN"] = function(parameter)
 			unitscan.print("No target selected.")
 		end
 
-
+	--===== Slash to change unit scanning interval. Default is 0.3 =====--	
 	elseif command == "interval" then
 		local newInterval = tonumber(args)
 		if newInterval then
@@ -1763,48 +2318,55 @@ SlashCmdList["UNITSCAN"] = function(parameter)
 			unitscan.print("Invalid interval value. Usage: /unitscan interval <number>")
 		end
 
-
+	--===== Slash Ignore Rare =====--	
 	elseif command == "ignore" then
 		if args == "" then
 			-- print list of ignored NPCs
 			print("|cffff0000" .. " Ignore list " .. "|r"  .. "currently contains:")
-				for npc in pairs(unitscan_ignored) do
-					unitscan.ignoreprint(npc)
+				for rare in pairs(unitscan_ignored) do
+					unitscan.ignoreprint(rare)
 				end
 
 				return
 		else
-	        local npc = string.upper(args)
-	        if rare_spawns[npc] == nil then
-	            -- NPC does not exist in rare_spawns table
+	        local rare = string.upper(args)
+	        if rare_spawns[rare] == nil then
+	            -- rare does not exist in rare_spawns table
 	            unitscan.print("|cffffff00" .. args .. "|r" .. " is not a valid rare spawn.")
 
 	            return
 	    end
 
-		if unitscan_ignored[npc] then
-			-- remove NPC from ignore list
-			unitscan_ignored[npc] = nil
-			unitscan.ignoreprint("- " .. npc)
+		if unitscan_ignored[rare] then
+			-- remove rare from ignore list
+			unitscan_ignored[rare] = nil
+			unitscan.ignoreprint("- " .. rare)
 			unitscan.refresh_nearby_targets()
+			found[rare] = nil
 		else
-			-- add NPC to ignore list
-			unitscan_ignored[npc] = true
-			unitscan.ignoreprint("+ " .. npc)
+			-- add rare to ignore list
+			unitscan_ignored[rare] = true
+			unitscan.ignoreprint("+ " .. rare)
 			unitscan.refresh_nearby_targets()
 		end
 
 		return
 		end
 
+
+	--===== Slash to avoid people confusion if they do /unitscan name =====--	
 	elseif command == "name" then
-		unitscan.print("replace 'name' with npc you want to scan. usage: /unitscan <unit name>")
+		unitscan.print("replace 'name' with npc you want to scan. for example: /unitscan Hogger")
+
+	--===== Slash to only print currently tracked non-rare targets. =====--	
 	elseif command == "targets" then
 		if unitscan_targets then
 			for k, v in pairs(unitscan_targets) do
 				unitscan.print(tostring(k))
 			end
 		end
+
+	--===== Slash to show rare spawns that are currently being scanned. =====--	
 	elseif command == "nearby" then
 		unitscan.print("Is someone missing? \n Add it to your list with \"/unitscan name\"")
 		for key,val in pairs(nearby_targets) do
@@ -1812,6 +2374,9 @@ SlashCmdList["UNITSCAN"] = function(parameter)
 				unitscan.print(val)
 			end
 		end
+
+	--===== Slash without any arguments (/untiscan) prints currently tracked user-defined units and some basic available slash commands  =====--
+	--===== If an agrugment after /unitscan is given, it will add a unit to the scanning targets. =====--
 	elseif not command then
 		unitscan.print("target")
 		print(" - Adds/removes the name of your current target to the scanner.")
