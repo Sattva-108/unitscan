@@ -136,7 +136,6 @@ local found = {}
 -- Database is automatically set by current locale.
 --------------------------------------------------------------------------------------
 
-
 rare_spawns = {}
 if currentLocale == "enUS" or currentLocale == "enGB" then
     rare_spawns = {
@@ -766,7 +765,7 @@ elseif currentLocale == "ruRU" then
 	["ГРЕТИР"] = "Силитус",
 	["ЗЛОВЕЩАЯ УТРОБА"] = "Тельдрассил",
 	["ТЕМНОЗУБ"] = "Альтеракская долина",
-	["ГРИЗЛАК"] = "Лок Модан",
+	["КУББ"] = "Лок Модан",
 	["ГРИЗЗЛ СНЕЖНАЯ ЛАПА"] = "Зимние Ключи",
 	["ГРУБТОР"] = "Силитус",
 	["ГРАФФ БЫСТРОХВАТ"] = "Элвиннский лес",
@@ -2096,14 +2095,15 @@ function unitscan.LOAD()
 
 		--===== Create Title (UNIT name) =====--
 		local title = button:CreateFontString(nil, 'OVERLAY')
+		title:SetFont(GameFontNormal:GetFont(), 14, 'OUTLINE')
 		--title:SetWordWrap(false)
 
 		--===== Fix for UNIT name in Chinese, should i add zhTW? =====--
-		if currentLocale == "zhCN" and isWOTLK then
-			title:SetFont([[Fonts\ZYHei.ttf]], 14)
-		else	
-			title:SetFont([[Fonts\FRIZQT__.TTF]], 14)
-		end
+		-- if currentLocale == "zhCN" and isWOTLK then
+		-- 	title:SetFont([[Fonts\ZYHei.ttf]], 14)
+		-- else	
+		-- 	title:SetFont([[Fonts\FRIZQT__.TTF]], 14)
+		-- end
 
 		title:SetShadowOffset(1, -1)
 		title:SetPoint('TOPLEFT', title_background, 0, 0)
@@ -2289,7 +2289,7 @@ end
 
 	
 SlashCmdList["UNITSCAN"] = function(parameter)
-	local _, _, command, args = string.find(parameter, "(%a+)%s*(.*)")
+	local _, _, command, args = string.find(parameter, '^(%S+)%s*(.*)$')
 	
 	--===== Slash to put current player target to the unit scanning list. =====--	
 	if command == "target" then
@@ -2322,12 +2322,17 @@ SlashCmdList["UNITSCAN"] = function(parameter)
 	elseif command == "ignore" then
 		if args == "" then
 			-- print list of ignored NPCs
+			if next(unitscan_ignored) == nil then
+				print("")
+			unitscan.ignoreprint("list is empty.")
+			else
 			print("|cffff0000" .. " Ignore list " .. "|r"  .. "currently contains:")
-				for rare in pairs(unitscan_ignored) do
-					unitscan.ignoreprint(rare)
-				end
+			for rare in pairs(unitscan_ignored) do
+				unitscan.ignoreprint(rare)
+			end
+		end
 
-				return
+			return
 		else
 	        local rare = string.upper(args)
 	        if rare_spawns[rare] == nil then
@@ -2356,7 +2361,9 @@ SlashCmdList["UNITSCAN"] = function(parameter)
 
 	--===== Slash to avoid people confusion if they do /unitscan name =====--	
 	elseif command == "name" then
-		unitscan.print("replace 'name' with npc you want to scan. for example: /unitscan Hogger")
+		print("")
+		unitscan.print("replace |cffffff00'name'|r with npc you want to scan.")
+		print(" - for example: |cFF00FF00/unitscan|r |cffffff00Hogger|r")
 
 	--===== Slash to only print currently tracked non-rare targets. =====--	
 	elseif command == "targets" then
@@ -2368,30 +2375,48 @@ SlashCmdList["UNITSCAN"] = function(parameter)
 
 	--===== Slash to show rare spawns that are currently being scanned. =====--	
 	elseif command == "nearby" then
-		unitscan.print("Is someone missing? \n Add it to your list with \"/unitscan name\"")
+		print("")
+		unitscan.print("Is someone missing?")
+						print(" - Add it to your list with |cFF00FF00/unitscan|r |cffffff00name|r")
+				unitscan.print("|cffff0000ignore|r")
+				print(" - Adds/removes the rare mob 'name' from the unit scanner |cffff0000ignore list.|r")
+				print("")
 		for key,val in pairs(nearby_targets) do
 			if not (val == "Lumbering Horror" or val == "Spirit of the Damned" or val == "Bone Witch") then
 				unitscan.print(val)
 			end
 		end
 
+	--===== Slash to show all avaliable commands =====--	
+	elseif command == 'help' then
+
+		print("")
+		print("|cfff0d440Available commands:|r")
+
+		unitscan.print("target")
+		print(" - Adds/removes the name of your |cffffff00current target|r to the scanner.")
+		-- print(" ")
+		unitscan.print("name")
+		print(" - Adds/removes the |cffffff00mob/player 'name'|r from the unit scanner.")
+		-- print(" ")
+		unitscan.print("nearby")
+		print(" - List of |cffffff00rare mob names|r that are being scanned in your current zone.")
+		unitscan.print("|cffff0000ignore|r")
+				print(" - Adds/removes the rare mob 'name' from the unit scanner |cffff0000ignore list.|r")
+
+
 	--===== Slash without any arguments (/untiscan) prints currently tracked user-defined units and some basic available slash commands  =====--
 	--===== If an agrugment after /unitscan is given, it will add a unit to the scanning targets. =====--
 	elseif not command then
-		unitscan.print("target")
-		print(" - Adds/removes the name of your current target to the scanner.")
-		-- print(" ")
-		unitscan.print("name")
-		print(" - Adds/removes the mob/player 'name' from the unit scanner.")
-		-- print(" ")
-		unitscan.print("nearby")
-		print(" - List of rare mob names that are being scanned in your current zone.")
-		-- print(" ")
+		print("")
+		unitscan.print("|cffffff00help|r")
+		print(" - Displays available unitscan |cffffff00commands|r")
+		print("")
 		if unitscan_targets then
 			if next(unitscan_targets) == nil then
-				unitscan.print("Unit scanner is currently empty.")
+				unitscan.print("Unit Scanner is currently empty.")
 			else
-				print(" |cFF00FF00Unit scanner|r currently contains:")
+				print(" |cffffff00Unit Scanner|r currently contains:")
 				for k, v in pairs(unitscan_targets) do
 					unitscan.print(tostring(k))
 				end
