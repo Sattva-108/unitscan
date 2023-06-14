@@ -1,5 +1,5 @@
 Changelog by Sattva 17th May 2023 #5;
-- Fixed non-english clients not being able to add scanned units via /unitscan 'name of mob/player in their language'.
+- Fixed non-english clients not being able to add scanned units via /unitscan 'name of mob/player in client language'.
 - Removed all avaliable commands usage from `/unitscan`, moved them to the `/unitscan help`
 - Added `/unitscan ignore` usage description.
 

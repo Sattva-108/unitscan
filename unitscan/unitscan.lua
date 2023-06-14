@@ -4,20 +4,447 @@
 --	Credit to Macumba for checking all rares in list and then adding frFR database!
 --	Code from unitscan & unitscan-rares
 --------------------------------------------------------------------------------------
+	
+	-- Create global table
+	_G.unitscanDB = _G.unitscanDB or {}
+
+	-- Get locale table
+	local void, unitscan = ...
+	local L = unitscan.L
+
+	-- Create locals
+	local unitscan = CreateFrame'Frame'
+	local forbidden
+	local is_resting
+	local deadscan = false
+	local unitscanLC, unitscanCB, usDropList, usConfigList, usLockList = {}, {}, {}, {}, {}
+	local void
+
+	--===== Check the current locale of the WoW client =====--
+	local currentLocale = GetLocale()
+
+	--===== Check for game version =====--
+	local isTBC = select(4, GetBuildInfo()) == 20400 -- true if TBC 2.4.3
+	local isWOTLK = select(4, GetBuildInfo()) == 30300 -- true if WOTLK 3.3.5
+
+----------------------------------------------------------------------
+--	L00: unitscan
+----------------------------------------------------------------------
+
+	-- Create event frame
+	local usEvt = CreateFrame("FRAME")
+	usEvt:RegisterEvent("ADDON_LOADED")
+	usEvt:RegisterEvent("PLAYER_LOGIN")
+	usEvt:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 
-local unitscan = CreateFrame'Frame'
-local forbidden
-local is_resting
-local deadscan = false
+----------------------------------------------------------------------
+--	L01: Functions
+----------------------------------------------------------------------
 
---===== Check the current locale of the WoW client =====--
-local currentLocale = GetLocale()
+	-- Print text
+	function unitscanLC:Print(text)
+		DEFAULT_CHAT_FRAME:AddMessage(L[text], 1.0, 0.85, 0.0)
+	end
 
---===== Check for game version =====--
-local isTBC = select(4, GetBuildInfo()) == 20400 -- true if TBC 2.4.3
-local isWOTLK = select(4, GetBuildInfo()) == 30300 -- true if WOTLK 3.3.5
+	-- Lock and unlock an item
+	function unitscanLC:LockItem(item, lock)
+		if lock then
+			item:Disable()
+			item:SetAlpha(0.3)
+		else
+			item:Enable()
+			item:SetAlpha(1.0)
+		end
+	end
 
+	-- Hide configuration panels
+	function unitscanLC:HideConfigPanels()
+		for k, v in pairs(usConfigList) do
+			v:Hide()
+		end
+	end
+
+	-- Show a single line prefilled editbox with copy functionality
+	function unitscanLC:ShowSystemEditBox(word, focuschat)
+		if not unitscanLC.FactoryEditBox then
+			-- Create frame for first time
+			local eFrame = CreateFrame("FRAME", nil, UIParent)
+			unitscanLC.FactoryEditBox = eFrame
+			eFrame:SetSize(700, 110)
+			eFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 150)
+			eFrame:SetFrameStrata("FULLSCREEN_DIALOG")
+			-- eFrame:SetFrameLevel(5000)
+			eFrame:EnableMouse(true)
+			eFrame:EnableKeyboard()
+			eFrame:SetScript("OnMouseDown", function(self, btn)
+				if btn == "RightButton" then
+					eFrame:Hide()
+				end
+			end)
+			-- Add background color
+			eFrame.t = eFrame:CreateTexture(nil, "BACKGROUND")
+			eFrame.t:SetAllPoints()
+			eFrame.t:SetTexture(0.05, 0.05, 0.05, 0.9)
+			-- Add copy title
+			eFrame.f = eFrame:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
+			eFrame.f:SetPoint("TOPLEFT", x, y)
+			eFrame.f:SetPoint("TOPLEFT", eFrame, "TOPLEFT", 12, -52)
+			eFrame.f:SetWidth(676)
+			eFrame.f:SetJustifyH("LEFT")
+			eFrame.f:SetWordWrap(false)
+			-- Add copy label
+			eFrame.c = eFrame:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
+			eFrame.c:SetPoint("TOPLEFT", x, y)
+			eFrame.c:SetText(L["Press CTRL/C to copy"])
+			eFrame.c:SetPoint("TOPLEFT", eFrame, "TOPLEFT", 12, -82)
+			-- Add feedback label
+			eFrame.x = eFrame:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
+			eFrame.x:SetPoint("TOPRIGHT", x, y)
+			eFrame.x:SetText("|cff00ff00Feedback Discord:|r |cffadd8e6Sattva#7238|r")
+
+			eFrame.x:SetPoint("TOPRIGHT", eFrame, "TOPRIGHT", -12, -52)
+			hooksecurefunc(eFrame.f, "SetText", function()
+				eFrame.f:SetWidth(676 - eFrame.x:GetStringWidth() - 26)
+			end)
+			-- Add cancel label
+			eFrame.x = eFrame:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
+			eFrame.x:SetPoint("TOPRIGHT", x, y)
+			eFrame.x:SetText(L["Right-click to close"])
+			eFrame.x:SetPoint("TOPRIGHT", eFrame, "TOPRIGHT", -12, -82)
+			-- Create editbox
+			eFrame.b = CreateFrame("EditBox", nil, eFrame, "InputBoxTemplate")
+			eFrame.b:ClearAllPoints()
+			eFrame.b:SetPoint("TOPLEFT", eFrame, "TOPLEFT", 16, -12)
+			eFrame.b:SetSize(672, 24)
+			eFrame.b:SetFontObject("GameFontNormalLarge")
+			eFrame.b:SetTextColor(1.0, 1.0, 1.0, 1)
+			eFrame.b:DisableDrawLayer("BACKGROUND")
+			-- eFrame.b:SetBlinkSpeed(0)
+			eFrame.b:SetHitRectInsets(99, 99, 99, 99)
+			eFrame.b:SetAutoFocus(true)
+			eFrame.b:SetAltArrowKeyMode(true)
+			eFrame.b:EnableMouse(true)
+			eFrame.b:EnableKeyboard(true)
+			-- Editbox texture
+			eFrame.t = CreateFrame("FRAME", nil, eFrame.b)
+			eFrame.t:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = false, tileSize = 16, edgeSize = 16, insets = { left = 5, right = 5, top = 5, bottom = 5 }})
+			eFrame.t:SetPoint("LEFT", -6, 0)
+			eFrame.t:SetWidth(eFrame.b:GetWidth() + 6)
+			eFrame.t:SetHeight(eFrame.b:GetHeight())
+			eFrame.t:SetBackdropColor(1.0, 1.0, 1.0, 0.3)
+			-- Handler
+			-- it doesnt work in 3.3.5
+			eFrame.b:SetScript("OnKeyDown", function(void, key)
+				if key == "c" and IsControlKeyDown() then
+					LibCompat.After(0.1, function()
+						eFrame:Hide()
+						ActionStatus_DisplayMessage(L["Copied to clipboard."], true)
+						if unitscanLC.FactoryEditBoxFocusChat then
+							local eBox = ChatEdit_ChooseBoxForSend()
+							ChatEdit_ActivateChat(eBox)
+						end
+					end)
+				end
+			end)
+			-- Prevent changes
+			-- eFrame.b:SetScript("OnEscapePressed", function() eFrame:Hide() end)
+			-- eFrame.b:SetScript("OnEnterPressed", eFrame.b.HighlightText)
+			-- eFrame.b:SetScript("OnMouseDown", eFrame.b.ClearFocus)
+			-- eFrame.b:SetScript("OnMouseUp", eFrame.b.HighlightText)
+			eFrame.b:SetScript("OnChar", function() eFrame.b:SetText(word); eFrame.b:HighlightText(); end);
+			eFrame.b:SetScript("OnMouseUp", function() eFrame.b:HighlightText(); end);
+			eFrame.b:SetScript("OnEscapePressed", function() eFrame:Hide() end)
+			eFrame.b:SetFocus(true)
+			eFrame.b:HighlightText()
+			eFrame:Show()
+		end
+		if focuschat then unitscanLC.FactoryEditBoxFocusChat = true else unitscanLC.FactoryEditBoxFocusChat = nil end
+		unitscanLC.FactoryEditBox:Show()
+		unitscanLC.FactoryEditBox.b:SetText(word)
+		unitscanLC.FactoryEditBox.b:HighlightText()
+		unitscanLC.FactoryEditBox.b:SetScript("OnChar", function() unitscanLC.FactoryEditBox.b:SetFocus(true) unitscanLC.FactoryEditBox.b:SetText(word) unitscanLC.FactoryEditBox.b:HighlightText() end)
+		unitscanLC.FactoryEditBox.b:SetScript("OnKeyUp", function() unitscanLC.FactoryEditBox.b:SetFocus(true) unitscanLC.FactoryEditBox.b:SetText(word) unitscanLC.FactoryEditBox.b:HighlightText() end)
+	end
+
+	-- Load a string variable or set it to default if it's not set to "On" or "Off"
+	function unitscanLC:LoadVarChk(var, def)
+		if unitscanDB[var] and type(unitscanDB[var]) == "string" and unitscanDB[var] == "On" or unitscanDB[var] == "Off" then
+			unitscanLC[var] = unitscanDB[var]
+		else
+			unitscanLC[var] = def
+			unitscanDB[var] = def
+		end
+	end
+
+	-- Load a numeric variable and set it to default if it's not within a given range
+	function unitscanLC:LoadVarNum(var, def, valmin, valmax)
+		if unitscanDB[var] and type(unitscanDB[var]) == "number" and unitscanDB[var] >= valmin and unitscanDB[var] <= valmax then
+			unitscanLC[var] = unitscanDB[var]
+		else
+			unitscanLC[var] = def
+			unitscanDB[var] = def
+		end
+	end
+
+	-- Load an anchor point variable and set it to default if the anchor point is invalid
+	function unitscanLC:LoadVarAnc(var, def)
+		if unitscanDB[var] and type(unitscanDB[var]) == "string" and unitscanDB[var] == "CENTER" or unitscanDB[var] == "TOP" or unitscanDB[var] == "BOTTOM" or unitscanDB[var] == "LEFT" or unitscanDB[var] == "RIGHT" or unitscanDB[var] == "TOPLEFT" or unitscanDB[var] == "TOPRIGHT" or unitscanDB[var] == "BOTTOMLEFT" or unitscanDB[var] == "BOTTOMRIGHT" then
+			unitscanLC[var] = unitscanDB[var]
+		else
+			unitscanLC[var] = def
+			unitscanDB[var] = def
+		end
+	end
+
+	-- Load a string variable and set it to default if it is not a string (used with minimap exclude list)
+	function unitscanLC:LoadVarStr(var, def)
+		if unitscanDB[var] and type(unitscanDB[var]) == "string" then
+			unitscanLC[var] = unitscanDB[var]
+		else
+			unitscanLC[var] = def
+			unitscanDB[var] = def
+		end
+	end
+
+	-- Show tooltips for checkboxes
+	function unitscanLC:TipSee()
+		GameTooltip:SetOwner(self, "ANCHOR_NONE")
+		local parent = self:GetParent()
+		local pscale = parent:GetEffectiveScale()
+		local gscale = UIParent:GetEffectiveScale()
+		local tscale = GameTooltip:GetEffectiveScale()
+		local gap = ((UIParent:GetRight() * gscale) - (parent:GetRight() * pscale))
+		if gap < (250 * tscale) then
+			GameTooltip:SetPoint("TOPRIGHT", parent, "TOPLEFT", 0, 0)
+		else
+			GameTooltip:SetPoint("TOPLEFT", parent, "TOPRIGHT", 0, 0)
+		end
+		GameTooltip:SetText(self.tiptext, nil, nil, nil, nil, true)
+	end
+
+	-- Show tooltips for dropdown menu tooltips
+	function unitscanLC:ShowDropTip()
+		GameTooltip:SetOwner(self, "ANCHOR_NONE")
+		local parent = self:GetParent():GetParent():GetParent()
+		local pscale = parent:GetEffectiveScale()
+		local gscale = UIParent:GetEffectiveScale()
+		local tscale = GameTooltip:GetEffectiveScale()
+		local gap = ((UIParent:GetRight() * gscale) - (parent:GetRight() * pscale))
+		if gap < (250 * tscale) then
+			GameTooltip:SetPoint("TOPRIGHT", parent, "TOPLEFT", 0, 0)
+		else
+			GameTooltip:SetPoint("TOPLEFT", parent, "TOPRIGHT", 0, 0)
+		end
+		GameTooltip:SetText(self.tiptext, nil, nil, nil, nil, true)
+	end
+
+	-- Show tooltips for configuration buttons and dropdown menus
+	function unitscanLC:ShowTooltip()
+		GameTooltip:SetOwner(self, "ANCHOR_NONE")
+		local parent = unitscanLC["PageF"]
+		local pscale = parent:GetEffectiveScale()
+		local gscale = UIParent:GetEffectiveScale()
+		local tscale = GameTooltip:GetEffectiveScale()
+		local gap = ((UIParent:GetRight() * gscale) - (unitscanLC["PageF"]:GetRight() * pscale))
+		if gap < (250 * tscale) then
+			GameTooltip:SetPoint("TOPRIGHT", parent, "TOPLEFT", 0, 0)
+		else
+			GameTooltip:SetPoint("TOPLEFT", parent, "TOPRIGHT", 0, 0)
+		end
+		GameTooltip:SetText(self.tiptext, nil, nil, nil, nil, true)
+	end
+
+	-- Create configuration button
+	function unitscanLC:CfgBtn(name, parent)
+		local CfgBtn = CreateFrame("BUTTON", nil, parent)
+		unitscanCB[name] = CfgBtn
+		CfgBtn:SetWidth(20)
+		CfgBtn:SetHeight(20)
+		CfgBtn:SetPoint("LEFT", parent.f, "RIGHT", 0, 0)
+
+		CfgBtn.t = CfgBtn:CreateTexture(nil, "BORDER")
+		CfgBtn.t:SetAllPoints()
+		CfgBtn.t:SetTexture("Interface\\WorldMap\\Gear_64.png")
+		CfgBtn.t:SetTexCoord(0, 0.50, 0, 0.50);
+		CfgBtn.t:SetVertexColor(1.0, 0.82, 0, 1.0)
+
+		CfgBtn:SetHighlightTexture("Interface\\WorldMap\\Gear_64.png")
+		CfgBtn:GetHighlightTexture():SetTexCoord(0, 0.50, 0, 0.50);
+
+		CfgBtn.tiptext = L["Click to configure the settings for this option."]
+		CfgBtn:SetScript("OnEnter", unitscanLC.ShowTooltip)
+		CfgBtn:SetScript("OnLeave", GameTooltip_Hide)
+	end
+
+	-- Create a help button to the right of a fontstring
+	function unitscanLC:CreateHelpButton(frame, panel, parent, tip)
+		unitscanLC:CfgBtn(frame, panel)
+		unitscanCB[frame]:ClearAllPoints()
+		unitscanCB[frame]:SetPoint("LEFT", parent, "RIGHT", -parent:GetWidth() + parent:GetStringWidth(), 0)
+		unitscanCB[frame]:SetSize(25, 25)
+		unitscanCB[frame].t:SetTexture("Interface\\COMMON\\help-i.blp")
+		unitscanCB[frame].t:SetTexCoord(0, 1, 0, 1)
+		unitscanCB[frame].t:SetVertexColor(0.9, 0.8, 0.0)
+		unitscanCB[frame]:SetHighlightTexture("Interface\\COMMON\\help-i.blp")
+		unitscanCB[frame]:GetHighlightTexture():SetTexCoord(0, 1, 0, 1)
+		unitscanCB[frame].tiptext = L[tip]
+		unitscanCB[frame]:SetScript("OnEnter", unitscanLC.TipSee)
+	end
+
+	-- Show a footer
+	function unitscanLC:MakeFT(frame, text, left, width)
+		local footer = unitscanLC:MakeTx(frame, text, left, 96)
+		footer:SetWidth(width); footer:SetJustifyH("LEFT"); footer:SetWordWrap(true); footer:ClearAllPoints()
+		footer:SetPoint("BOTTOMLEFT", left, 96)
+	end
+
+	-- Capitalise first character in a string
+	function unitscanLC:CapFirst(str)
+		return gsub(string.lower(str), "^%l", strupper)
+	end
+
+	-- Show memory usage stat
+	function unitscanLC:ShowMemoryUsage(frame, anchor, x, y)
+
+		-- Create frame
+		local memframe = CreateFrame("FRAME", nil, frame)
+		memframe:ClearAllPoints()
+		memframe:SetPoint(anchor, x, y)
+		memframe:SetWidth(100)
+		memframe:SetHeight(20)
+
+		-- Create labels
+		local pretext = memframe:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
+		pretext:SetPoint("TOPLEFT", 0, 0)
+		pretext:SetText(L["Memory Usage"])
+
+		local memtext = memframe:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
+		memtext:SetPoint("TOPLEFT", 0, 0 - 30)
+
+		-- Create stat
+		local memstat = memframe:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
+		memstat:SetPoint("BOTTOMLEFT", memtext, "BOTTOMRIGHT")
+		memstat:SetText("(calculating...)")
+
+		-- Create update script
+		local memtime = -1
+		memframe:SetScript("OnUpdate", function(self, elapsed)
+			if memtime > 2 or memtime == -1 then
+				UpdateAddOnMemoryUsage();
+				memtext = GetAddOnMemoryUsage("unitscan")
+				memtext = math.floor(memtext + .5) .. " KB"
+				memstat:SetText(memtext);
+				memtime = 0;
+			end
+			memtime = memtime + elapsed;
+		end)
+
+		-- Release memory
+		unitscanLC.ShowMemoryUsage = nil
+
+	end
+
+	-- Check if player is in LFG queue
+	function unitscanLC:IsInLFGQueue()
+		if unitscanLC["GameVer"] == "5" then
+			if GetLFGQueueStats(LE_LFG_CATEGORY_LFD) or GetLFGQueueStats(LE_LFG_CATEGORY_LFR) or GetLFGQueueStats(LE_LFG_CATEGORY_RF) then
+				return true
+			end
+		else
+			if MiniMapLFGFrame:IsShown() then return true end
+		end
+	end
+
+	-- Check if player is in combat
+	function unitscanLC:PlayerInCombat()
+		if (UnitAffectingCombat("player")) then
+			unitscanLC:Print("You cannot do that in combat.")
+			return true
+		end
+	end
+
+	--  Hide panel and pages
+	function unitscanLC:HideFrames()
+
+		-- Hide option pages
+		for i = 0, unitscanLC["NumberOfPages"] do
+			if unitscanLC["Page"..i] then
+				unitscanLC["Page"..i]:Hide();
+			end;
+		end
+
+		-- Hide options panel
+		unitscanLC["PageF"]:Hide();
+
+	end
+
+	-- Find out if Leatrix Plus is showing (main panel or config panel)
+	function unitscanLC:IsPlusShowing()
+		if unitscanLC["PageF"]:IsShown() then return true end
+		for k, v in pairs(usConfigList) do
+			if v:IsShown() then
+				return true
+			end
+		end
+	end
+
+-- Check if a name is in your friends list or guild (does not check realm as realm is unknown for some checks)
+function unitscanLC:FriendCheck(name)
+
+		-- Do nothing if name is empty (such as whispering from the Battle.net app)
+		if not name then return end
+
+		-- Update friends list
+		ShowFriends()
+
+		-- Remove realm if it exists
+		if name ~= nil then
+			name = strsplit("-", name, 2)
+		end
+
+		-- Check character friends
+		for i = 1, GetNumFriends() do
+			local friendName, _, _, _, friendConnected = GetFriendInfo(i)
+			if friendName ~= nil then -- Check if name is not nil
+				friendName = strsplit("-", friendName, 2)
+			end
+
+			if (name == friendName) and friendConnected then -- Check if name matches and friend is connected
+				return true
+			end
+		end
+
+		-- -- Check Battle.net friends -- obviously disable as there is no bnet friends in 3.3.5 and 2.4.3
+		-- local numfriends = BNGetNumFriends()
+		-- for i = 1, numfriends do
+		-- 	local numtoons = C_BattleNet.GetFriendNumGameAccounts(i)
+		-- 	for j = 1, numtoons do
+		-- 		local gameAccountInfo = C_BattleNet.GetFriendGameAccountInfo(i, j)
+		-- 		local characterName = gameAccountInfo.characterName
+		-- 		local client = gameAccountInfo.clientProgram
+		-- 		if client == "WoW" and characterName == name then
+		-- 			return true
+		-- 		end
+		-- 	end
+		-- end
+
+		-- Check guild members if guild is enabled (new members may need to press J to refresh roster)
+		if unitscanLC["FriendlyGuild"] == "On" then
+			local gCount = GetNumGuildMembers()
+			for i = 1, gCount do
+				local gName, void, void, void, void, void, void, void, gOnline = GetGuildRosterInfo(i)
+				if gOnline then
+					gName = strsplit("-", gName, 2)
+					-- Return true if character name matches
+					if (name == gName) then
+						return true
+					end
+				end
+			end
+		end
+
+	end	
 
 
 ---------------------------------------------------------------------------------------------------
@@ -25,37 +452,37 @@ local isWOTLK = select(4, GetBuildInfo()) == 30300 -- true if WOTLK 3.3.5
 ---------------------------------------------------------------------------------------------------
 
 
-unitscan:SetScript('OnUpdate', function() unitscan.UPDATE() end)
-unitscan:SetScript('OnEvent', function(_, event, arg1)
-	if event == 'ADDON_LOADED' and arg1 == 'unitscan' then
-		unitscan.LOAD()
-	elseif event == 'ADDON_ACTION_FORBIDDEN' and arg1 == 'unitscan' then
-		forbidden = true
-	elseif event == 'PLAYER_TARGET_CHANGED' then
-		if UnitName'target' and strupper(UnitName'target') == unitscan.button:GetText() and not GetRaidTargetIndex'target' and (not UnitInRaid'player' or IsRaidOfficer() or IsRaidLeader()) then
-			SetRaidTarget('target', 2)
-		end
-	elseif event == 'ZONE_CHANGED_NEW_AREA' or 'PLAYER_LOGIN' or 'PLAYER_UPDATE_RESTING' then
-		local loc = GetRealZoneText()
-		local _, instance_type = IsInInstance()
-		is_resting = IsResting()
-		nearby_targets = {}
+	unitscan:SetScript('OnUpdate', function() unitscan.UPDATE() end)
+	unitscan:SetScript('OnEvent', function(_, event, arg1)
+		if event == 'ADDON_LOADED' and arg1 == 'unitscan' then
+			unitscan.LOAD()
+		elseif event == 'ADDON_ACTION_FORBIDDEN' and arg1 == 'unitscan' then
+			forbidden = true
+		elseif event == 'PLAYER_TARGET_CHANGED' then
+			if UnitName'target' and strupper(UnitName'target') == unitscan.button:GetText() and not GetRaidTargetIndex'target' and (not UnitInRaid'player' or IsRaidOfficer() or IsRaidLeader()) then
+				SetRaidTarget('target', 2)
+			end
+		elseif event == 'ZONE_CHANGED_NEW_AREA' or 'PLAYER_LOGIN' or 'PLAYER_UPDATE_RESTING' then
+			local loc = GetRealZoneText()
+			local _, instance_type = IsInInstance()
+			is_resting = IsResting()
+			nearby_targets = {}
 
-		if instance_type == "raid" or instance_type == "pvp" then return end
-		if loc == nil then return end
+			if instance_type == "raid" or instance_type == "pvp" then return end
+			if loc == nil then return end
 
-		for name, zone in pairs(rare_spawns) do
-			if not unitscan_ignored[name] then
-				local reaction = UnitReaction("player", name)
-				if not reaction or reaction < 4 then reaction = true else reaction = false end
-				if reaction and (loc == zone or string.match(loc, zone) or zone == "A H") then 
-					table.insert(nearby_targets, name)
+			for name, zone in pairs(rare_spawns) do
+				if not unitscan_ignored[name] then
+					local reaction = UnitReaction("player", name)
+					if not reaction or reaction < 4 then reaction = true else reaction = false end
+					if reaction and (loc == zone or string.match(loc, zone) or zone == "A H") then 
+						table.insert(nearby_targets, name)
+					end
 				end
 			end
+			-- print("nearby_targets:", table.concat(nearby_targets, ", ")) -- Don't delete, it's a useful debug code to print what was added to the rare list scanning.
 		end
-		-- print("nearby_targets:", table.concat(nearby_targets, ", ")) -- Don't delete, it's a useful debug code to print what was added to the rare list scanning.
-	end
-end)
+	end)
 
 
 -------------------------------------------------------------------------------------
@@ -63,71 +490,71 @@ end)
 -------------------------------------------------------------------------------------
 
 
-function unitscan.refresh_nearby_targets()
-	-- print("Refreshed nearby rare list.")
-    local loc = GetRealZoneText()
-    local _, instance_type = IsInInstance()
-    is_resting = IsResting()
-    nearby_targets = {}
-    
-    if instance_type == "raid" or instance_type == "pvp" then return end
-    if loc == nil then return end
-    
-    for name, zone in pairs(rare_spawns) do
-        if not unitscan_ignored[name] then
-            local reaction = UnitReaction("player", name)
-            if not reaction or reaction < 4 then reaction = true else reaction = false end
-            if reaction and (loc == zone or string.match(loc, zone) or zone == "A H") then 
-                table.insert(nearby_targets, name)
-            end
-        end
-    end
+	function unitscan.refresh_nearby_targets()
+		-- print("Refreshed nearby rare list.")
+	    local loc = GetRealZoneText()
+	    local _, instance_type = IsInInstance()
+	    is_resting = IsResting()
+	    nearby_targets = {}
+	    
+	    if instance_type == "raid" or instance_type == "pvp" then return end
+	    if loc == nil then return end
+	    
+	    for name, zone in pairs(rare_spawns) do
+	        if not unitscan_ignored[name] then
+	            local reaction = UnitReaction("player", name)
+	            if not reaction or reaction < 4 then reaction = true else reaction = false end
+	            if reaction and (loc == zone or string.match(loc, zone) or zone == "A H") then 
+	                table.insert(nearby_targets, name)
+	            end
+	        end
+	    end
 
-    -- print("nearby_targets:", table.concat(nearby_targets, ", "))
-end
+	    -- print("nearby_targets:", table.concat(nearby_targets, ", "))
+	end
 
 
 --------------------------------------------------------------------------------
 -- Events
 --------------------------------------------------------------------------------
 
+	unitscan:RegisterEvent'ADDON_LOADED'
+	unitscan:RegisterEvent'ADDON_ACTION_FORBIDDEN'
+	unitscan:RegisterEvent'PLAYER_TARGET_CHANGED'
+	unitscan:RegisterEvent'ZONE_CHANGED_NEW_AREA'
+	unitscan:RegisterEvent'PLAYER_LOGIN'
+	unitscan:RegisterEvent'PLAYER_UPDATE_RESTING'
 
-unitscan:RegisterEvent'ADDON_LOADED'
-unitscan:RegisterEvent'ADDON_ACTION_FORBIDDEN'
-unitscan:RegisterEvent'PLAYER_TARGET_CHANGED'
-unitscan:RegisterEvent'ZONE_CHANGED_NEW_AREA'
-unitscan:RegisterEvent'PLAYER_LOGIN'
-unitscan:RegisterEvent'PLAYER_UPDATE_RESTING'
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
---===== Some Colors for borders of button =====--
-local BROWN = {.7, .15, .05}
-local YELLOW = {1, 1, .15}
+	--===== Some Colors for borders of button =====--
+	local BROWN = {.7, .15, .05}
+	local YELLOW = {1, 1, .15}
 
 
 --------------------------------------------------------------------------------
 -- Creating SavedVariables DB tables here. 
 --------------------------------------------------------------------------------
 
---===== DB Table for user-added targets via /unitscan "name" or /unitscan target =====--
-unitscan_targets = {}
+	--===== DB Table for user-added targets via /unitscan "name" or /unitscan target =====--
+	unitscan_targets = {}
 
---===== DB Table for user-added rare spawns to ignore from scanning =====--
-unitscan_ignored = {}
+	--===== DB Table for user-added rare spawns to ignore from scanning =====--
+	unitscan_ignored = {}
 
---===== DB Table for Default Settings =====--
-unitscan_defaults = {
-	CHECK_INTERVAL = .3,
-}
+	--===== DB Table for Default Settings =====--
+	unitscan_defaults = {
+		CHECK_INTERVAL = .3,
+	}
 
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
---===== Not a SavedVariables table to prevent spamming the alert. =====--
-local found = {}
+	--===== Not a SavedVariables table to prevent spamming the alert. =====--
+	local found = {}
 
 
 
@@ -765,7 +1192,7 @@ elseif currentLocale == "ruRU" then
 	["ГРЕТИР"] = "Силитус",
 	["ЗЛОВЕЩАЯ УТРОБА"] = "Тельдрассил",
 	["ТЕМНОЗУБ"] = "Альтеракская долина",
-	["КУББ"] = "Лок Модан",
+	["КУББ"] = "Лок Модан", -- english name is Grizlak, on diff. versions of wow this npc can also be named Гризлак in russian.
 	["ГРИЗЗЛ СНЕЖНАЯ ЛАПА"] = "Зимние Ключи",
 	["ГРУБТОР"] = "Силитус",
 	["ГРАФФ БЫСТРОХВАТ"] = "Элвиннский лес",
@@ -2049,18 +2476,21 @@ function unitscan.LOAD()
 
 	button:SetFrameStrata'LOW'
 	button:SetNormalTexture[[Interface\AddOns\unitscan\assets\UI-Achievement-Parchment-Horizontal]]
-	button:SetBackdrop{
-		tile = true,
-		edgeSize = 16,
-		edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
-	}
-	button:SetBackdropBorderColor(unpack(BROWN))
-	button:SetScript('OnEnter', function(self)
-		self:SetBackdropBorderColor(unpack(YELLOW))
-	end)
-	button:SetScript('OnLeave', function(self)
-		self:SetBackdropBorderColor(unpack(BROWN))
-	end)
+	
+	if isWOTLK or isTBC then
+		button:SetBackdrop{
+			tile = true,
+			edgeSize = 16,
+			edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
+		}
+		button:SetBackdropBorderColor(unpack(BROWN))
+		button:SetScript('OnEnter', function(self)
+			self:SetBackdropBorderColor(unpack(YELLOW))
+		end)
+		button:SetScript('OnLeave', function(self)
+			self:SetBackdropBorderColor(unpack(BROWN))
+		end)
+	end
 
 	function button:set_target(name)
 		-- string that adds name text to the button
@@ -2323,7 +2753,7 @@ SlashCmdList["UNITSCAN"] = function(parameter)
 		if args == "" then
 			-- print list of ignored NPCs
 			if next(unitscan_ignored) == nil then
-				print("")
+				print(" ")
 			unitscan.ignoreprint("list is empty.")
 			else
 			print("|cffff0000" .. " Ignore list " .. "|r"  .. "currently contains:")
@@ -2361,7 +2791,7 @@ SlashCmdList["UNITSCAN"] = function(parameter)
 
 	--===== Slash to avoid people confusion if they do /unitscan name =====--	
 	elseif command == "name" then
-		print("")
+		print(" ")
 		unitscan.print("replace |cffffff00'name'|r with npc you want to scan.")
 		print(" - for example: |cFF00FF00/unitscan|r |cffffff00Hogger|r")
 
@@ -2375,12 +2805,12 @@ SlashCmdList["UNITSCAN"] = function(parameter)
 
 	--===== Slash to show rare spawns that are currently being scanned. =====--	
 	elseif command == "nearby" then
-		print("")
+		print(" ")
 		unitscan.print("Is someone missing?")
 						print(" - Add it to your list with |cFF00FF00/unitscan|r |cffffff00name|r")
 				unitscan.print("|cffff0000ignore|r")
 				print(" - Adds/removes the rare mob 'name' from the unit scanner |cffff0000ignore list.|r")
-				print("")
+				print(" ")
 		for key,val in pairs(nearby_targets) do
 			if not (val == "Lumbering Horror" or val == "Spirit of the Damned" or val == "Bone Witch") then
 				unitscan.print(val)
@@ -2390,7 +2820,7 @@ SlashCmdList["UNITSCAN"] = function(parameter)
 	--===== Slash to show all avaliable commands =====--	
 	elseif command == 'help' then
 
-		print("")
+		print(" ")
 		print("|cfff0d440Available commands:|r")
 
 		unitscan.print("target")
@@ -2408,10 +2838,10 @@ SlashCmdList["UNITSCAN"] = function(parameter)
 	--===== Slash without any arguments (/untiscan) prints currently tracked user-defined units and some basic available slash commands  =====--
 	--===== If an agrugment after /unitscan is given, it will add a unit to the scanning targets. =====--
 	elseif not command then
-		print("")
+		print(" ")
 		unitscan.print("|cffffff00help|r")
 		print(" - Displays available unitscan |cffffff00commands|r")
-		print("")
+		print(" ")
 		if unitscan_targets then
 			if next(unitscan_targets) == nil then
 				unitscan.print("Unit Scanner is currently empty.")
