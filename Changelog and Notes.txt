@@ -1,0 +1,46 @@
+Changelog by Sattva 15th June 2023 #6;
+- Started to build a GUI.
+
+Changelog by Sattva 17th May 2023 #5;
+- Fixed non-english clients not being able to add scanned units via /unitscan 'name of mob/player in client language'.
+- Removed all avaliable commands usage from `/unitscan`, moved them to the `/unitscan help`
+- Added `/unitscan ignore` usage description.
+
+Changelog by Sattva 16th May 2023 #4;
+- Added zhCN - Chinese database of rare spawns, translated and corrected by a person who prefered to stay anonymous.
+- Fixed font for zhCN client unit name on button, was "?" symbol before.
+- Added comments to the lua code for a better readability and little cleanup.
+
+Changelog by Sattva 5th May 2023 #3;
+- Added frFR rare DB - by Macumba - https://github.com/Macumbafeh - French client database of rare spawns. Thanks to Macumba for changing and organizing all data in French!
+- Fixed some rares in DB by Sattva and Macumba
+- New slash command to change scan interval (default 0.3s), "/unitscan interval #newvaluehere" .
+- New slash command to stop scanning for certain rare mob "/unitscan ignore #nameofraremob" .
+- Removed line that was setting Error Speech to 0, constantly. (Some people may like to hear character speech.)
+
+Changelog by Sattva 27th April 2023 #2;
+- Fixed button set raid target mark while in raid (was retail API).
+- Added ruRU - Russian client database of rare spawns. (other locales need volunteers) Its big work.
+- Some small fixes so unitscan don't conflict with other addons. (lower strata, rename close button).
+- Added function to see name of found unit in chat if he was found during combat.
+
+Changelog by Sattva 21th April 2023 #1;
+- Addon is backported and ready to release.
+
+
+	To-Do List:
+Add ability to copy names of NPCs in chat after using /unitscan.
+Find a way to not add a dead unit to button.
+Make keybinds in default Blizzard Keybindings menu for Add/Remove current Target, Click button, Close button.
+Add a slash command to disable scanning entirely.
+Make scanning in raids optional via slash command, by default enabled. (Is it already disabled by default?)
+Add optional model viewer, via slash command, by default disabled.
+After adding new commands need to put them into /unitscan help command so that when someone do /unitscan to check for targets he doesnt get spammed with all of them.
+Add description of /ignore command in /unitscan slash.
+If the button was visible for user defined time and mob is out of range then hide the button (disabled by default)
+
+--------------------------------------------------------------------------------
+-- GUI
+--------------------------------------------------------------------------------
+Global - CheckBox at every page to set that one as home page.
+

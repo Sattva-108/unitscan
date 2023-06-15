@@ -1,0 +1,23 @@
+## Interface: 30300
+## X-GitHub-Repository: Sattva-108/unitscan-WoTLK-3.3.5
+## X-GitHub-Project-Homepage: https://github.com/Sattva-108/unitscan-TBC-2.4.3-WoTLK-3.3.5
+## X-GitHub-Project-Licence: MIT
+## X-GitHub-Project-Issues: https://github.com/Sattva-108/unitscan-TBC-2.4.3-WoTLK-3.3.5/issues
+## X-GitHub-Project-Download: https://github.com/Sattva-108/unitscan-TBC-2.4.3-WoTLK-3.3.5/archive/refs/heads/main.zip
+
+## Author: shirsig, tablegrapes, backport by Sattva
+## Title: unitscan
+## Version: 3.3.5
+## Notes: Unit scanner with flashy alert 
+## SavedVariables: unitscanDB, unitscan_defaults, unitscan_targets, unitscan_ignored
+
+
+libs\LibStub\LibStub.lua
+libs\LibCompat-1.0\lib.xml
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+Libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
+
+unitscan_Locale.lua
+unitscan_rarespawns.lua
+unitscan.lua
