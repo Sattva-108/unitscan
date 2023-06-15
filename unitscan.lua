@@ -440,8 +440,8 @@
 		end
 	end
 
--- Check if a name is in your friends list or guild (does not check realm as realm is unknown for some checks)
-function unitscanLC:FriendCheck(name)
+	-- Check if a name is in your friends list or guild (does not check realm as realm is unknown for some checks)
+	function unitscanLC:FriendCheck(name)
 
 		-- Do nothing if name is empty (such as whispering from the Battle.net app)
 		if not name then return end
@@ -466,20 +466,6 @@ function unitscanLC:FriendCheck(name)
 			end
 		end
 
-		-- -- Check Battle.net friends -- obviously disable as there is no bnet friends in 3.3.5 and 2.4.3
-		-- local numfriends = BNGetNumFriends()
-		-- for i = 1, numfriends do
-		-- 	local numtoons = C_BattleNet.GetFriendNumGameAccounts(i)
-		-- 	for j = 1, numtoons do
-		-- 		local gameAccountInfo = C_BattleNet.GetFriendGameAccountInfo(i, j)
-		-- 		local characterName = gameAccountInfo.characterName
-		-- 		local client = gameAccountInfo.clientProgram
-		-- 		if client == "WoW" and characterName == name then
-		-- 			return true
-		-- 		end
-		-- 	end
-		-- end
-
 		-- Check guild members if guild is enabled (new members may need to press J to refresh roster)
 		if unitscanLC["FriendlyGuild"] == "On" then
 			local gCount = GetNumGuildMembers()
@@ -494,7 +480,6 @@ function unitscanLC:FriendCheck(name)
 				end
 			end
 		end
-
 	end	
 
 
@@ -3171,3 +3156,4 @@ function unitscanLC:FriendCheck(name)
 	--end
 
 
+-- Test gitbash
