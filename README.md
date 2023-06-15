@@ -1,4 +1,4 @@
-# unitscan-TBC-2.4.3-WoTLK-3.3.5
+# unitscan-WoTLK-3.3.5
 Backport of **unitscan-rares** with extra functionality, that already has all rares listed.
 
 ![unitscan](https://user-images.githubusercontent.com/74269253/233365890-eac8b750-d256-4852-abb5-67f0224a7fe1.gif)
@@ -12,8 +12,8 @@ Backport of **unitscan-rares** with extra functionality, that already has all ra
 
 ## Download & Installation
 
-1. [Download](https://github.com/Sattva-108/unitscan-TBC-2.4.3-WoTLK-3.3.5/archive/refs/heads/main.zip) zip.
-2. Copy the `unitscan` folder within the "unitscan-TBC-3.3.5-main" folder inside the .zip into the game folder `"\Interface\AddOns\"`.    
+1. [Download](https://github.com/Sattva-108/unitscan-WoTLK-3.3.5/archive/refs/heads/main.zip) zip.
+2. Copy the `unitscan` folder within the "unitscan-WoTLK-3.3.5-main" folder inside the .zip into the game folder `"\Interface\AddOns\"`.    
 3. Replace/overwrite any existing files when copying.
 
 
@@ -60,4 +60,4 @@ You could also make a macro to close a button
 ```
 7. And more features, can't list all!
 
-#### `Changelog`, `To Do List` and `known bugs` can be viewed in [Changelog and Notes.txt](https://github.com/Sattva-108/unitscan-TBC-2.4.3-WoTLK-3.3.5/blob/main/unitscan/Changelog%20and%20Notes.txt) inside addon folder.
+#### `Changelog`, `To Do List` and `known bugs` can be viewed in [Changelog and Notes.txt](https://github.com/Sattva-108/unitscan-WoTLK-3.3.5/blob/main/unitscan/Changelog%20and%20Notes.txt) inside addon folder.
