@@ -578,11 +578,11 @@
 
 --	Set lock state for configuration buttons
 	function unitscanLC:SetDim()
-		unitscanLC:LockOption("AutomateQuests", "AutomateQuestsBtn", false)			-- Automate quests
-		unitscanLC:LockOption("AutoAcceptRes", "AutoAcceptResBtn", false)			-- Accept resurrection
-		unitscanLC:LockOption("AutoReleasePvP", "AutoReleasePvPBtn", false)			-- Release in PvP
-		unitscanLC:LockOption("AutoSellJunk", "AutoSellJunkBtn", false)				-- Sell junk automatically
-		unitscanLC:LockOption("AutoRepairGear", "AutoRepairBtn", false)				-- Repair automatically
+		--unitscanLC:LockOption("AutomateQuests", "AutomateQuestsBtn", false)			-- Automate quests
+		--unitscanLC:LockOption("AutoAcceptRes", "AutoAcceptResBtn", false)			-- Accept resurrection
+		--unitscanLC:LockOption("AutoReleasePvP", "AutoReleasePvPBtn", false)			-- Release in PvP
+		--unitscanLC:LockOption("AutoSellJunk", "AutoSellJunkBtn", false)				-- Sell junk automatically
+		--unitscanLC:LockOption("AutoRepairGear", "AutoRepairBtn", false)				-- Repair automatically
 		unitscanLC:LockOption("InviteFromWhisper", "InvWhisperBtn", false)			-- Invite from whispers
 		unitscanLC:LockOption("FilterChatMessages", "FilterChatMessagesBtn", true)	-- Filter chat messages
 		unitscanLC:LockOption("MailFontChange", "MailTextBtn", true)					-- Resize mail text
@@ -916,6 +916,79 @@
 		end
 
 		----------------------------------------------------------------------
+		-- Media player
+		----------------------------------------------------------------------
+
+		function unitscanLC:rare_spawns_list()
+			local eb = CreateFrame("Frame", nil, unitscanLC["Page1"])
+			eb:SetSize(300, 280)
+			eb:SetPoint("TOPLEFT", 400, -50)
+			eb:SetBackdrop({
+				bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+				edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight",
+				edgeSize = 16,
+				insets = {left = 8, right = 6, top = 8, bottom = 8},
+			})
+			eb:SetBackdropBorderColor(1.0, 0.85, 0.0, 0.5)
+			eb:SetScale(0.8)
+
+			eb.scroll = CreateFrame("ScrollFrame", nil, eb)
+			eb.scroll:SetPoint("TOPLEFT", eb, 12, -10)
+			eb.scroll:SetPoint("BOTTOMRIGHT", eb, -30, 10)
+
+			eb.Text = CreateFrame("EditBox", nil, eb)
+			eb.Text:SetMultiLine(true)
+			eb.Text:SetWidth(250)
+			eb.Text:SetPoint("TOPLEFT", eb.scroll)
+			eb.Text:SetPoint("BOTTOMRIGHT", eb.scroll)
+			eb.Text:SetMaxLetters(100000)
+			eb.Text:SetFontObject(GameFontNormalLarge)
+			eb.Text:SetAutoFocus(false)
+			eb.Text:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
+			eb.scroll:SetScrollChild(eb.Text)
+
+			-- Set focus on the editbox text when clicking the editbox
+			eb:SetScript("OnMouseDown", function()
+				eb.Text:SetFocus()
+				eb.Text:SetCursorPosition(eb.Text:GetMaxLetters())
+			end)
+
+			-- Scroll functionality
+			local scrollbar = CreateFrame("Slider", nil, eb.scroll, "UIPanelScrollBarTemplate")
+			scrollbar:SetPoint("TOPRIGHT", eb.scroll, "TOPRIGHT", 20, -14)
+			scrollbar:SetPoint("BOTTOMRIGHT", eb.scroll, "BOTTOMRIGHT", 20, 14)
+			scrollbar:SetMinMaxValues(1, 10000)
+			scrollbar:SetValueStep(1)
+			scrollbar:SetValue(1)
+			scrollbar:SetWidth(16)
+			scrollbar:SetScript("OnValueChanged", function(self, value)
+				self:GetParent():SetVerticalScroll(value)
+			end)
+
+			eb.scroll.ScrollBar = scrollbar
+			eb.scroll:SetScrollChild(eb.Text)
+
+			-- Mouse wheel scrolling
+			eb.scroll:EnableMouseWheel(true)
+			eb.scroll:SetScript("OnMouseWheel", function(self, delta)
+				scrollbar:SetValue(scrollbar:GetValue() - delta * 250)
+			end)
+
+			unitscan_LoadRareSpawns()
+
+			for name, zone in pairs(rare_spawns) do
+				eb.Text:Insert(name.."\n")
+			end
+		end
+
+		-- Run on startup
+		unitscanLC:rare_spawns_list()
+
+		-- Release memory
+		unitscanLC.rare_spawns_list = nil
+
+
+		----------------------------------------------------------------------
 		-- Panel alpha
 		----------------------------------------------------------------------
 
@@ -1009,26 +1082,26 @@
 				UpdateVars("MuteStriders", "MuteMechSteps")					-- 2.5.108 (1st June 2022)
 				UpdateVars("MinimapMod", "MinimapModder")					-- 2.5.120 (24th August 2022)
 
-				-- Automation
-				unitscanLC:LoadVarChk("AutomateQuests", "Off")				-- Automate quests
-				unitscanLC:LoadVarChk("AutoQuestShift", "Off")				-- Automate quests requires shift
-				unitscanLC:LoadVarChk("AutoQuestAvailable", "On")			-- Accept available quests
-				unitscanLC:LoadVarChk("AutoQuestCompleted", "On")			-- Turn-in completed quests
-				unitscanLC:LoadVarNum("AutoQuestKeyMenu", 1, 1, 4)			-- Automate quests override key
-				unitscanLC:LoadVarChk("AutomateGossip", "Off")				-- Automate gossip
-				unitscanLC:LoadVarChk("AutoAcceptSummon", "Off")				-- Accept summon
-				unitscanLC:LoadVarChk("AutoAcceptRes", "Off")				-- Accept resurrection
-				unitscanLC:LoadVarChk("AutoResNoCombat", "On")				-- Accept resurrection exclude combat
-				unitscanLC:LoadVarChk("AutoReleasePvP", "Off")				-- Release in PvP
-				unitscanLC:LoadVarChk("AutoReleaseNoAlterac", "Off")			-- Release in PvP Exclude Alterac Valley
-				unitscanLC:LoadVarNum("AutoReleaseDelay", 200, 200, 3000)	-- Release in PvP Delay
+				---- Automation
+				--unitscanLC:LoadVarChk("AutomateQuests", "Off")				-- Automate quests
+				--unitscanLC:LoadVarChk("AutoQuestShift", "Off")				-- Automate quests requires shift
+				--unitscanLC:LoadVarChk("AutoQuestAvailable", "On")			-- Accept available quests
+				--unitscanLC:LoadVarChk("AutoQuestCompleted", "On")			-- Turn-in completed quests
+				--unitscanLC:LoadVarNum("AutoQuestKeyMenu", 1, 1, 4)			-- Automate quests override key
+				--unitscanLC:LoadVarChk("AutomateGossip", "Off")				-- Automate gossip
+				--unitscanLC:LoadVarChk("AutoAcceptSummon", "Off")				-- Accept summon
+				--unitscanLC:LoadVarChk("AutoAcceptRes", "Off")				-- Accept resurrection
+				--unitscanLC:LoadVarChk("AutoResNoCombat", "On")				-- Accept resurrection exclude combat
+				--unitscanLC:LoadVarChk("AutoReleasePvP", "Off")				-- Release in PvP
+				--unitscanLC:LoadVarChk("AutoReleaseNoAlterac", "Off")			-- Release in PvP Exclude Alterac Valley
+				--unitscanLC:LoadVarNum("AutoReleaseDelay", 200, 200, 3000)	-- Release in PvP Delay
 
-				unitscanLC:LoadVarChk("AutoSellJunk", "Off")					-- Sell junk automatically
-				unitscanLC:LoadVarChk("AutoSellShowSummary", "On")			-- Sell junk summary in chat
-				unitscanLC:LoadVarStr("AutoSellExcludeList", "")				-- Sell junk exclude list
-				unitscanLC:LoadVarChk("AutoRepairGear", "Off")				-- Repair automatically
-				unitscanLC:LoadVarChk("AutoRepairGuildFunds", "On")			-- Repair using guild funds
-				unitscanLC:LoadVarChk("AutoRepairShowSummary", "On")			-- Repair show summary in chat
+				--unitscanLC:LoadVarChk("AutoSellJunk", "Off")					-- Sell junk automatically
+				--unitscanLC:LoadVarChk("AutoSellShowSummary", "On")			-- Sell junk summary in chat
+				--unitscanLC:LoadVarStr("AutoSellExcludeList", "")				-- Sell junk exclude list
+				--unitscanLC:LoadVarChk("AutoRepairGear", "Off")				-- Repair automatically
+				--unitscanLC:LoadVarChk("AutoRepairGuildFunds", "On")			-- Repair using guild funds
+				--unitscanLC:LoadVarChk("AutoRepairShowSummary", "On")			-- Repair show summary in chat
 
 				-- Social
 				unitscanLC:LoadVarChk("NoDuelRequests", "Off")				-- Block duels
@@ -1420,26 +1493,26 @@
 			-- Run the logout function without wipe flag
 			unitscanLC:PlayerLogout(false)
 
-			-- Automation
-			unitscanDB["AutomateQuests"]			= unitscanLC["AutomateQuests"]
-			unitscanDB["AutoQuestShift"]			= unitscanLC["AutoQuestShift"]
-			unitscanDB["AutoQuestAvailable"]		= unitscanLC["AutoQuestAvailable"]
-			unitscanDB["AutoQuestCompleted"]		= unitscanLC["AutoQuestCompleted"]
-			unitscanDB["AutoQuestKeyMenu"]		= unitscanLC["AutoQuestKeyMenu"]
-			unitscanDB["AutomateGossip"]			= unitscanLC["AutomateGossip"]
-			unitscanDB["AutoAcceptSummon"] 		= unitscanLC["AutoAcceptSummon"]
-			unitscanDB["AutoAcceptRes"] 			= unitscanLC["AutoAcceptRes"]
-			unitscanDB["AutoResNoCombat"] 		= unitscanLC["AutoResNoCombat"]
-			unitscanDB["AutoReleasePvP"] 		= unitscanLC["AutoReleasePvP"]
-			unitscanDB["AutoReleaseNoAlterac"] 	= unitscanLC["AutoReleaseNoAlterac"]
-			unitscanDB["AutoReleaseDelay"] 		= unitscanLC["AutoReleaseDelay"]
+			---- Automation
+			--unitscanDB["AutomateQuests"]			= unitscanLC["AutomateQuests"]
+			--unitscanDB["AutoQuestShift"]			= unitscanLC["AutoQuestShift"]
+			--unitscanDB["AutoQuestAvailable"]		= unitscanLC["AutoQuestAvailable"]
+			--unitscanDB["AutoQuestCompleted"]		= unitscanLC["AutoQuestCompleted"]
+			--unitscanDB["AutoQuestKeyMenu"]		= unitscanLC["AutoQuestKeyMenu"]
+			--unitscanDB["AutomateGossip"]			= unitscanLC["AutomateGossip"]
+			--unitscanDB["AutoAcceptSummon"] 		= unitscanLC["AutoAcceptSummon"]
+			--unitscanDB["AutoAcceptRes"] 			= unitscanLC["AutoAcceptRes"]
+			--unitscanDB["AutoResNoCombat"] 		= unitscanLC["AutoResNoCombat"]
+			--unitscanDB["AutoReleasePvP"] 		= unitscanLC["AutoReleasePvP"]
+			--unitscanDB["AutoReleaseNoAlterac"] 	= unitscanLC["AutoReleaseNoAlterac"]
+			--unitscanDB["AutoReleaseDelay"] 		= unitscanLC["AutoReleaseDelay"]
 
-			unitscanDB["AutoSellJunk"] 			= unitscanLC["AutoSellJunk"]
-			unitscanDB["AutoSellShowSummary"] 	= unitscanLC["AutoSellShowSummary"]
-			unitscanDB["AutoSellExcludeList"] 	= unitscanLC["AutoSellExcludeList"]
-			unitscanDB["AutoRepairGear"] 		= unitscanLC["AutoRepairGear"]
-			unitscanDB["AutoRepairGuildFunds"] 	= unitscanLC["AutoRepairGuildFunds"]
-			unitscanDB["AutoRepairShowSummary"] 	= unitscanLC["AutoRepairShowSummary"]
+			--unitscanDB["AutoSellJunk"] 			= unitscanLC["AutoSellJunk"]
+			--unitscanDB["AutoSellShowSummary"] 	= unitscanLC["AutoSellShowSummary"]
+			--unitscanDB["AutoSellExcludeList"] 	= unitscanLC["AutoSellExcludeList"]
+			--unitscanDB["AutoRepairGear"] 		= unitscanLC["AutoRepairGear"]
+			--unitscanDB["AutoRepairGuildFunds"] 	= unitscanLC["AutoRepairGuildFunds"]
+			--unitscanDB["AutoRepairShowSummary"] 	= unitscanLC["AutoRepairShowSummary"]
 
 			-- Social
 			unitscanDB["NoDuelRequests"] 		= unitscanLC["NoDuelRequests"]
@@ -2410,22 +2483,23 @@
 
 	pg = "Page1";
 
-	unitscanLC:MakeTx(unitscanLC[pg], "Character"					, 	146, -72);
-	unitscanLC:MakeCB(unitscanLC[pg], "AutomateQuests"			,	"Automate quests"				,	146, -92, 	false,	"If checked, quests will be selected, accepted and turned-in automatically.|n|nQuests which have a gold requirement will not be turned-in automatically.")
-	unitscanLC:MakeCB(unitscanLC[pg], "AutomateGossip"			,	"Automate gossip"				,	146, -112, 	false,	"If checked, you can hold down the alt key while opening a gossip window to automatically select a single gossip item.|n|nIf the gossip item type is banker, taxi, trainer, vendor, battlemaster or stable master, gossip will be skipped without needing to hold the alt key.  You can hold the shift key down to prevent this.")
-	unitscanLC:MakeCB(unitscanLC[pg], "AutoAcceptSummon"			,	"Accept summon"					, 	146, -132, 	false,	"If checked, summon requests will be accepted automatically unless you are in combat.")
-	unitscanLC:MakeCB(unitscanLC[pg], "AutoAcceptRes"				,	"Accept resurrection"			, 	146, -152, 	false,	"If checked, resurrection requests will be accepted automatically.")
-	unitscanLC:MakeCB(unitscanLC[pg], "AutoReleasePvP"			,	"Release in PvP"				, 	146, -172, 	false,	"If checked, you will release automatically after you die in a battleground.|n|nYou will not release automatically if you have the ability to self-resurrect.")
 
-	unitscanLC:MakeTx(unitscanLC[pg], "Vendors"					, 	340, -72);
-	unitscanLC:MakeCB(unitscanLC[pg], "AutoSellJunk"				,	"Sell junk automatically"		,	340, -92, 	false,	"If checked, all grey items in your bags will be sold automatically when you visit a merchant.|n|nYou can hold the shift key down when you talk to a merchant to override this setting.")
-	unitscanLC:MakeCB(unitscanLC[pg], "AutoRepairGear"			, 	"Repair automatically"			,	340, -112, 	false,	"If checked, your gear will be repaired automatically when you visit a suitable merchant.|n|nYou can hold the shift key down when you talk to a merchant to override this setting.")
+	--unitscanLC:MakeTx(unitscanLC[pg], "Character"					, 	146, -72);
+	--unitscanLC:MakeCB(unitscanLC[pg], "AutomateQuests"			,	"Automate quests"				,	146, -92, 	false,	"If checked, quests will be selected, accepted and turned-in automatically.|n|nQuests which have a gold requirement will not be turned-in automatically.")
+	--unitscanLC:MakeCB(unitscanLC[pg], "AutomateGossip"			,	"Automate gossip"				,	146, -112, 	false,	"If checked, you can hold down the alt key while opening a gossip window to automatically select a single gossip item.|n|nIf the gossip item type is banker, taxi, trainer, vendor, battlemaster or stable master, gossip will be skipped without needing to hold the alt key.  You can hold the shift key down to prevent this.")
+	--unitscanLC:MakeCB(unitscanLC[pg], "AutoAcceptSummon"			,	"Accept summon"					, 	146, -132, 	false,	"If checked, summon requests will be accepted automatically unless you are in combat.")
+	--unitscanLC:MakeCB(unitscanLC[pg], "AutoAcceptRes"				,	"Accept resurrection"			, 	146, -152, 	false,	"If checked, resurrection requests will be accepted automatically.")
+	--unitscanLC:MakeCB(unitscanLC[pg], "AutoReleasePvP"			,	"Release in PvP"				, 	146, -172, 	false,	"If checked, you will release automatically after you die in a battleground.|n|nYou will not release automatically if you have the ability to self-resurrect.")
 
-	unitscanLC:CfgBtn("AutomateQuestsBtn", unitscanCB["AutomateQuests"])
-	unitscanLC:CfgBtn("AutoAcceptResBtn", unitscanCB["AutoAcceptRes"])
-	unitscanLC:CfgBtn("AutoReleasePvPBtn", unitscanCB["AutoReleasePvP"])
-	unitscanLC:CfgBtn("AutoSellJunkBtn", unitscanCB["AutoSellJunk"])
-	unitscanLC:CfgBtn("AutoRepairBtn", unitscanCB["AutoRepairGear"])
+	--unitscanLC:MakeTx(unitscanLC[pg], "Vendors"					, 	340, -72);
+	--unitscanLC:MakeCB(unitscanLC[pg], "AutoSellJunk"				,	"Sell junk automatically"		,	340, -92, 	false,	"If checked, all grey items in your bags will be sold automatically when you visit a merchant.|n|nYou can hold the shift key down when you talk to a merchant to override this setting.")
+	--unitscanLC:MakeCB(unitscanLC[pg], "AutoRepairGear"			, 	"Repair automatically"			,	340, -112, 	false,	"If checked, your gear will be repaired automatically when you visit a suitable merchant.|n|nYou can hold the shift key down when you talk to a merchant to override this setting.")
+
+	--unitscanLC:CfgBtn("AutomateQuestsBtn", unitscanCB["AutomateQuests"])
+	--unitscanLC:CfgBtn("AutoAcceptResBtn", unitscanCB["AutoAcceptRes"])
+	--unitscanLC:CfgBtn("AutoReleasePvPBtn", unitscanCB["AutoReleasePvP"])
+	--unitscanLC:CfgBtn("AutoSellJunkBtn", unitscanCB["AutoSellJunk"])
+	--unitscanLC:CfgBtn("AutoRepairBtn", unitscanCB["AutoRepairGear"])
 
 ----------------------------------------------------------------------
 -- 	LC2: Social
@@ -3156,4 +3230,5 @@
 	--end
 
 
--- Test gitbash
+
+
