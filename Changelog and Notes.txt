@@ -1,3 +1,8 @@
+--------------------------------------------------------------------------------
+-- Changelog comments.
+--------------------------------------------------------------------------------
+
+
 Changelog by Sattva 15th June 2023 #6;
 - Started to build a GUI.
 
@@ -28,7 +33,29 @@ Changelog by Sattva 21th April 2023 #1;
 - Addon is backported and ready to release.
 
 
-	To-Do List:
+
+--------------------------------------------------------------------------------
+-- Before GUI push to main branch To-Do list.
+--------------------------------------------------------------------------------
+
+GUI - check what will happen to rare spawns list if localization is not recognized.
+
+
+
+
+--------------------------------------------------------------------------------
+-- User Interface To-Do list.
+--------------------------------------------------------------------------------
+
+Global - CheckBox at every page to set that one as home page.
+
+
+
+
+--------------------------------------------------------------------------------
+-- Non-Sorted To-Do list.
+--------------------------------------------------------------------------------
+
 Add ability to copy names of NPCs in chat after using /unitscan.
 Find a way to not add a dead unit to button.
 Make keybinds in default Blizzard Keybindings menu for Add/Remove current Target, Click button, Close button.
@@ -38,9 +65,3 @@ Add optional model viewer, via slash command, by default disabled.
 After adding new commands need to put them into /unitscan help command so that when someone do /unitscan to check for targets he doesnt get spammed with all of them.
 Add description of /ignore command in /unitscan slash.
 If the button was visible for user defined time and mob is out of range then hide the button (disabled by default)
-
---------------------------------------------------------------------------------
--- GUI
---------------------------------------------------------------------------------
-Global - CheckBox at every page to set that one as home page.
-

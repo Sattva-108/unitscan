@@ -916,10 +916,15 @@
 		end
 
 		----------------------------------------------------------------------
-		-- Media player
+		-- Rare Spawns List
 		----------------------------------------------------------------------
 
+
 		function unitscanLC:rare_spawns_list()
+
+			-- First - Load the Database of Rare Mobs.
+			unitscan_LoadRareSpawns()
+
 			local eb = CreateFrame("Frame", nil, unitscanLC["Page1"])
 			eb:SetSize(300, 280)
 			eb:SetPoint("TOPLEFT", 400, -50)
@@ -943,39 +948,54 @@
 			contentFrame:SetSize(eb:GetWidth() - 30, maxVisibleButtons * buttonHeight)
 			contentFrame.Buttons = {}
 
+			-- Sort rare spawns by zone
+			local sortedSpawns = {}
+			for name, zone in pairs(rare_spawns) do
+				sortedSpawns[zone] = sortedSpawns[zone] or {}
+				table.insert(sortedSpawns[zone], name)
+			end
+
 			-- Create buttons
-			for i = 1, maxVisibleButtons do
-				local button = CreateFrame("Button", nil, contentFrame)
-				button:SetSize(contentFrame:GetWidth(), buttonHeight)
-				button:SetPoint("TOPLEFT", 0, -(i - 1) * buttonHeight)
+			local index = 1
+			for zone, mobs in pairs(sortedSpawns) do
+				for _, name in ipairs(mobs) do
+					if index <= maxVisibleButtons then
+						local button = CreateFrame("Button", nil, contentFrame)
+						button:SetSize(contentFrame:GetWidth(), buttonHeight)
+						button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
 
-				-- Create a texture region within the button frame
-				local texture = button:CreateTexture(nil, "BACKGROUND")
-				texture:SetAllPoints(true)
-				texture:SetTexture("Interface\\Buttons\\WHITE8X8")
-				texture:SetVertexColor(1.0, 0.5, 0.0, 0.8)
-				texture:Hide()
+						-- Create a texture region within the button frame
+						local texture = button:CreateTexture(nil, "BACKGROUND")
+						texture:SetAllPoints(true)
+						texture:SetTexture("Interface\\Buttons\\WHITE8X8")
+						texture:SetVertexColor(1.0, 0.5, 0.0, 0.8)
+						texture:Hide()
 
-				button.Text = button:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-				button.Text:SetPoint("LEFT", 5, 0)
+						button.Text = button:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+						button.Text:SetPoint("LEFT", 5, 0)
 
-				button:SetScript("OnClick", function(self)
-					-- Handle button click event here
-					print("Button clicked: " .. self.Text:GetText())
-				end)
+						button:SetScript("OnClick", function(self)
+							-- Handle button click event here
+							print("Button clicked: " .. self.Text:GetText())
+						end)
 
-				button:SetScript("OnEnter", function(self)
-					-- Handle button click event here
-					texture:Show()
-				end)
+						button:SetScript("OnEnter", function(self)
+							-- Handle button click event here
+							texture:Show()
+						end)
 
-				button:SetScript("OnLeave", function(self)
-					-- Handle button click event here
-					texture:Hide()
-				end)
+						button:SetScript("OnLeave", function(self)
+							-- Handle button click event here
+							texture:Hide()
+						end)
 
+						button.Text:SetText(name)
+						button:Show()
 
-				contentFrame.Buttons[i] = button
+						contentFrame.Buttons[index] = button
+					end
+					index = index + 1
+				end
 			end
 
 			eb.scroll:SetScrollChild(contentFrame)
@@ -984,6 +1004,7 @@
 			local scrollbar = CreateFrame("Slider", nil, eb.scroll, "UIPanelScrollBarTemplate")
 			scrollbar:SetPoint("TOPRIGHT", eb.scroll, "TOPRIGHT", 20, -14)
 			scrollbar:SetPoint("BOTTOMRIGHT", eb.scroll, "BOTTOMRIGHT", 20, 14)
+
 			scrollbar:SetMinMaxValues(1, 8300)
 			scrollbar:SetValueStep(1)
 			scrollbar:SetValue(1)
@@ -1000,21 +1021,13 @@
 				scrollbar:SetValue(scrollbar:GetValue() - delta * 250)
 			end)
 
-			unitscan_LoadRareSpawns()
-
-			local index = 1
-			for name, zone in pairs(rare_spawns) do
-				if index <= maxVisibleButtons then
-					contentFrame.Buttons[index].Text:SetText(name)
-					contentFrame.Buttons[index]:Show()
-				end
-				index = index + 1
-			end
-
 			-- Hide unused buttons
 			for i = index, maxVisibleButtons do
-				contentFrame.Buttons[i]:Hide()
+				if contentFrame.Buttons[i] then
+					contentFrame.Buttons[i]:Hide()
+				end
 			end
+
 		end
 
 		-- Run on startup
