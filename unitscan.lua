@@ -925,8 +925,13 @@
 			-- First - Load the Database of Rare Mobs.
 			unitscan_LoadRareSpawns()
 
+			--------------------------------------------------------------------------------
+			-- Create Frame for rare mob buttons
+			--------------------------------------------------------------------------------
+
+
 			local eb = CreateFrame("Frame", nil, unitscanLC["Page1"])
-			eb:SetSize(300, 280)
+			eb:SetSize(220, 280)
 			eb:SetPoint("TOPLEFT", 400, -50)
 			eb:SetBackdrop({
 				bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
@@ -1027,6 +1032,105 @@
 					contentFrame.Buttons[i]:Hide()
 				end
 			end
+
+		    
+			--------------------------------------------------------------------------------
+			-- Create a separate frame for zone buttons
+			--------------------------------------------------------------------------------
+
+
+		    local zoneFrame = CreateFrame("Frame", nil, eb)
+		    zoneFrame:SetSize(150, 280)
+		    zoneFrame:SetPoint("TOPRIGHT", eb, "TOPLEFT", 0, 0)
+		    zoneFrame:SetBackdrop({
+		        bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+		        edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight",
+		        edgeSize = 16,
+		        insets = {left = 8, right = 6, top = 8, bottom = 8},
+		    })
+		    zoneFrame:SetBackdropBorderColor(1.0, 0.85, 0.0, 0.5)
+		    zoneFrame:SetScale(1)
+
+		    zoneFrame.scroll = CreateFrame("ScrollFrame", nil, zoneFrame)
+		    zoneFrame.scroll:SetPoint("TOPLEFT", zoneFrame, 12, -10)
+		    zoneFrame.scroll:SetPoint("BOTTOMRIGHT", zoneFrame, -30, 10)
+
+		    local buttonHeight = 20
+		    local maxVisibleButtons = 10
+
+		    local zoneContentFrame = CreateFrame("Frame", nil, zoneFrame.scroll)
+		    zoneContentFrame:SetSize(zoneFrame:GetWidth() - 30, maxVisibleButtons * buttonHeight)
+		    zoneContentFrame.Buttons = {}
+
+		    -- Create zone buttons
+		    local zoneIndex = 1
+		    for zone, mobs in pairs(sortedSpawns) do
+		        if zoneIndex <= maxVisibleButtons then
+		            local zoneButton = CreateFrame("Button", nil, zoneContentFrame)
+		            zoneButton:SetSize(zoneContentFrame:GetWidth(), buttonHeight)
+		            zoneButton:SetPoint("TOPLEFT", 0, -(zoneIndex - 1) * buttonHeight)
+
+		            local zoneTexture = zoneButton:CreateTexture(nil, "BACKGROUND")
+		            zoneTexture:SetAllPoints(true)
+		            zoneTexture:SetTexture("Interface\\Buttons\\WHITE8X8")
+		            zoneTexture:SetVertexColor(0.0, 0.5, 1.0, 0.8)
+		            zoneTexture:Hide()
+
+		            zoneButton.Text = zoneButton:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+		            zoneButton.Text:SetPoint("LEFT", 5, 0)
+
+		            zoneButton:SetScript("OnClick", function(self)
+		                -- Handle zone button click event here
+		                print("Zone button clicked: " .. self.Text:GetText())
+		            end)
+
+		            zoneButton:SetScript("OnEnter", function(self)
+		                -- Handle zone button mouse enter event here
+		                zoneTexture:Show()
+		            end)
+
+		            zoneButton:SetScript("OnLeave", function(self)
+		                -- Handle zone button mouse leave event here
+		                zoneTexture:Hide()
+		            end)
+
+		            zoneButton.Text:SetText(zone)
+		            zoneButton:Show()
+
+		            zoneContentFrame.Buttons[zoneIndex] = zoneButton
+		        end
+		        zoneIndex = zoneIndex + 1
+		    end
+
+		    zoneFrame.scroll:SetScrollChild(zoneContentFrame)
+
+			-- Scroll functionality for zone buttons
+		    local zoneScrollbar = CreateFrame("Slider", nil, zoneFrame.scroll, "UIPanelScrollBarTemplate")
+		    zoneScrollbar:SetPoint("TOPRIGHT", zoneFrame.scroll, "TOPRIGHT", 20, -14)
+		    zoneScrollbar:SetPoint("BOTTOMRIGHT", zoneFrame.scroll, "BOTTOMRIGHT", 20, 14)
+
+		    zoneScrollbar:SetMinMaxValues(1, maxVisibleButtons)
+		    zoneScrollbar:SetValueStep(1)
+		    zoneScrollbar:SetValue(1)
+		    zoneScrollbar:SetWidth(16)
+		    zoneScrollbar:SetScript("OnValueChanged", function(self, value)
+		        self:GetParent():SetVerticalScroll(value)
+		    end)
+
+		    zoneFrame.scroll.ScrollBar = zoneScrollbar
+
+		    -- Mouse wheel scrolling for zone buttons
+		    zoneFrame.scroll:EnableMouseWheel(true)
+		    zoneFrame.scroll:SetScript("OnMouseWheel", function(self, delta)
+		        zoneScrollbar:SetValue(zoneScrollbar:GetValue() - delta)
+		    end)
+
+		    -- Hide unused zone buttons
+		    for i = zoneIndex, maxVisibleButtons do
+		        if zoneContentFrame.Buttons[i] then
+		            zoneContentFrame.Buttons[i]:Hide()
+		        end
+		    end
 
 		end
 
