@@ -936,28 +936,55 @@
 			eb.scroll:SetPoint("TOPLEFT", eb, 12, -10)
 			eb.scroll:SetPoint("BOTTOMRIGHT", eb, -30, 10)
 
-			eb.Text = CreateFrame("EditBox", nil, eb)
-			eb.Text:SetMultiLine(true)
-			eb.Text:SetWidth(250)
-			eb.Text:SetPoint("TOPLEFT", eb.scroll)
-			eb.Text:SetPoint("BOTTOMRIGHT", eb.scroll)
-			eb.Text:SetMaxLetters(100000)
-			eb.Text:SetFontObject(GameFontNormalLarge)
-			eb.Text:SetAutoFocus(false)
-			eb.Text:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
-			eb.scroll:SetScrollChild(eb.Text)
+			local buttonHeight = 20
+			local maxVisibleButtons = 450
 
-			-- Set focus on the editbox text when clicking the editbox
-			eb:SetScript("OnMouseDown", function()
-				eb.Text:SetFocus()
-				eb.Text:SetCursorPosition(eb.Text:GetMaxLetters())
-			end)
+			local contentFrame = CreateFrame("Frame", nil, eb.scroll)
+			contentFrame:SetSize(eb:GetWidth() - 30, maxVisibleButtons * buttonHeight)
+			contentFrame.Buttons = {}
+
+			-- Create buttons
+			for i = 1, maxVisibleButtons do
+				local button = CreateFrame("Button", nil, contentFrame)
+				button:SetSize(contentFrame:GetWidth(), buttonHeight)
+				button:SetPoint("TOPLEFT", 0, -(i - 1) * buttonHeight)
+
+				-- Create a texture region within the button frame
+				local texture = button:CreateTexture(nil, "BACKGROUND")
+				texture:SetAllPoints(true)
+				texture:SetTexture("Interface\\Buttons\\WHITE8X8")
+				texture:SetVertexColor(1.0, 0.5, 0.0, 0.8)
+				texture:Hide()
+
+				button.Text = button:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+				button.Text:SetPoint("LEFT", 5, 0)
+
+				button:SetScript("OnClick", function(self)
+					-- Handle button click event here
+					print("Button clicked: " .. self.Text:GetText())
+				end)
+
+				button:SetScript("OnEnter", function(self)
+					-- Handle button click event here
+					texture:Show()
+				end)
+
+				button:SetScript("OnLeave", function(self)
+					-- Handle button click event here
+					texture:Hide()
+				end)
+
+
+				contentFrame.Buttons[i] = button
+			end
+
+			eb.scroll:SetScrollChild(contentFrame)
 
 			-- Scroll functionality
 			local scrollbar = CreateFrame("Slider", nil, eb.scroll, "UIPanelScrollBarTemplate")
 			scrollbar:SetPoint("TOPRIGHT", eb.scroll, "TOPRIGHT", 20, -14)
 			scrollbar:SetPoint("BOTTOMRIGHT", eb.scroll, "BOTTOMRIGHT", 20, 14)
-			scrollbar:SetMinMaxValues(1, 10000)
+			scrollbar:SetMinMaxValues(1, 8300)
 			scrollbar:SetValueStep(1)
 			scrollbar:SetValue(1)
 			scrollbar:SetWidth(16)
@@ -966,7 +993,6 @@
 			end)
 
 			eb.scroll.ScrollBar = scrollbar
-			eb.scroll:SetScrollChild(eb.Text)
 
 			-- Mouse wheel scrolling
 			eb.scroll:EnableMouseWheel(true)
@@ -976,8 +1002,18 @@
 
 			unitscan_LoadRareSpawns()
 
+			local index = 1
 			for name, zone in pairs(rare_spawns) do
-				eb.Text:Insert(name.."\n")
+				if index <= maxVisibleButtons then
+					contentFrame.Buttons[index].Text:SetText(name)
+					contentFrame.Buttons[index]:Show()
+				end
+				index = index + 1
+			end
+
+			-- Hide unused buttons
+			for i = index, maxVisibleButtons do
+				contentFrame.Buttons[i]:Hide()
 			end
 		end
 
@@ -986,6 +1022,8 @@
 
 		-- Release memory
 		unitscanLC.rare_spawns_list = nil
+	
+
 
 
 		----------------------------------------------------------------------
