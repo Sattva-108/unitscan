@@ -508,12 +508,19 @@
 			if instance_type == "raid" or instance_type == "pvp" then return end
 			if loc == nil then return end
 
-			for name, zone in pairs(rare_spawns) do
-				if not unitscan_ignored[name] then
-					local reaction = UnitReaction("player", name)
-					if not reaction or reaction < 4 then reaction = true else reaction = false end
-					if reaction and (loc == zone or string.match(loc, zone) or zone == "A H") then 
-						table.insert(nearby_targets, name)
+			for expansion, spawns in pairs(rare_spawns) do
+				for name, zone in pairs(spawns) do
+					if not unitscan_ignored[name] then
+						local reaction = UnitReaction("player", name)
+						if not reaction or reaction < 4 then
+							reaction = true
+						else
+							reaction = false
+						end
+
+						if reaction and (loc == zone or string.match(loc, zone) or zone == "AH") then
+							table.insert(nearby_targets, {name, expansion})
+						end
 					end
 				end
 			end
@@ -530,25 +537,32 @@
 	function unitscan.refresh_nearby_targets()
 		unitscan_LoadRareSpawns()
 		-- print("Refreshed nearby rare list.")
-	    local loc = GetRealZoneText()
-	    local _, instance_type = IsInInstance()
-	    is_resting = IsResting()
-	    nearby_targets = {}
-	    
-	    if instance_type == "raid" or instance_type == "pvp" then return end
-	    if loc == nil then return end
-	    
-	    for name, zone in pairs(rare_spawns) do
-	        if not unitscan_ignored[name] then
-	            local reaction = UnitReaction("player", name)
-	            if not reaction or reaction < 4 then reaction = true else reaction = false end
-	            if reaction and (loc == zone or string.match(loc, zone) or zone == "A H") then 
-	                table.insert(nearby_targets, name)
-	            end
-	        end
-	    end
+		local loc = GetRealZoneText()
+		local _, instance_type = IsInInstance()
+		is_resting = IsResting()
+		nearby_targets = {}
 
-	    -- print("nearby_targets:", table.concat(nearby_targets, ", "))
+		if instance_type == "raid" or instance_type == "pvp" then return end
+		if loc == nil then return end
+
+		for expansion, spawns in pairs(rare_spawns) do
+			for name, zone in pairs(spawns) do
+				if not unitscan_ignored[name] then
+					local reaction = UnitReaction("player", name)
+					if not reaction or reaction < 4 then
+						reaction = true
+					else
+						reaction = false
+					end
+
+					if reaction and (loc == zone or string.match(loc, zone) or zone == "AH") then
+						table.insert(nearby_targets, {name, expansion})
+					end
+				end
+			end
+		end
+
+		-- print("nearby_targets:", table.concat(nearby_targets, ", "))
 	end
 
 
@@ -958,9 +972,11 @@
 
 			-- Sort rare spawns by zone
 			local sortedSpawns = {}
-			for name, zone in pairs(rare_spawns) do
-				sortedSpawns[zone] = sortedSpawns[zone] or {}
-				table.insert(sortedSpawns[zone], name)
+			for expansion, spawns in pairs(rare_spawns) do
+				for name, zone in pairs(spawns) do
+					sortedSpawns[zone] = sortedSpawns[zone] or {}
+					table.insert(sortedSpawns[zone], name)
+				end
 			end
 
 			-- Create buttons
@@ -3222,25 +3238,29 @@
 --------------------------------------------------------------------------------
 
 
-	do
-		unitscan.last_check = GetTime()
-		function unitscan.UPDATE()
-			if is_resting then return end
-			if not InCombatLockdown() and unitscan.discovered_unit then
-				unitscan.button:set_target(unitscan.discovered_unit)
-				unitscan.discovered_unit = nil
-			end
-			if GetTime() - unitscan.last_check >= unitscan_defaults.CHECK_INTERVAL then
-				unitscan.last_check = GetTime()
-				for name in pairs(unitscan_targets) do
-					unitscan.target(name)
-				end
-				for _, name in pairs(nearby_targets) do
-					unitscan.target(name)
-				end
-			end
-		end
-	end
+do
+    unitscan.last_check = GetTime()
+    function unitscan.UPDATE()
+        if is_resting then return end
+        if not InCombatLockdown() and unitscan.discovered_unit then
+            unitscan.button:set_target(unitscan.discovered_unit)
+            unitscan.discovered_unit = nil
+        end
+        if GetTime() - unitscan.last_check >= unitscan_defaults.CHECK_INTERVAL then
+            unitscan.last_check = GetTime()
+            for name in pairs(unitscan_targets) do
+                unitscan.target(name)
+            end
+            for _, target in ipairs(nearby_targets) do
+                local name, expansion = unpack(target)
+                if expansion == "Classic" or expansion == "TBC" or expansion == "WOTLK" then
+                    unitscan.target(name)
+                end
+            end
+        end
+    end
+end
+
 
 
 --------------------------------------------------------------------------------
@@ -3330,47 +3350,43 @@
 				unitscan.print("Invalid interval value. Usage: /unitscan interval <number>")
 			end
 
-		--===== Slash Ignore Rare =====--	
+			--===== Slash Ignore Rare =====--
 		elseif command == "ignore" then
 			unitscan_LoadRareSpawns()
 			if args == "" then
-				-- print list of ignored NPCs
+				-- Print list of ignored NPCs
 				if next(unitscan_ignored) == nil then
-					print(" ")
-				unitscan.ignoreprint("list is empty.")
+					print("Ignore list is empty.")
 				else
-				print("|cffff0000" .. " Ignore list " .. "|r"  .. "currently contains:")
-				for rare in pairs(unitscan_ignored) do
-					unitscan.ignoreprint(rare)
+					print("|cffff0000Ignore list currently contains:|r")
+					for rare in pairs(unitscan_ignored) do
+						unitscan.ignoreprint(rare)
+					end
 				end
-			end
-
 				return
 			else
-
-		        local rare = string.upper(args)
-		        if rare_spawns[rare] == nil then
-		            -- rare does not exist in rare_spawns table
-		            unitscan.print("|cffffff00" .. args .. "|r" .. " is not a valid rare spawn.")
-
-		            return
-		    end
-
-			if unitscan_ignored[rare] then
-				-- remove rare from ignore list
-				unitscan_ignored[rare] = nil
-				unitscan.ignoreprint("- " .. rare)
-				unitscan.refresh_nearby_targets()
-				found[rare] = nil
-			else
-				-- add rare to ignore list
-				unitscan_ignored[rare] = true
-				unitscan.ignoreprint("+ " .. rare)
-				unitscan.refresh_nearby_targets()
+				local rare = string.upper(args)
+				if rare_spawns["Classic"][rare] or rare_spawns["TBC"][rare] or rare_spawns["WOTLK"][rare] then
+					if unitscan_ignored[rare] then
+						-- Remove rare from ignore list
+						unitscan_ignored[rare] = nil
+						unitscan.ignoreprint("- " .. rare)
+						unitscan.refresh_nearby_targets()
+						found[rare] = nil
+					else
+						-- Add rare to ignore list
+						unitscan_ignored[rare] = true
+						unitscan.ignoreprint("+ " .. rare)
+						unitscan.refresh_nearby_targets()
+					end
+				else
+					-- Rare does not exist in rare_spawns table
+					unitscan.print("|cffffff00" .. args .. "|r" .. " is not a valid rare spawn.")
+				end
+				return
 			end
 
-			return
-			end
+
 
 
 		--===== Slash to avoid people confusion if they do /unitscan name =====--	
@@ -3389,17 +3405,20 @@
 
 		--===== Slash to show rare spawns that are currently being scanned. =====--	
 		elseif command == "nearby" then
-			print(" ")
 			unitscan.print("Is someone missing?")
-							print(" - Add it to your list with |cFF00FF00/unitscan|r |cffffff00name|r")
-					unitscan.print("|cffff0000ignore|r")
-					print(" - Adds/removes the rare mob 'name' from the unit scanner |cffff0000ignore list.|r")
-					print(" ")
-			for key,val in pairs(nearby_targets) do
-				if not (val == "Lumbering Horror" or val == "Spirit of the Damned" or val == "Bone Witch") then
-					unitscan.print(val)
+			unitscan.print(" - Add it to your list with |cFF00FF00/unitscan|r |cffffff00name|r")
+			unitscan.print("|cffff0000ignore|r")
+			unitscan.print(" - Adds/removes the rare mob 'name' from the unit scanner |cffff0000ignore list.|r")
+			unitscan.print(" ")
+
+			for _, target in ipairs(nearby_targets) do
+				local name, expansion = unpack(target)
+				if not (name == "Lumbering Horror" or name == "Spirit of the Damned" or name == "Bone Witch") then
+					unitscan.print(name)
 				end
 			end
+
+
 
 		--===== Slash to show all avaliable commands =====--	
 		elseif command == 'help' then

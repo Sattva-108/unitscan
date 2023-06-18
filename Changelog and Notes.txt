@@ -40,6 +40,8 @@ Changelog by Sattva 21th April 2023 #1;
 
 GUI - check what will happen to rare spawns list if localization is not recognized.
 
+RareList - check for global variables may be conflicting with other addons. (Rename if yes)
+
 
 
 
