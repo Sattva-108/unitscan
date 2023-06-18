@@ -14,14 +14,14 @@
 		--print("DB called")
 		--print(currentLocale)
 
-	--------------------------------------------------------------------------------------
-	-- Rare Databases corrected, translated by Sattva & Macumba & "that guy" from discord.
-	-- Database is automatically set by current locale.
-	--------------------------------------------------------------------------------------
+		--------------------------------------------------------------------------------------
+		-- Rare Databases corrected, translated by Sattva & Macumba & "that guy" from discord.
+		-- Database is automatically set by current locale.
+		--------------------------------------------------------------------------------------
 
 		if currentLocale == "enUS" or currentLocale == "enGB" then
-		    rare_spawns = {
-    	        ["Classic"] = {
+			rare_spawns = {
+				["CLASSIC"] = {
 					["AZUROUS"] = "Winterspring",
 					["GENERAL COLBATANN"] = "Winterspring",
 					["KASHOCH THE REAVER"] = "Winterspring",
@@ -403,6 +403,8 @@
 					["ZEKKIS"] = "Temple of Atal'Hakkar",
 					["VEYZHAK THE CANNIBAL"] = "Temple of Atal'Hakkar",
 					["DR. WHITHERLIMB"] = "Ghostlands",
+					["ELDINARCUS"] = "Eversong Woods",
+					["FENISSA THE ASSASSIN"] = "Bloodmyst Isle",
 				},
 		        ["TBC"] = {
 					-- TBC
@@ -427,12 +429,12 @@
 					["HEMATHION"] = "Blade's Edge Mountains",
 					["MORCRUSH"] = "Blade's Edge Mountains",
 					["SPEAKER MAR'GROM"] = "Blade's Edge Mountains",
-					["ELDINARCUS"] = "Eversong Woods",
+					
 
 					["CRIPPLER"] = "Terokkar Forest",
 					["DOOMSAYER JURIM"] = "Terokkar Forest",
 					["OKREK"] = "Terokkar Forest",
-					["FENISSA THE ASSASSIN"] = "Bloodmyst Isle",
+					
 					-- ["DOOMWALKER"] = "Shadowmoon Valley", -- disabled world boss
 					-- ["DOOM LORD KAZZAK"] = "Hellfire Peninsula", -- disabled world boss
 				},

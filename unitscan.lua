@@ -518,7 +518,7 @@
 							reaction = false
 						end
 
-						if reaction and (loc == zone or string.match(loc, zone) or zone == "AH") then
+						if reaction and (loc == zone or string.match(loc, zone) or zone == "A H") then
 							table.insert(nearby_targets, {name, expansion})
 						end
 					end
@@ -555,7 +555,7 @@
 						reaction = false
 					end
 
-					if reaction and (loc == zone or string.match(loc, zone) or zone == "AH") then
+					if reaction and (loc == zone or string.match(loc, zone) or zone == "A H") then
 						table.insert(nearby_targets, {name, expansion})
 					end
 				end
@@ -949,7 +949,7 @@
 
 			local eb = CreateFrame("Frame", nil, unitscanLC["Page1"])
 			eb:SetSize(220, 280)
-			eb:SetPoint("TOPLEFT", 400, -50)
+			eb:SetPoint("TOPLEFT", 450	, -80)
 			eb:SetBackdrop({
 				bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
 				edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight",
@@ -970,14 +970,25 @@
 			contentFrame:SetSize(eb:GetWidth() - 30, maxVisibleButtons * buttonHeight)
 			contentFrame.Buttons = {}
 
-			-- Sort rare spawns by zone
-			local sortedSpawns = {}
-			for expansion, spawns in pairs(rare_spawns) do
-				for name, zone in pairs(spawns) do
-					sortedSpawns[zone] = sortedSpawns[zone] or {}
-					table.insert(sortedSpawns[zone], name)
-				end
-			end
+-- Sort rare spawns by zone and expansion
+local sortedSpawns = {}
+for expansion, spawns in pairs(rare_spawns) do
+    for name, zone in pairs(spawns) do
+        sortedSpawns[zone] = sortedSpawns[zone] or {}
+        table.insert(sortedSpawns[zone], {name = name, expansion = expansion})
+    end
+end
+
+
+for zone, spawns in pairs(sortedSpawns) do
+    print("Zone:", zone)
+    for _, data in ipairs(spawns) do
+        print("- Spawn:", data.name)
+        print("  Expansion:", data.expansion)
+    end
+end
+
+
 
 			-- Create buttons
 			local index = 1
@@ -1065,6 +1076,7 @@
 					contentFrame.Buttons[i]:Hide()
 				end
 			end
+		
 
 
 			--------------------------------------------------------------------------------
@@ -1073,7 +1085,7 @@
 
 
 			local zoneFrame = CreateFrame("Frame", nil, eb)
-			zoneFrame:SetSize(150, 280)
+			zoneFrame:SetSize(180, 280)
 			zoneFrame:SetPoint("TOPRIGHT", eb, "TOPLEFT", 0, 0)
 			zoneFrame:SetBackdrop({
 				bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
@@ -1144,29 +1156,27 @@
 						-- Create buttons for the selected zone
 						local index = 1
 						for zone, mobs in pairs(sortedSpawns) do
-							if zone == selectedZone then
-								for _, name in ipairs(mobs) do
-									if index <= zoneMaxVisibleButtons then
-										local button = contentFrame.Buttons[index]
-										if not button then
-											button = CreateFrame("Button", nil, contentFrame)
-											button:SetSize(contentFrame:GetWidth(), buttonHeight)
+						    if zone == selectedZone then
+						        for _, data in ipairs(mobs) do
+						            if index <= zoneMaxVisibleButtons then
+						                local button = contentFrame.Buttons[index]
+						                if not button then
+						                    button = CreateFrame("Button", nil, contentFrame)
+						                    button:SetSize(contentFrame:GetWidth(), buttonHeight)
+						                    contentFrame.Buttons[index] = button
+						                end
 
-											-- Store the rare mob button object in the contentFrame.Buttons table
+						                -- Set button text and position
+						                button.Text:SetText(data.name) -- Use the name from data
+						                button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
+						                button:Show()
 
-											contentFrame.Buttons[index] = button
-										end
-
-										-- Set button text and position
-										button.Text:SetText(name)
-										button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
-										button:Show()
-
-										index = index + 1
-									end
-								end
-							end
+						                index = index + 1
+						            end
+						        end
+						    end
 						end
+
 
 						-- Hide unused buttons
 						for i = index, zoneMaxVisibleButtons do
@@ -1192,6 +1202,39 @@
 					zoneButton:Show()
 
 					zoneContentFrame.Buttons[zoneIndex] = zoneButton
+
+for zoneIndex, zoneButton in ipairs(zoneContentFrame.Buttons) do
+    local zone = zoneButton.Text:GetText()
+    print("Zone Button", zoneIndex, "Data:")
+    print("Zone:", zone)
+
+-- Find the corresponding mobs for the zone
+local mobs = sortedSpawns[zone]
+if mobs then
+    local hideZoneButton = false
+    for _, data in ipairs(mobs) do
+        if string.find(data.expansion, "CLASSIC") then
+            hideZoneButton = true
+            break
+        end
+    end
+
+    if hideZoneButton then
+        zoneButton:Hide()
+    end
+end
+    -- Find the corresponding mobs for the zone
+    local mobs = sortedSpawns[zone]
+    if mobs then
+        for _, data in ipairs(mobs) do
+            print("- Spawn:", data.name)
+            print("  Expansion:", data.expansion)
+        end
+    end
+
+    print("------------------")
+end
+
 				end
 				zoneIndex = zoneIndex + 1
 			end
@@ -1225,6 +1268,66 @@
 					zoneContentFrame.Buttons[i]:Hide()
 				end
 			end
+
+
+
+			--------------------------------------------------------------------------------
+			-- Create Expansion Buttons.
+			--------------------------------------------------------------------------------
+
+            -- Create a table for each button
+            local expbtn = {}
+
+            -- Create buttons
+            local function MakeButtonNow(title, anchor)
+                expbtn[title] = CreateFrame("Button", nil, unitscanLC["Page1"])
+                expbtn[title]:SetSize(80, 16)
+
+                -- Create a text label for the button
+                expbtn[title].text = expbtn[title]:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+                expbtn[title].text:SetPoint("LEFT")
+                expbtn[title].text:SetText(title)
+                expbtn[title].text:SetJustifyH("LEFT")
+
+                -- Set the anchor point based on the provided anchor parameter
+                if anchor == "Zones" then
+                	-- position first button
+                    expbtn[title]:SetPoint("TOPLEFT", unitscanLC["Page1"], "TOPLEFT", 145, -70)
+                else
+                	-- position other buttons, add gap
+                    expbtn[title]:SetPoint("TOPLEFT", expbtn[anchor], "BOTTOMLEFT", 0, -5)
+                end
+
+                -- Set the OnClick script for the buttons
+                if title == "CLASSIC" then
+                    expbtn[title]:SetScript("OnClick", function()
+                        for rare, location in pairs(rare_spawns["CLASSIC"]) do
+                            print(rare .. " - " .. location)
+                        end
+                    end)
+                    expbtn[title].text:SetTextColor(1, 1, 1)
+                elseif title == "TBC" then
+                    expbtn[title]:SetScript("OnClick", function()
+                        for rare, location in pairs(rare_spawns["TBC"]) do
+                            print(rare .. " - " .. location)
+                        end
+                    end)
+                    expbtn[title].text:SetTextColor(0, 1, 0)
+                elseif title == "WOTLK" then
+                    expbtn[title]:SetScript("OnClick", function()
+                        for rare, location in pairs(rare_spawns["WOTLK"]) do
+                            print(rare .. " - " .. location)
+                        end
+                    end)
+                    expbtn[title].text:SetTextColor(0.7, 0.85, 1)
+                end
+            end
+
+            -- Call the MakeButtonNow function for each button
+            MakeButtonNow("CLASSIC", "Zones")
+            MakeButtonNow("TBC", "CLASSIC")
+            MakeButtonNow("WOTLK", "TBC")
+
 
 		end
 
@@ -3253,7 +3356,7 @@ do
             end
             for _, target in ipairs(nearby_targets) do
                 local name, expansion = unpack(target)
-                if expansion == "Classic" or expansion == "TBC" or expansion == "WOTLK" then
+                if expansion == "CLASSIC" or expansion == "TBC" or expansion == "WOTLK" then
                     unitscan.target(name)
                 end
             end
@@ -3366,7 +3469,7 @@ end
 				return
 			else
 				local rare = string.upper(args)
-				if rare_spawns["Classic"][rare] or rare_spawns["TBC"][rare] or rare_spawns["WOTLK"][rare] then
+				if rare_spawns["CLASSIC"][rare] or rare_spawns["TBC"][rare] or rare_spawns["WOTLK"][rare] then
 					if unitscan_ignored[rare] then
 						-- Remove rare from ignore list
 						unitscan_ignored[rare] = nil
