@@ -929,6 +929,11 @@
 
 		end
 
+
+		--------------------------------------------------------------------------------
+		-- End of Grid function
+		--------------------------------------------------------------------------------
+
 		----------------------------------------------------------------------
 		-- Rare Spawns List
 		----------------------------------------------------------------------
@@ -943,7 +948,7 @@
 			unitscan_LoadRareSpawns()
 
 			--------------------------------------------------------------------------------
-			-- Create Frame for rare mob buttons
+			-- Create Frame for RARE MOB buttons
 			--------------------------------------------------------------------------------
 
 
@@ -970,27 +975,17 @@
 			contentFrame:SetSize(eb:GetWidth() - 30, maxVisibleButtons * buttonHeight)
 			contentFrame.Buttons = {}
 
--- Sort rare spawns by zone and expansion
-local sortedSpawns = {}
-for expansion, spawns in pairs(rare_spawns) do
-    for name, zone in pairs(spawns) do
-        sortedSpawns[zone] = sortedSpawns[zone] or {}
-        table.insert(sortedSpawns[zone], {name = name, expansion = expansion})
-    end
-end
+			-- Sort rare spawns by zone and expansion
+			local sortedSpawns = {}
+			for expansion, spawns in pairs(rare_spawns) do
+				for name, zone in pairs(spawns) do
+					sortedSpawns[zone] = sortedSpawns[zone] or {}
+					table.insert(sortedSpawns[zone], {name = name, expansion = expansion})
+				end
+			end
 
 
-for zone, spawns in pairs(sortedSpawns) do
-    print("Zone:", zone)
-    for _, data in ipairs(spawns) do
-        print("- Spawn:", data.name)
-        print("  Expansion:", data.expansion)
-    end
-end
-
-
-
-			-- Create buttons
+			-- Create rare mob buttons
 			local index = 1
 			for zone, mobs in pairs(sortedSpawns) do
 				zoneButtons[zone] = {}
@@ -1076,11 +1071,11 @@ end
 					contentFrame.Buttons[i]:Hide()
 				end
 			end
-		
+
 
 
 			--------------------------------------------------------------------------------
-			-- Create a separate frame for zone buttons
+			-- Create a separate frame for ZONE buttons
 			--------------------------------------------------------------------------------
 
 
@@ -1138,6 +1133,23 @@ end
 					zoneButton.Text = zoneButton:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 					zoneButton.Text:SetPoint("LEFT", 5, 0)
 
+					
+					--------------------------------------------------------------------------------
+					-- Function to hide all rare mob names
+					--------------------------------------------------------------------------------
+
+
+					function unitscan_HideExistingButtons()
+						for _, button in ipairs(contentFrame.Buttons) do
+							button:Hide()
+						end
+					end
+
+					--------------------------------------------------------------------------------
+					-- OnClick, OnEnter, OnLeave funcs for Zone buttons.
+					--------------------------------------------------------------------------------
+
+
 					-- Modify the existing OnClick function of zone buttons
 					zoneButton:SetScript("OnClick", function(self)
 						selectedZone = self.Text:GetText()
@@ -1148,33 +1160,44 @@ end
 						-- Reset scrollbar value to the top
 						scrollbar:SetValue(1)
 
-						-- Clear existing buttons
-						for _, button in ipairs(contentFrame.Buttons) do
-							button:Hide()
-						end
+						unitscan_HideExistingButtons()
 
-						-- Create buttons for the selected zone
+						local visibleButtonsCount = 0
+						-- Create rare mob buttons for the selected zone
 						local index = 1
 						for zone, mobs in pairs(sortedSpawns) do
-						    if zone == selectedZone then
-						        for _, data in ipairs(mobs) do
-						            if index <= zoneMaxVisibleButtons then
-						                local button = contentFrame.Buttons[index]
-						                if not button then
-						                    button = CreateFrame("Button", nil, contentFrame)
-						                    button:SetSize(contentFrame:GetWidth(), buttonHeight)
-						                    contentFrame.Buttons[index] = button
-						                end
+							if zone == selectedZone then
+								for _, data in ipairs(mobs) do
+									if index <= zoneMaxVisibleButtons then
+										visibleButtonsCount = visibleButtonsCount + 1
+										local button = contentFrame.Buttons[index]
+										if not button then
+											button = CreateFrame("Button", nil, contentFrame)
+											button:SetSize(contentFrame:GetWidth(), buttonHeight)
+											contentFrame.Buttons[index] = button
+										end
 
-						                -- Set button text and position
-						                button.Text:SetText(data.name) -- Use the name from data
-						                button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
-						                button:Show()
+										-- Set button text and position
+										button.Text:SetText(data.name) -- Use the name from data
+										button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
+										button:Show()
 
-						                index = index + 1
-						            end
-						        end
-						    end
+										index = index + 1
+									end
+								end
+							end
+						end
+
+						-- Print the number of visible buttons
+						--print("Number of visible buttons: " .. visibleButtonsCount)
+
+						-- Hide scrollbar of rare mob list if 13 or more buttons visible.
+						if visibleButtonsCount <= 13 then
+							eb.scroll.ScrollBar:Hide()
+							eb.scroll.ScrollBar:SetMinMaxValues(1, 1)
+						else
+							eb.scroll.ScrollBar:Show()
+							eb.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
 						end
 
 
@@ -1186,6 +1209,7 @@ end
 						end
 					end)
 
+					
 
 
 					zoneButton:SetScript("OnEnter", function(self)
@@ -1198,42 +1222,183 @@ end
 						zoneTexture:Hide()
 					end)
 
+					--===== Show Zone Text on button and show button itself. =====--
 					zoneButton.Text:SetText(zone)
 					zoneButton:Show()
 
+
+					--------------------------------------------------------------------------------
+					-- Function to toggle expansions
+					--------------------------------------------------------------------------------
+
+
+					local hideZoneButton = false
+
+					function unitscan_toggleCLASSIC()
+						unitscan_zoneScrollbar:SetMinMaxValues(1, 930)
+						unitscan_zoneScrollbar:Show()
+						eb.scroll.ScrollBar:Hide()
+
+
+						unitscan_HideExistingButtons()
+						hideZoneButton = not hideZoneButton -- Toggle the variable
+
+						local visibleZoneButtons = {} -- Table to store visible zone buttons
+
+						for zoneIndex, zoneButton in ipairs(zoneContentFrame.Buttons) do
+							local zone = zoneButton.Text:GetText()
+
+							-- Find the corresponding mobs for the zone
+							local mobs = sortedSpawns[zone]
+							if mobs then
+								local shouldHideButton = hideZoneButton
+								for _, data in ipairs(mobs) do
+									if string.find(data.expansion, "CLASSIC") then
+										shouldHideButton = false -- Show CLASSIC strings
+									elseif string.find(data.expansion, "TBC") or string.find(data.expansion, "WOTLK") then
+										shouldHideButton = true -- Hide TBC and WOTLK strings
+										break
+									end
+								end
+
+								if shouldHideButton then
+									zoneButton:Hide()
+								else
+									zoneButton:Show()
+									table.insert(visibleZoneButtons, zoneButton) -- Add visible button to the table
+								end
+							end
+						end
+
+						-- Sort the visible zone buttons based on zone names
+						table.sort(visibleZoneButtons, function(a, b)
+							local zoneA = a.Text:GetText()
+							local zoneB = b.Text:GetText()
+							return zoneA < zoneB
+						end)
+
+						-- Update the button positions based on the sorted table
+						local zoneIndex = 1
+						for _, zoneButton in ipairs(visibleZoneButtons) do
+							zoneButton:ClearAllPoints()
+							zoneButton:SetPoint("TOPLEFT", 0, -(zoneIndex - 1) * buttonHeight)
+							zoneIndex = zoneIndex + 1
+						end
+					end
+
+
+
+					function unitscan_toggleTBC()
+						unitscan_zoneScrollbar:SetMinMaxValues(1, 1)
+						unitscan_zoneScrollbar:Hide()
+						eb.scroll.ScrollBar:Hide()
+
+						unitscan_HideExistingButtons()
+
+						hideZoneButton = not hideZoneButton
+
+						local visibleZoneButtons = {} -- Table to store visible zone buttons
+
+						for zoneIndex, zoneButton in ipairs(zoneContentFrame.Buttons) do
+							local zone = zoneButton.Text:GetText()
+
+							-- Find the corresponding mobs for the zone
+							local mobs = sortedSpawns[zone]
+							if mobs then
+								local shouldHideButton = hideZoneButton
+								for _, data in ipairs(mobs) do
+									if string.find(data.expansion, "TBC") then
+										shouldHideButton = false -- Show TBC strings
+									elseif string.find(data.expansion, "CLASSIC") or string.find(data.expansion, "WOTLK") then
+										shouldHideButton = true -- Hide CLASSIC and WOTLK strings
+										break
+									end
+								end
+
+								if shouldHideButton then
+									zoneButton:Hide()
+								else
+									zoneButton:Show()
+									table.insert(visibleZoneButtons, zoneButton) -- Add visible button to the table
+								end
+							end
+						end
+
+						-- Sort the visible zone buttons based on zone names
+						table.sort(visibleZoneButtons, function(a, b)
+							local zoneA = a.Text:GetText()
+							local zoneB = b.Text:GetText()
+							return zoneA < zoneB
+						end)
+
+						-- Update the button positions based on the sorted table
+						local zoneIndex = 1
+						for _, zoneButton in ipairs(visibleZoneButtons) do
+							zoneButton:ClearAllPoints()
+							zoneButton:SetPoint("TOPLEFT", 0, -(zoneIndex - 1) * buttonHeight)
+							zoneIndex = zoneIndex + 1
+						end
+					end
+
+
+					function unitscan_toggleWOTLK()
+						unitscan_zoneScrollbar:SetMinMaxValues(1, 1)
+						unitscan_zoneScrollbar:Hide()
+						eb.scroll.ScrollBar:Hide()
+
+						unitscan_HideExistingButtons()
+
+						hideZoneButton = not hideZoneButton
+
+						local visibleZoneButtons = {} -- Table to store visible zone buttons
+
+						for zoneIndex, zoneButton in ipairs(zoneContentFrame.Buttons) do
+							local zone = zoneButton.Text:GetText()
+
+							-- Find the corresponding mobs for the zone
+							local mobs = sortedSpawns[zone]
+							if mobs then
+								local shouldHideButton = hideZoneButton
+								for _, data in ipairs(mobs) do
+									if string.find(data.expansion, "WOTLK") then
+										shouldHideButton = false -- Show WOTLK strings
+									elseif string.find(data.expansion, "CLASSIC") or string.find(data.expansion, "TBC") then
+										shouldHideButton = true -- Hide CLASSIC and TBC strings
+										break
+									end
+								end
+
+								if shouldHideButton then
+									zoneButton:Hide()
+								else
+									zoneButton:Show()
+									table.insert(visibleZoneButtons, zoneButton) -- Add visible button to the table
+								end
+							end
+						end
+
+						-- Sort the visible zone buttons based on zone names
+						table.sort(visibleZoneButtons, function(a, b)
+							local zoneA = a.Text:GetText()
+							local zoneB = b.Text:GetText()
+							return zoneA < zoneB
+						end)
+
+						-- Update the button positions based on the sorted table
+						local zoneIndex = 1
+						for _, zoneButton in ipairs(visibleZoneButtons) do
+							zoneButton:ClearAllPoints()
+							zoneButton:SetPoint("TOPLEFT", 0, -(zoneIndex - 1) * buttonHeight)
+							zoneIndex = zoneIndex + 1
+						end
+					end
+
+					--------------------------------------------------------------------------------
+					-- End of toggle Expansions functions.
+					--------------------------------------------------------------------------------
+
+
 					zoneContentFrame.Buttons[zoneIndex] = zoneButton
-
-for zoneIndex, zoneButton in ipairs(zoneContentFrame.Buttons) do
-    local zone = zoneButton.Text:GetText()
-    print("Zone Button", zoneIndex, "Data:")
-    print("Zone:", zone)
-
--- Find the corresponding mobs for the zone
-local mobs = sortedSpawns[zone]
-if mobs then
-    local hideZoneButton = false
-    for _, data in ipairs(mobs) do
-        if string.find(data.expansion, "CLASSIC") then
-            hideZoneButton = true
-            break
-        end
-    end
-
-    if hideZoneButton then
-        zoneButton:Hide()
-    end
-end
-    -- Find the corresponding mobs for the zone
-    local mobs = sortedSpawns[zone]
-    if mobs then
-        for _, data in ipairs(mobs) do
-            print("- Spawn:", data.name)
-            print("  Expansion:", data.expansion)
-        end
-    end
-
-    print("------------------")
-end
 
 				end
 				zoneIndex = zoneIndex + 1
@@ -1262,6 +1427,8 @@ end
 				zoneScrollbar:SetValue(zoneScrollbar:GetValue() - delta * 50)
 			end)
 
+			unitscan_zoneScrollbar = zoneScrollbar
+
 			-- Hide unused zone buttons
 			for i = zoneIndex, zoneMaxVisibleButtons do
 				if zoneContentFrame.Buttons[i] then
@@ -1270,65 +1437,53 @@ end
 			end
 
 
-
 			--------------------------------------------------------------------------------
-			-- Create Expansion Buttons.
+			-- Create Buttons for Expansions
 			--------------------------------------------------------------------------------
 
-            -- Create a table for each button
-            local expbtn = {}
 
-            -- Create buttons
-            local function MakeButtonNow(title, anchor)
-                expbtn[title] = CreateFrame("Button", nil, unitscanLC["Page1"])
-                expbtn[title]:SetSize(80, 16)
+			-- Create a table for each button
+			local expbtn = {}
 
-                -- Create a text label for the button
-                expbtn[title].text = expbtn[title]:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-                expbtn[title].text:SetPoint("LEFT")
-                expbtn[title].text:SetText(title)
-                expbtn[title].text:SetJustifyH("LEFT")
+			-- Create buttons
+			local function MakeButtonNow(title, anchor)
+				expbtn[title] = CreateFrame("Button", nil, unitscanLC["Page1"])
+				expbtn[title]:SetSize(80, 16)
 
-                -- Set the anchor point based on the provided anchor parameter
-                if anchor == "Zones" then
-                	-- position first button
-                    expbtn[title]:SetPoint("TOPLEFT", unitscanLC["Page1"], "TOPLEFT", 145, -70)
-                else
-                	-- position other buttons, add gap
-                    expbtn[title]:SetPoint("TOPLEFT", expbtn[anchor], "BOTTOMLEFT", 0, -5)
-                end
+				-- Create a text label for the button
+				expbtn[title].text = expbtn[title]:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+				expbtn[title].text:SetPoint("LEFT")
+				expbtn[title].text:SetText(title)
+				expbtn[title].text:SetJustifyH("LEFT")
 
-                -- Set the OnClick script for the buttons
-                if title == "CLASSIC" then
-                    expbtn[title]:SetScript("OnClick", function()
-                        for rare, location in pairs(rare_spawns["CLASSIC"]) do
-                            print(rare .. " - " .. location)
-                        end
-                    end)
-                    expbtn[title].text:SetTextColor(1, 1, 1)
-                elseif title == "TBC" then
-                    expbtn[title]:SetScript("OnClick", function()
-                        for rare, location in pairs(rare_spawns["TBC"]) do
-                            print(rare .. " - " .. location)
-                        end
-                    end)
-                    expbtn[title].text:SetTextColor(0, 1, 0)
-                elseif title == "WOTLK" then
-                    expbtn[title]:SetScript("OnClick", function()
-                        for rare, location in pairs(rare_spawns["WOTLK"]) do
-                            print(rare .. " - " .. location)
-                        end
-                    end)
-                    expbtn[title].text:SetTextColor(0.7, 0.85, 1)
-                end
-            end
+				-- Set the anchor point based on the provided anchor parameter
+				if anchor == "Zones" then
+					-- position first button
+					expbtn[title]:SetPoint("TOPLEFT", unitscanLC["Page1"], "TOPLEFT", 145, -70)
+				else
+					-- position other buttons, add gap
+					expbtn[title]:SetPoint("TOPLEFT", expbtn[anchor], "BOTTOMLEFT", 0, -5)
+				end
 
-            -- Call the MakeButtonNow function for each button
-            MakeButtonNow("CLASSIC", "Zones")
-            MakeButtonNow("TBC", "CLASSIC")
-            MakeButtonNow("WOTLK", "TBC")
+				-- Set the OnClick script for the buttons
+				if title == "CLASSIC" then
+					expbtn[title]:SetScript("OnClick", unitscan_toggleCLASSIC)
+					expbtn[title].text:SetTextColor(1, 1, 1)
+				elseif title == "TBC" then
+					expbtn[title]:SetScript("OnClick", unitscan_toggleTBC)
+					expbtn[title].text:SetTextColor(0, 1, 0)
+				elseif title == "WOTLK" then
+					expbtn[title]:SetScript("OnClick", unitscan_toggleWOTLK)
+					expbtn[title].text:SetTextColor(0.7, 0.85, 1)
+				end
+			end
 
+			-- Call the MakeButtonNow function for each button
+			MakeButtonNow("CLASSIC", "Zones")
+			MakeButtonNow("TBC", "CLASSIC")
+			MakeButtonNow("WOTLK", "TBC")
 
+		--===== End of whole big rare_spawns_list function =====--
 		end
 
 		-- Run on startup
@@ -1338,7 +1493,9 @@ end
 		unitscanLC.rare_spawns_list = nil
 	
 
-
+		--------------------------------------------------------------------------------
+		-- End of Rare Spawns buttons list.
+		--------------------------------------------------------------------------------
 
 		----------------------------------------------------------------------
 		-- Panel alpha
