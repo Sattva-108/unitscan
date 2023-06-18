@@ -318,7 +318,7 @@
 		    ["RORGISH JOWL"] = "Ashenvale",
 		    ["ROT HIDE BRUISER"] = "Silverpine Forest",
 		    ["RUMBLER"] = "Badlands",
-		    ["SANDARR DUNEREAVER"] = "Zul'farrak",
+		    ["SANDARR DUNEREAVER"] = "Zul'Farrak",
 		    ["SCALD"] = "Searing Gorge",
 		    ["SCALE BELLY"] = "Stranglethorn Vale",
 		    ["SCARGIL"] = "Hillsbrad Foothills",
