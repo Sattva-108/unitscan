@@ -42,6 +42,8 @@ GUI - check what will happen to rare spawns list if localization is not recogniz
 
 RareList - check for global variables may be conflicting with other addons. (Rename if yes)
 
+Global -  rename rare_spawns table to something more unique
+
 
 
 

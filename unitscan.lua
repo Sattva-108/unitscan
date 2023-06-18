@@ -998,8 +998,7 @@
 						-- Create a texture region within the button frame
 						local texture = button:CreateTexture(nil, "BACKGROUND")
 						texture:SetAllPoints(true)
-						texture:SetTexture("Interface\\Buttons\\WHITE8X8")
-						texture:SetVertexColor(1.0, 0.5, 0.0, 0.8)
+						texture:SetTexture(1.0, 0.5, 0.0, 0.8)
 						texture:Hide()
 
 						button.Text = button:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -1117,11 +1116,19 @@
 					zoneButton:SetSize(zoneContentFrame:GetWidth(), buttonHeight)
 					zoneButton:SetPoint("TOPLEFT", 0, -(zoneIndex - 1) * buttonHeight)
 
+
+					--===== Texture for Mouseover =====--
 					local zoneTexture = zoneButton:CreateTexture(nil, "BACKGROUND")
 					zoneTexture:SetAllPoints(true)
 					zoneTexture:SetTexture("Interface\\Buttons\\WHITE8X8")
 					zoneTexture:SetVertexColor(0.0, 0.5, 1.0, 0.8)
 					zoneTexture:Hide()
+
+					--===== Texture for selected button =====--
+					zoneButton.Texture = zoneButton:CreateTexture(nil, "BACKGROUND")
+					zoneButton.Texture:SetAllPoints(true)
+					zoneButton.Texture:SetTexture(nil)
+
 
 					---- DEBUG START
 					---- Create a separate font string for numeration
@@ -1201,6 +1208,20 @@
 						end
 
 
+					    --===== Texture for selected button =====--
+					    for _, button in ipairs(zoneContentFrame.Buttons) do
+					        if button == self then
+					            -- Apply the clicked texture
+					            button.Texture:SetTexture(0, 1.0, 0, 0.5)
+					            zoneTexture:Hide()
+					        else
+					            -- Remove texture from other buttons
+					            button.Texture:SetTexture(nil)
+					        end
+					    end
+
+
+
 						-- Hide unused buttons
 						for i = index, zoneMaxVisibleButtons do
 							if contentFrame.Buttons[i] then
@@ -1246,6 +1267,7 @@
 						local visibleZoneButtons = {} -- Table to store visible zone buttons
 
 						for zoneIndex, zoneButton in ipairs(zoneContentFrame.Buttons) do
+							zoneButton.Texture:SetTexture(nil)
 							local zone = zoneButton.Text:GetText()
 
 							-- Find the corresponding mobs for the zone
@@ -1300,6 +1322,7 @@
 						local visibleZoneButtons = {} -- Table to store visible zone buttons
 
 						for zoneIndex, zoneButton in ipairs(zoneContentFrame.Buttons) do
+							zoneButton.Texture:SetTexture(nil)
 							local zone = zoneButton.Text:GetText()
 
 							-- Find the corresponding mobs for the zone
@@ -1353,6 +1376,7 @@
 						local visibleZoneButtons = {} -- Table to store visible zone buttons
 
 						for zoneIndex, zoneButton in ipairs(zoneContentFrame.Buttons) do
+							zoneButton.Texture:SetTexture(nil)
 							local zone = zoneButton.Text:GetText()
 
 							-- Find the corresponding mobs for the zone
@@ -1396,8 +1420,11 @@
 					--------------------------------------------------------------------------------
 					-- End of toggle Expansions functions.
 					--------------------------------------------------------------------------------
+					--------------------------------------------------------------------------------
+					-- Zone Button Code continues inside loop.
+					--------------------------------------------------------------------------------
 
-
+					zoneContentFrame.Buttons.Texture = zoneButton.Texture
 					zoneContentFrame.Buttons[zoneIndex] = zoneButton
 
 				end
@@ -1445,6 +1472,8 @@
 			-- Create a table for each button
 			local expbtn = {}
 
+			local selectedButton = nil
+
 			-- Create buttons
 			local function MakeButtonNow(title, anchor)
 				expbtn[title] = CreateFrame("Button", nil, unitscanLC["Page1"])
@@ -1456,10 +1485,21 @@
 				expbtn[title].text:SetText(title)
 				expbtn[title].text:SetJustifyH("LEFT")
 
+				-- Create the expTexture
+				local expTexture = expbtn[title]:CreateTexture(nil, "BACKGROUND")
+				expTexture:SetAllPoints(true)
+				expTexture:SetPoint("RIGHT", -25, 0)
+				expTexture:SetPoint("LEFT", 0, 0)
+
+				expTexture:SetTexture(1.0, 0.5, 0.0, 0.6)
+
+				expTexture:Hide()
+				expbtn[title].expTexture = expTexture
+
 				-- Set the anchor point based on the provided anchor parameter
 				if anchor == "Zones" then
 					-- position first button
-					expbtn[title]:SetPoint("TOPLEFT", unitscanLC["Page1"], "TOPLEFT", 145, -70)
+					expbtn[title]:SetPoint("TOPLEFT", unitscanLC["Page1"], "TOPLEFT", 155, -70)
 				else
 					-- position other buttons, add gap
 					expbtn[title]:SetPoint("TOPLEFT", expbtn[anchor], "BOTTOMLEFT", 0, -5)
@@ -1467,15 +1507,58 @@
 
 				-- Set the OnClick script for the buttons
 				if title == "CLASSIC" then
-					expbtn[title]:SetScript("OnClick", unitscan_toggleCLASSIC)
+					expbtn[title]:SetScript("OnClick", function()
+						unitscan_toggleCLASSIC()
+						if selectedButton ~= expbtn[title] then
+							-- Show the expTexture
+							expTexture:Show()
+							-- Hide the previous selectedButton's expTexture (if any)
+							if selectedButton then
+								selectedButton.expTexture:Hide()
+							end
+							-- Set the selectedButton to the current button
+							selectedButton = expbtn[title]
+
+						end
+					end)
 					expbtn[title].text:SetTextColor(1, 1, 1)
 				elseif title == "TBC" then
-					expbtn[title]:SetScript("OnClick", unitscan_toggleTBC)
+					expbtn[title]:SetScript("OnClick", function()
+						unitscan_toggleTBC()
+						if selectedButton ~= expbtn[title] then
+							expTexture:Show()
+							if selectedButton then
+								selectedButton.expTexture:Hide()
+							end
+							selectedButton = expbtn[title]
+						end
+					end)
 					expbtn[title].text:SetTextColor(0, 1, 0)
 				elseif title == "WOTLK" then
-					expbtn[title]:SetScript("OnClick", unitscan_toggleWOTLK)
+					expbtn[title]:SetScript("OnClick", function()
+						unitscan_toggleWOTLK()
+						if selectedButton ~= expbtn[title] then
+							expTexture:Show()
+							if selectedButton then
+								selectedButton.expTexture:Hide()
+							end
+							selectedButton = expbtn[title]
+						end
+					end)
 					expbtn[title].text:SetTextColor(0.7, 0.85, 1)
 				end
+									-- Set the OnEnter script for the buttons
+expbtn[title]:SetScript("OnEnter", function()
+-- Show the expTexture on mouseover
+expTexture:Show()
+end)
+-- Set the OnLeave script for the buttons
+expbtn[title]:SetScript("OnLeave", function()
+-- Hide the expTexture on mouse leave, but only if the button is not the selectedButton
+if selectedButton ~= expbtn[title] then
+expTexture:Hide()
+end
+end)
 			end
 
 			-- Call the MakeButtonNow function for each button
