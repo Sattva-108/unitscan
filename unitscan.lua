@@ -1208,17 +1208,17 @@
 						end
 
 
-					    --===== Texture for selected button =====--
-					    for _, button in ipairs(zoneContentFrame.Buttons) do
-					        if button == self then
-					            -- Apply the clicked texture
-					            button.Texture:SetTexture(0, 1.0, 0, 0.5)
-					            zoneTexture:Hide()
-					        else
-					            -- Remove texture from other buttons
-					            button.Texture:SetTexture(nil)
-					        end
-					    end
+						--===== Texture for selected button =====--
+						for _, button in ipairs(zoneContentFrame.Buttons) do
+							if button == self then
+								-- Apply the clicked texture
+								button.Texture:SetTexture(0, 1.0, 0, 0.5)
+								zoneTexture:Hide()
+							else
+								-- Remove texture from other buttons
+								button.Texture:SetTexture(nil)
+							end
+						end
 
 
 
@@ -1522,6 +1522,7 @@
 						end
 					end)
 					expbtn[title].text:SetTextColor(1, 1, 1)
+
 				elseif title == "TBC" then
 					expbtn[title]:SetScript("OnClick", function()
 						unitscan_toggleTBC()
@@ -1534,6 +1535,7 @@
 						end
 					end)
 					expbtn[title].text:SetTextColor(0, 1, 0)
+
 				elseif title == "WOTLK" then
 					expbtn[title]:SetScript("OnClick", function()
 						unitscan_toggleWOTLK()
@@ -1547,18 +1549,26 @@
 					end)
 					expbtn[title].text:SetTextColor(0.7, 0.85, 1)
 				end
-									-- Set the OnEnter script for the buttons
-expbtn[title]:SetScript("OnEnter", function()
--- Show the expTexture on mouseover
-expTexture:Show()
-end)
--- Set the OnLeave script for the buttons
-expbtn[title]:SetScript("OnLeave", function()
--- Hide the expTexture on mouse leave, but only if the button is not the selectedButton
-if selectedButton ~= expbtn[title] then
-expTexture:Hide()
-end
-end)
+
+				-- Function to hide the selectedButton.expTexture
+				function unitscan_HideSelectedButtonExpTexture()
+					if selectedButton and selectedButton.expTexture then
+						selectedButton.expTexture:Hide()
+					end
+				end
+
+				-- Set the OnEnter script for the buttons
+				expbtn[title]:SetScript("OnEnter", function()
+					-- Show the expTexture on mouseover
+					expTexture:Show()
+				end)
+				-- Set the OnLeave script for the buttons
+				expbtn[title]:SetScript("OnLeave", function()
+					-- Hide the expTexture on mouse leave, but only if the button is not the selectedButton
+					if selectedButton ~= expbtn[title] then
+						expTexture:Hide()
+					end
+				end)
 			end
 
 			-- Call the MakeButtonNow function for each button
@@ -1566,7 +1576,81 @@ end)
 			MakeButtonNow("TBC", "CLASSIC")
 			MakeButtonNow("WOTLK", "TBC")
 
-		--===== End of whole big rare_spawns_list function =====--
+
+
+
+
+			local sBox = unitscanLC:CreateEditBox("RareListSearchBox", unitscanLC["Page1"], 60, 10, "TOPLEFT", 155, -260, "RareListSearchBox", "RareListSearchBox")
+			sBox:SetMaxLetters(50)
+
+			local function Sanitize(text)
+				if type(text) == "string" then
+					text = string.gsub(text, "'", "")
+					text = string.gsub(text, "%d", "")
+				end
+				return text
+			end
+
+			local function SearchButtons(text)
+				unitscan_HideSelectedButtonExpTexture()
+				text = Sanitize(string.lower(text))
+
+				for zoneIndex, zoneButton in ipairs(zoneContentFrame.Buttons) do
+					zoneButton.Texture:SetTexture(nil)
+					local zone = zoneButton.Text:GetText()
+					local lowerZone = string.lower(zone) -- Convert zone name to lowercase
+
+					-- Find the corresponding mobs for the zone
+					local mobs = sortedSpawns[zone]
+					if mobs then
+						local shouldHideButton = true
+						for _, data in ipairs(mobs) do
+							if string.find(data.expansion, "TBC") or string.find(data.expansion, "CLASSIC") or string.find(data.expansion, "WOTLK") then
+								shouldHideButton = false -- Show buttons with any expansion
+								break
+							end
+						end
+
+						-- Perform case-insensitive search by comparing lowercase zone name
+						if shouldHideButton or not string.find(lowerZone, text, 1, true) then
+							zoneButton:Hide()
+						else
+							zoneButton:Show()
+						end
+					end
+				end
+
+				-- Sort the visible zone buttons based on zone names
+				local visibleZoneButtons = {}
+				for zoneIndex, zoneButton in ipairs(zoneContentFrame.Buttons) do
+					if zoneButton:IsShown() then
+						table.insert(visibleZoneButtons, zoneButton)
+					end
+				end
+
+				table.sort(visibleZoneButtons, function(a, b)
+					local zoneA = a.Text:GetText()
+					local zoneB = b.Text:GetText()
+					return zoneA < zoneB
+				end)
+
+				-- Update the button positions based on the sorted table
+				local zoneIndex = 1
+				for _, zoneButton in ipairs(visibleZoneButtons) do
+					zoneButton:ClearAllPoints()
+					zoneButton:SetPoint("TOPLEFT", 0, -(zoneIndex - 1) * buttonHeight)
+					zoneIndex = zoneIndex + 1
+				end
+			end
+
+			sBox:SetScript("OnChar", function(self, char)
+				SearchButtons(sBox:GetText())
+			end)
+
+
+
+
+			--===== End of whole big rare_spawns_list function =====--
 		end
 
 		-- Run on startup
