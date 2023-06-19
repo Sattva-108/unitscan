@@ -1578,10 +1578,18 @@
 
 
 
+			--------------------------------------------------------------------------------
+			-- Create Search Box
+			--------------------------------------------------------------------------------
 
 
 			local sBox = unitscanLC:CreateEditBox("RareListSearchBox", unitscanLC["Page1"], 60, 10, "TOPLEFT", 155, -260, "RareListSearchBox", "RareListSearchBox")
 			sBox:SetMaxLetters(50)
+
+
+			--------------------------------------------------------------------------------
+			-- Main Searching Logic Functions
+			--------------------------------------------------------------------------------
 
 			local function Sanitize(text)
 				if type(text) == "string" then
@@ -1592,6 +1600,7 @@
 			end
 
 			local function SearchButtons(text)
+				GameTooltip:Hide()
 				unitscan_HideSelectedButtonExpTexture()
 				text = Sanitize(string.lower(text))
 
@@ -1643,11 +1652,78 @@
 				end
 			end
 
-			sBox:SetScript("OnChar", function(self, char)
-				SearchButtons(sBox:GetText())
-			end)
+			--------------------------------------------------------------------------------
+			-- Functions for editbox scripts - OnTextChanged, OnEnterPressed, etc...
+			--------------------------------------------------------------------------------
 
 
+			local function SearchEditBox_OnTextChanged(editBox)
+				local text = editBox:GetText()
+				if not text or text:trim() == "" then
+					sBox.clearButton:Hide()
+				else
+					sBox.clearButton:Show()
+					SearchButtons(text)
+				end
+			end
+
+			sBox:SetScript("OnTextChanged", SearchEditBox_OnTextChanged)
+
+			local function SearchEditBox_OnEscapePressed()
+				sBox:ClearFocus()
+				sBox:SetText('')
+				SearchButtons("")
+			end
+
+			sBox:SetScript("OnEscapePressed", SearchEditBox_OnEscapePressed)
+
+			local function SearchEditBox_OnEnterPressed(self)
+				self:ClearFocus()
+			end
+
+			sBox:SetScript("OnEnterPressed", SearchEditBox_OnEnterPressed)
+
+
+			--===== Setup Tooltip =====--
+			local function onEnterSearchBox()
+				--GameTooltip:SetOwner(sBox, "ANCHOR_RIGHT")
+				--GameTooltip:SetOwner(sBox, "ANCHOR_CURSOR_RIGHT",0,-80)
+				GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+
+				GameTooltip:SetText("Zone Search")
+				GameTooltip:AddLine("Enter your search query.")
+				GameTooltip:Show()
+			end
+
+			local function onLeaveSearchBox()
+				GameTooltip:Hide()
+			end
+
+			sBox:SetScript("OnEnter", onEnterSearchBox)
+			sBox:SetScript("OnLeave", onLeaveSearchBox)
+
+			--------------------------------------------------------------------------------
+			-- Create Close Button, source code from ElvUI - Enhanced.
+			--------------------------------------------------------------------------------
+
+			--===== Close Button =====--
+			local searchClearButton = CreateFrame("Button", nil, sBox)
+			searchClearButton.texture = searchClearButton:CreateTexture()
+			searchClearButton.texture:SetTexture("Interface\\FriendsFrame\\ClearBroadcastIcon")
+			searchClearButton.texture:SetSize(17,17)
+			searchClearButton.texture:SetPoint("CENTER", 0, 0)
+			searchClearButton:SetAlpha(0.5)
+			searchClearButton:SetScript("OnEnter", function(self) self:SetAlpha(1.0) end)
+			searchClearButton:SetScript("OnLeave", function(self) self:SetAlpha(0.5) end)
+			searchClearButton:SetScript("OnMouseDown", function(self) if self:IsEnabled() then self:SetPoint("CENTER", 1, -1) end end)
+			searchClearButton:SetScript("OnMouseUp", function(self) self:SetPoint("CENTER") end)
+			searchClearButton:SetPoint("RIGHT")
+			searchClearButton:SetSize(20, 20)
+			searchClearButton:SetText("X")
+			searchClearButton:Hide()
+			searchClearButton:SetScript('OnClick', SearchEditBox_OnEscapePressed)
+
+			sBox.clearButton = searchClearButton
 
 
 			--===== End of whole big rare_spawns_list function =====--
@@ -1661,7 +1737,7 @@
 	
 
 		--------------------------------------------------------------------------------
-		-- End of Rare Spawns buttons list.
+		-- End of Rare Spawns buttons list module.
 		--------------------------------------------------------------------------------
 
 		----------------------------------------------------------------------
