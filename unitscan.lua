@@ -1583,7 +1583,7 @@
 			--------------------------------------------------------------------------------
 
 
-			local sBox = unitscanLC:CreateEditBox("RareListSearchBox", unitscanLC["Page1"], 60, 10, "TOPLEFT", 155, -260, "RareListSearchBox", "RareListSearchBox")
+			local sBox = unitscanLC:CreateEditBox("RareListSearchBox", unitscanLC["Page1"], 60, 10, "TOPLEFT", 150, -260, "RareListSearchBox", "RareListSearchBox")
 			sBox:SetMaxLetters(50)
 
 
@@ -1670,6 +1670,7 @@
 			sBox:SetScript("OnTextChanged", SearchEditBox_OnTextChanged)
 
 			local function SearchEditBox_OnEscapePressed()
+				sBox.searchIcon:Show()
 				sBox:ClearFocus()
 				sBox:SetText('')
 				SearchButtons("")
@@ -1702,9 +1703,28 @@
 			sBox:SetScript("OnEnter", onEnterSearchBox)
 			sBox:SetScript("OnLeave", onLeaveSearchBox)
 
+
+			sBox:SetScript("OnEditFocusGained", function(self)
+				self.searchIcon:Hide()
+				self.clearButton:Hide()
+			end)
+			sBox:SetScript("OnEditFocusLost", function(self)
+				if self:GetText() == "" then
+					self.searchIcon:SetVertexColor(0.6, 0.6, 0.6)
+					self.clearButton:Hide()
+				end
+			end)
+
 			--------------------------------------------------------------------------------
-			-- Create Close Button, source code from ElvUI - Enhanced.
+			-- Create Search & Close Button, source code from ElvUI - Enhanced.
 			--------------------------------------------------------------------------------
+
+			--===== Search Button =====--
+			sBox.searchIcon = sBox:CreateTexture(nil, "OVERLAY")
+			sBox.searchIcon:SetTexture("Interface\\Common\\UI-Searchbox-Icon")
+			sBox.searchIcon:SetVertexColor(0.6, 0.6, 0.6)
+			sBox.searchIcon:SetSize(14,14)
+			sBox.searchIcon:SetPoint("LEFT", 0, -2)
 
 			--===== Close Button =====--
 			local searchClearButton = CreateFrame("Button", nil, sBox)
