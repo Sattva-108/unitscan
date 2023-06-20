@@ -1688,7 +1688,7 @@
 
 							visibleButtonsCount = visibleButtonsCount + 1
 
-							--print(visibleButtonsCount)
+							-- print(visibleButtonsCount)
 							if visibleButtonsCount <= 13 then
 								eb.scroll.ScrollBar:Hide()
 								eb.scroll.ScrollBar:SetMinMaxValues(1, 1)
