@@ -152,7 +152,7 @@
 			-- Add feedback label
 			eFrame.x = eFrame:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
 			eFrame.x:SetPoint("TOPRIGHT", x, y)
-			eFrame.x:SetText("|cff00ff00Feedback Discord:|r |cffadd8e6Sattva#7238|r")
+			eFrame.x:SetText("\124cff00ff00" .. "Feedback Discord:" .. "\124cffffff00" .. " Sattva" .. "\124cffadd8e6" .. "#7238")
 
 			eFrame.x:SetPoint("TOPRIGHT", eFrame, "TOPRIGHT", -12, -52)
 			hooksecurefunc(eFrame.f, "SetText", function()
@@ -770,8 +770,8 @@
 				OnTooltipShow = function(tooltip)
 					if not tooltip or not tooltip.AddLine then return end
 					tooltip:AddLine("unitscan")	
-					tooltip:AddLine("|cffeda55fClick|r |cff99ff00to open unitscan options.|r")
-                    tooltip:AddLine("|cffeda55fRight-Click|r |cff99ff00to reload the user interface.|r")
+					tooltip:AddLine("\124cffeda55fClick \124cff99ff00to open unitscan options.")
+                    tooltip:AddLine("\124cffeda55fRight-Click \124cff99ff00to reload the user interface.")
 				end,
 			})
 
@@ -846,7 +846,7 @@
 		-- Show first run message
 		if not unitscanDB["FirstRunMessageSeen"] then
 			LibCompat.After(1, function()
-				unitscanLC:Print(L["Enter"] .. " |cff00ff00" .. "/run leaplus()" .. "|r " .. L["or click the minimap button to open unitscan."])
+				unitscanLC:Print(L["Enter"] .. " \124cff00ff00" .. "/unitscan" .. " \124cffffffff" .. L["or click the minimap button to open unitscan."])
 				unitscanDB["FirstRunMessageSeen"] = true
 			end)
 		end
@@ -994,7 +994,7 @@
 						local button = CreateFrame("Button", nil, contentFrame)
 						button:SetSize(contentFrame:GetWidth(), buttonHeight)
 						if index >= 2 then
-							button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight - 1) -- Increase the vertical position by 1 to reduce overlap
+							button:SetPoint("TOPLEFT", 0.5, -(index - 1) * buttonHeight - 1) -- Increase the vertical position by 1 to reduce overlap
 						else
 							button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
 						end
@@ -1022,7 +1022,7 @@
 							if unitscan_ignored[rare] then
 								-- Remove rare from ignore list
 								unitscan_ignored[rare] = nil
-								unitscan.ignoreprint("- " .. rare)
+								unitscan.ignoreprintyellow("\124cffffff00" .. "- " .. rare)
 								unitscan.refresh_nearby_targets()
 								found[rare] = nil
 								self.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
@@ -1236,7 +1236,7 @@
 										-- Set button text and position
 										button.Text:SetText(data.name) -- Use the name from data
 										if index >= 2 then
-											button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight - 1) -- Increase the vertical position by 1 to reduce overlap
+											button:SetPoint("TOPLEFT", 0.5, -(index - 1) * buttonHeight - 1) -- Increase the vertical position by 1 to reduce overlap
 										else
 											button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
 										end
@@ -1680,7 +1680,7 @@
 							-- Set button text and position
 							button.Text:SetText(rare)
 							if visibleButtonsCount >= 1 then
-								button:SetPoint("TOPLEFT", 0, -(visibleButtonsCount * buttonHeight + 1)) -- Increase the vertical position by 1 to reduce overlap
+								button:SetPoint("TOPLEFT", 0.5, -(visibleButtonsCount * buttonHeight + 1)) -- Increase the vertical position by 1 to reduce overlap
 							else
 								button:SetPoint("TOPLEFT", 0, -(visibleButtonsCount * buttonHeight))
 							end
@@ -3480,7 +3480,7 @@
 	unitscanLC:MakeWD(unitscanLC[pg], "To begin, choose an options page.", 146, -92);
 
 	unitscanLC:MakeTx(unitscanLC[pg], "Support", 146, -132);
-	unitscanLC:MakeWD(unitscanLC[pg], "|cff00ff00Feedback Discord:|r |cffadd8e6Sattva#7238|r", 146, -152);
+	unitscanLC:MakeWD(unitscanLC[pg], "\124cff00ff00" .. "Feedback Discord:" .. "\124cffffff00" .. " Sattva" .. "\124cffadd8e6" .. "#7238", 146, -152);
 
 ----------------------------------------------------------------------
 -- 	LC1: Automation
@@ -3738,7 +3738,7 @@
 				unitscan.flash.animation:Play()
 				unitscan.discovered_unit = name
 				if InCombatLockdown() then
-					print("|cFF00FF00unitscan found - |r |cffffff00" .. name .. "|r")
+					print("\124cFF00FF00" .. "unitscan found - " .. "\124cffffff00" .. name)
 				end
 			end
 		else
@@ -4018,24 +4018,46 @@ do
 end
 
 
+--------------------------------------------------------------------------------
+-- Escape colors
+--------------------------------------------------------------------------------
+
+local RED = "\124cffff0000"
+local YELLOW = "\124cffffff00"
+local GREEN = "\124cff00ff00"
+local WHITE = "\124cffffffff"
+local ORANGE = "\124cffffa500"
+local BLUE = "\124cff0000ff"
+local GREY = "\124cffb4b4b4"
+local LYELLOW = "\124cffffff9a"
+
 
 --------------------------------------------------------------------------------
 -- Prints to add prefix to message and color text.
 --------------------------------------------------------------------------------
 
-
+	--===== Prints in light yellow =====--
 	function unitscan.print(msg)
 		if DEFAULT_CHAT_FRAME then
-			DEFAULT_CHAT_FRAME:AddMessage("|cFF00FF00/unitscan|r " .. "|cffffff9a" .. msg .. "|r")
+			DEFAULT_CHAT_FRAME:AddMessage(GREEN .. "/unitscan " .. LYELLOW .. msg)
 		end
 	end
 
-
+	--===== prints in green + red =====--
 	function unitscan.ignoreprint(msg)
 		if DEFAULT_CHAT_FRAME then
-			DEFAULT_CHAT_FRAME:AddMessage("|cFF00FF00/unitscan ignore|r " .. "|cffff0000" .. msg .. "|r")
+			DEFAULT_CHAT_FRAME:AddMessage(GREEN .. "/unitscan ignore " .. RED .. msg)
 		end
 	end
+
+	--===== prints in green + lightyellow =====--
+	function unitscan.ignoreprintyellow(msg)
+		if DEFAULT_CHAT_FRAME then
+			DEFAULT_CHAT_FRAME:AddMessage(GREEN .. "/unitscan ignore " .. LYELLOW .. msg)
+
+		end
+	end
+
 
 --------------------------------------------------------------------------------
 -- Function for sorting targets alphabetically. For user QOL.
@@ -4062,41 +4084,40 @@ end
 		if unitscan_targets[key] then
 			unitscan_targets[key] = nil
 			found[key] = nil
-			unitscan.print('- ' .. key)
+			unitscan.print(RED .. '- ' .. key)
 		elseif key ~= '' then
 			unitscan_targets[key] = true
-			unitscan.print('+ ' .. key)
+			unitscan.print(YELLOW .. '+ ' .. key)
 		end
 	end
 
 
---------------------------------------------------------------------------------
--- Slash Commands /unitscan
---------------------------------------------------------------------------------
+	--------------------------------------------------------------------------------
+	-- Slash Commands /unitscan
+	--------------------------------------------------------------------------------
 
 	-- Slash command function
 	function unitscanLC:SlashFunc(parameter)
-		--SlashCmdList["UNITSCAN"] = function(parameter)
 		local _, _, command, args = string.find(parameter, '^(%S+)%s*(.*)$')
-		
-		--===== Slash to put current player target to the unit scanning list. =====--	
+
+		--===== Slash to put current player target to the unit scanning list. =====--    
 		if command == "target" then
 			local targetName = UnitName("target")
 			if targetName then
 				local key = strupper(targetName)
 				if not unitscan_targets[key] then
 					unitscan_targets[key] = true
-					unitscan.print("+ " .. key)
+					unitscan.print(YELLOW .. "+ " .. key)
 				else
 					unitscan_targets[key] = nil
-					unitscan.print("- " .. key)
+					unitscan.print(RED .. "- " .. key)
 					found[key] = nil
 				end
 			else
 				unitscan.print("No target selected.")
 			end
 
-		--===== Slash to change unit scanning interval. Default is 0.3 =====--	
+			--===== Slash to change unit scanning interval. Default is 0.3 =====--    
 		elseif command == "interval" then
 			local newInterval = tonumber(args)
 			if newInterval then
@@ -4114,7 +4135,7 @@ end
 				if next(unitscan_ignored) == nil then
 					print("Ignore list is empty.")
 				else
-					print("|cffff0000Ignore list currently contains:|r")
+					print(YELLOW .. "Ignore list currently contains:")
 					for rare in pairs(unitscan_ignored) do
 						unitscan.ignoreprint(rare)
 					end
@@ -4126,7 +4147,7 @@ end
 					if unitscan_ignored[rare] then
 						-- Remove rare from ignore list
 						unitscan_ignored[rare] = nil
-						unitscan.ignoreprint("- " .. rare)
+						unitscan.ignoreprintyellow("- " .. rare)
 						unitscan.refresh_nearby_targets()
 						found[rare] = nil
 					else
@@ -4137,91 +4158,82 @@ end
 					end
 				else
 					-- Rare does not exist in rare_spawns table
-					unitscan.print("|cffffff00" .. args .. "|r" .. " is not a valid rare spawn.")
+					unitscan.print(YELLOW .. args .. WHITE .. " is not a valid rare spawn.")
 				end
 				return
 			end
 
+			--===== Slash to avoid people confusion if they do /unitscan name =====--    
+			elseif command == "name" then
+				print(" ")
+				unitscan.print("replace " .. YELLOW .. "'name'" .. WHITE .. " with npc you want to scan.")
+				print(" - for example: " .. GREEN .. "/unitscan " .. YELLOW .. "Hogger")
 
-
-
-		--===== Slash to avoid people confusion if they do /unitscan name =====--	
-		elseif command == "name" then
-			print(" ")
-			unitscan.print("replace |cffffff00'name'|r with npc you want to scan.")
-			print(" - for example: |cFF00FF00/unitscan|r |cffffff00Hogger|r")
-
-		--===== Slash to only print currently tracked non-rare targets. =====--	
-		elseif command == "targets" then
-			if unitscan_targets then
-				for k, v in pairs(unitscan_targets) do
-					unitscan.print(tostring(k))
-				end
-			end
-
-		--===== Slash to show rare spawns that are currently being scanned. =====--	
-		elseif command == "nearby" then
-			unitscan.print("Is someone missing?")
-			unitscan.print(" - Add it to your list with |cFF00FF00/unitscan|r |cffffff00name|r")
-			unitscan.print("|cffff0000ignore|r")
-			unitscan.print(" - Adds/removes the rare mob 'name' from the unit scanner |cffff0000ignore list.|r")
-			unitscan.print(" ")
-
-			for _, target in ipairs(nearby_targets) do
-				local name, expansion = unpack(target)
-				if not (name == "Lumbering Horror" or name == "Spirit of the Damned" or name == "Bone Witch") then
-					unitscan.print(name)
-				end
-			end
-
-
-
-		--===== Slash to show all avaliable commands =====--	
-		elseif command == 'help' then
-
-			print(" ")
-			print("|cfff0d440Available commands:|r")
-
-			unitscan.print("target")
-			print(" - Adds/removes the name of your |cffffff00current target|r to the scanner.")
-			-- print(" ")
-			unitscan.print("name")
-			print(" - Adds/removes the |cffffff00mob/player 'name'|r from the unit scanner.")
-			-- print(" ")
-			unitscan.print("nearby")
-			print(" - List of |cffffff00rare mob names|r that are being scanned in your current zone.")
-			unitscan.print("|cffff0000ignore|r")
-					print(" - Adds/removes the rare mob 'name' from the unit scanner |cffff0000ignore list.|r")
-
-
-		--===== Slash without any arguments (/untiscan) prints currently tracked user-defined units and some basic available slash commands  =====--
-		--===== If an agrugment after /unitscan is given, it will add a unit to the scanning targets. =====--
-		elseif not command then
-			print(" ")
-			unitscan.print("|cffffff00help|r")
-			print(" - Displays available unitscan |cffffff00commands|r")
-			print(" ")
-			if unitscan_targets then
-				if next(unitscan_targets) == nil then
-					unitscan.print("Unit Scanner is currently empty.")
-				else
-					print(" |cffffff00Unit Scanner|r currently contains:")
+				--===== Slash to only print currently tracked non-rare targets. =====--
+			elseif command == "targets" then
+				if unitscan_targets then
 					for k, v in pairs(unitscan_targets) do
 						unitscan.print(tostring(k))
 					end
 				end
+
+				--===== Slash to show rare spawns that are currently being scanned. =====--    
+			elseif command == "nearby" then
+				unitscan.print("Is someone missing?")
+				unitscan.print(" - Add it to your list with " .. GREEN .. "/unitscan name")
+				unitscan.print(YELLOW .. "ignore")
+				unitscan.print(" - Adds/removes the rare mob 'name' from the unit scanner " .. YELLOW .. "ignore list.")
+				unitscan.print(" ")
+
+				for _, target in ipairs(nearby_targets) do
+					local name, expansion = unpack(target)
+					if not (name == "Lumbering Horror" or name == "Spirit of the Damned" or name == "Bone Witch") then
+						unitscan.print(name)
+					end
+				end
+
+				--===== Slash to show all avaliable commands =====--    
+			elseif command == 'help' then
+
+				print(" ")
+				print(YELLOW .. "Available commands:")
+
+				unitscan.print("target")
+				print(" - Adds/removes the name of your " .. YELLOW .. "current target" .. WHITE .. " to the scanner.")
+				unitscan.print("name")
+				print(" - Adds/removes the " .. YELLOW .. "mob/player 'name'" .. WHITE .. " from the unit scanner.")
+				unitscan.print("nearby")
+				print(" - List of " .. YELLOW .. "rare mob names" .. WHITE .. " that are being scanned in your current zone.")
+				unitscan.print(YELLOW .. "ignore")
+				print(" - Adds/removes the rare mob 'name' from the unit scanner " .. YELLOW .. "ignore list.")
+
+				--===== Slash without any arguments (/unitscan) prints currently tracked user-defined units and some basic available slash commands  =====--
+				--===== If an agrugment after /unitscan is given, it will add a unit to the scanning targets. =====--
+			elseif not command then
+				print(" ")
+				unitscan.print(YELLOW .. "help")
+				print(" - Displays available unitscan " .. YELLOW .. "commands")
+				print(" ")
+				if unitscan_targets then
+					if next(unitscan_targets) == nil then
+						unitscan.print("Unit Scanner is currently empty.")
+					else
+						print(" " .. YELLOW .. "Unit Scanner" .. WHITE .. " currently contains:")
+						for k, v in pairs(unitscan_targets) do
+							unitscan.print(tostring(k))
+						end
+					end
+				end
+			else
+				unitscan.toggle_target(parameter)
 			end
-		else
-			unitscan.toggle_target(parameter)
 		end
-	end
 
-	-- Slash command for global function
-	_G.SLASH_UNITSCAN1 = "/unitscan"
-	_G.SLASH_UNITSCAN2 = "/uns"
+		-- Slash command for global function
+		_G.SLASH_UNITSCAN1 = "/unitscan"
+		_G.SLASH_UNITSCAN2 = "/uns"
 
-
-	SlashCmdList["UNITSCAN"] = function(self)
+		SlashCmdList["UNITSCAN"] = function(self)
 		-- Run slash command function
 		unitscanLC:SlashFunc(self)
 		-- Redirect tainted variables
@@ -4229,14 +4241,8 @@ end
 		RunScript('LAST_ACTIVE_CHAT_EDIT_BOX = LAST_ACTIVE_CHAT_EDIT_BOX')
 	end
 
-	--SlashCmdList["UNS"] = function(self)
-	--	-- Run slash command function
-	--	unitscanLC:SlashFunc(self)
-	--	-- Redirect tainted variables
-	--	RunScript('ACTIVE_CHAT_EDIT_BOX = ACTIVE_CHAT_EDIT_BOX')
-	--	RunScript('LAST_ACTIVE_CHAT_EDIT_BOX = LAST_ACTIVE_CHAT_EDIT_BOX')
-	--end
 
-
-
+--------------------------------------------------------------------------------
+-- End of unitscan code
+--------------------------------------------------------------------------------
 
