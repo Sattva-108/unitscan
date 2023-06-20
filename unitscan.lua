@@ -993,7 +993,11 @@
 					if index <= maxVisibleButtons then
 						local button = CreateFrame("Button", nil, contentFrame)
 						button:SetSize(contentFrame:GetWidth(), buttonHeight)
-						button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
+						if index >= 2 then
+							button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight - 1) -- Increase the vertical position by 1 to reduce overlap
+						else
+							button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
+						end
 
 						-- Create a texture region within the button frame
 						local texture = button:CreateTexture(nil, "BACKGROUND")
@@ -1001,15 +1005,52 @@
 						texture:SetTexture(1.0, 0.5, 0.0, 0.8)
 						texture:Hide()
 
+						-- Create a texture region within the button frame
+						button.IgnoreTexture = button:CreateTexture(nil, "BACKGROUND")
+						button.IgnoreTexture:SetAllPoints(true)
+
 						button.Text = button:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 						button.Text:SetPoint("LEFT", 5, 0)
 
 						button:SetScript("OnClick", function(self)
 							-- Handle button click event here
-							print("Button clicked: " .. self.Text:GetText())
+							--print("Button clicked: " .. self.Text:GetText())
+
+							-- Get the rare mob's name from the button's text
+							local rare = string.upper(self.Text:GetText())
+
+							if unitscan_ignored[rare] then
+								-- Remove rare from ignore list
+								unitscan_ignored[rare] = nil
+								unitscan.ignoreprint("- " .. rare)
+								unitscan.refresh_nearby_targets()
+								found[rare] = nil
+								self.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
+								texture:Show()
+							else
+								-- Add rare to ignore list
+								unitscan_ignored[rare] = true
+								unitscan.ignoreprint("+ " .. rare)
+								unitscan.refresh_nearby_targets()
+								self.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
+								texture:Hide()
+							end
+
 							-- Clear focus of search box
 							unistcan_searchbox:ClearFocus()
 						end)
+
+						-- Set button texture update function for OnShow event
+						button:SetScript("OnShow", function(self)
+							local rare = string.upper(button.Text:GetText())
+
+							if unitscan_ignored[rare] then
+								button.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
+							else
+								button.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
+							end
+						end)
+
 
 						button:SetScript("OnEnter", function(self)
 							-- Handle button click event here
@@ -1144,12 +1185,18 @@
 
 					
 					--------------------------------------------------------------------------------
-					-- Function to hide all rare mob names
+					-- Functions to hide all rare mob names and all zone names
 					--------------------------------------------------------------------------------
 
 
 					function unitscan_HideExistingButtons()
 						for _, button in ipairs(contentFrame.Buttons) do
+							button:Hide()
+						end
+					end
+
+					function unitscan_HideExistingZoneButtons()
+						for _, button in ipairs(zoneContentFrame.Buttons) do
 							button:Hide()
 						end
 					end
@@ -1188,7 +1235,11 @@
 
 										-- Set button text and position
 										button.Text:SetText(data.name) -- Use the name from data
-										button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
+										if index >= 2 then
+											button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight - 1) -- Increase the vertical position by 1 to reduce overlap
+										else
+											button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
+										end
 										button:Show()
 
 										index = index + 1
@@ -1236,21 +1287,22 @@
 					
 					zoneButton:SetScript("OnEvent", function()
 						if event == "PLAYER_ENTERING_WORLD" then
-							local currentZone = GetZoneText();
-							-- Find the button matching the current zone
-							local matchingButton
-							for _, button in ipairs(zoneContentFrame.Buttons) do
-								if button.Text:GetText() == currentZone then
-									unitscan_zoneMatchingButton = button
-									break
-								end
-							end
+							unitscan_myzoneGUIButton:Click()
+							--local currentZone = GetZoneText();
+							---- Find the button matching the current zone
+							--local matchingButton
+							--for _, button in ipairs(zoneContentFrame.Buttons) do
+							--	if button.Text:GetText() == currentZone then
+							--		unitscan_zoneMatchingButton = button
+							--		break
+							--	end
+							--end
 
-							-- Click the matching button if found
-							if unitscan_zoneMatchingButton then
-								unitscan_zoneMatchingButton:Click()
-								zoneButton:UnregisterEvent("PLAYER_ENTERING_WORLD")
-							end
+							---- Click the matching button if found
+							--if unitscan_zoneMatchingButton then
+							--	unitscan_zoneMatchingButton:Click()
+							--	zoneButton:UnregisterEvent("PLAYER_ENTERING_WORLD")
+							--end
 						end
 					end)
 					zoneButton:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -1447,6 +1499,11 @@
 					end
 
 					function unitscan_toggleMyZone()
+						unitscan_zoneScrollbar:SetMinMaxValues(1, 1)
+						unitscan_zoneScrollbar:Hide()
+						eb.scroll.ScrollBar:Hide()
+						-- call searchbox
+						unistcan_searchbox:ClearFocus()
 						-- Sort the visible zone buttons based on zone names
 						local visibleZoneButtons = {}
 						for _, button in ipairs(zoneContentFrame.Buttons) do
@@ -1527,6 +1584,9 @@
 
 			local selectedButton = nil
 
+			-- Declare visibleButtonsCount as a global variable
+			local visibleButtonsCount = 0
+
 			-- Create buttons
 			local function MakeButtonNow(title, anchor)
 				expbtn[title] = CreateFrame("Button", nil, unitscanLC["Page1"])
@@ -1579,9 +1639,6 @@
 
 						unitscan_toggleMyZone()
 
-						-- Clear focus of search box
-						unistcan_searchbox:ClearFocus()
-
 						-- Update selected button
 						if matchingButton then
 							matchingButton:Click()
@@ -1594,6 +1651,70 @@
 					end)
 
 					expbtn[title].text:SetTextColor(1, 1, 1)
+					unitscan_myzoneGUIButton = expbtn[title]
+
+					-- Modify the OnClick script for the "Ignored Rares" button
+				elseif title == "Ignored" then
+					expbtn[title]:SetScript("OnClick", function()
+						unitscan_HideExistingButtons()
+						unitscan_HideExistingZoneButtons()
+						unitscan_zoneScrollbar:SetMinMaxValues(1, 1)
+						unitscan_zoneScrollbar:Hide()
+						eb.scroll.ScrollBar:Hide()
+						-- call searchbox
+						unistcan_searchbox:ClearFocus()
+
+
+
+						visibleButtonsCount = 0 -- Reset visibleButtonsCount
+
+						-- Show all ignored rares
+						for rare in pairs(unitscan_ignored) do
+							local button = contentFrame.Buttons[visibleButtonsCount + 1]
+							if not button then
+								button = CreateFrame("Button", nil, contentFrame)
+								button:SetSize(contentFrame:GetWidth(), buttonHeight)
+								contentFrame.Buttons[visibleButtonsCount + 1] = button
+							end
+
+							-- Set button text and position
+							button.Text:SetText(rare)
+							if visibleButtonsCount >= 1 then
+								button:SetPoint("TOPLEFT", 0, -(visibleButtonsCount * buttonHeight + 1)) -- Increase the vertical position by 1 to reduce overlap
+							else
+								button:SetPoint("TOPLEFT", 0, -(visibleButtonsCount * buttonHeight))
+							end
+							button:Show()
+
+							visibleButtonsCount = visibleButtonsCount + 1
+
+							--print(visibleButtonsCount)
+							if visibleButtonsCount <= 13 then
+								eb.scroll.ScrollBar:Hide()
+								eb.scroll.ScrollBar:SetMinMaxValues(1, 1)
+							else
+								eb.scroll.ScrollBar:Show()
+								eb.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
+							end
+
+						end
+						-- Clear focus of search box
+						unistcan_searchbox:ClearFocus()
+
+						if selectedButton ~= expbtn[title] then
+							expbtn[title].expTexture:Show()
+							if selectedButton then
+								selectedButton.expTexture:Hide()
+							end
+							selectedButton = expbtn[title]
+						end
+
+					end)
+
+					--eb.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
+					expbtn[title].text:SetTextColor(1, 0, 0) -- Set text color for the new button
+					unitscan_ignoredGUIButton = expbtn[title]
+
 				else
 					expbtn[title]:SetScript("OnClick", function()
 						if title == "CLASSIC" then
@@ -1614,7 +1735,7 @@
 					end)
 
 					if title == "CLASSIC" then
-						expbtn[title].text:SetTextColor(1, 1, 1)
+						expbtn[title].text:SetTextColor(1, 1, 0)
 					elseif title == "TBC" then
 						expbtn[title].text:SetTextColor(0, 1, 0)
 					elseif title == "WOTLK" then
@@ -1648,6 +1769,8 @@
 			MakeButtonNow("TBC", "CLASSIC")
 			MakeButtonNow("WOTLK", "TBC")
 			MakeButtonNow("My Zone", "WOTLK")
+			MakeButtonNow("Ignored", "My Zone")
+
 
 
 
@@ -1732,6 +1855,9 @@
 
 
 			local function SearchEditBox_OnTextChanged(editBox)
+				--scroll to top if text changed
+				unitscan_zoneScrollbar:SetValue(unitscan_zoneScrollbar:GetMinMaxValues())
+				
 				local text = editBox:GetText()
 				if not text or text:trim() == "" then
 					sBox.clearButton:Hide()
@@ -1739,6 +1865,36 @@
 					sBox.clearButton:Show()
 					SearchButtons(text)
 				end
+				-- Count visible zone buttons
+				local visibleButtonCount = 0
+				for _, button in ipairs(zoneContentFrame.Buttons) do
+					if button:IsShown() then
+						visibleButtonCount = visibleButtonCount + 1
+					end
+				end
+
+
+				-- Multiply by button height to get scrollbar maximum   
+				local maxValue = visibleButtonCount * 20  
+				if visibleButtonCount >= 1 then
+					-- Set scrollbar minimum and maximum values   
+
+
+
+					-- Hide scrollbar if less than 5 buttons visible
+					if visibleButtonCount <= 13 then
+						unitscan_zoneScrollbar:SetMinMaxValues(1, 1)
+						unitscan_zoneScrollbar:Hide()
+					else
+						unitscan_zoneScrollbar:SetMinMaxValues(1, maxValue)
+						unitscan_zoneScrollbar:Show()
+					end  
+
+				end
+
+				if visibleButtonCount == 0 then unitscan_zoneScrollbar:SetMinMaxValues(1, 1); unitscan_zoneScrollbar:Hide() end
+				-- Print count in chat
+				--print(visibleButtonCount .. " zone buttons visible.")
 			end
 
 			sBox:SetScript("OnTextChanged", SearchEditBox_OnTextChanged)

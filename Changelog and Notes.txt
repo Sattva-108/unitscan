@@ -70,3 +70,5 @@ After adding new commands need to put them into /unitscan help command so that w
 Add description of /ignore command in /unitscan slash.
 If the button was visible for user defined time and mob is out of range then hide the button (disabled by default)
 Test Hookscript instead of SetScript to avoid taints for right clicking in 2.4.3.
+ignore print if removed then yellow or white color.
+zonebuttons on searchbox changed hide scrollbar if too few displayed
