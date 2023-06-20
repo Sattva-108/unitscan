@@ -1007,6 +1007,8 @@
 						button:SetScript("OnClick", function(self)
 							-- Handle button click event here
 							print("Button clicked: " .. self.Text:GetText())
+							-- Clear focus of search box
+							unistcan_searchbox:ClearFocus()
 						end)
 
 						button:SetScript("OnEnter", function(self)
@@ -1220,7 +1222,8 @@
 							end
 						end
 
-
+						-- Clear focus of search box
+						unistcan_searchbox:ClearFocus()
 
 						-- Hide unused buttons
 						for i = index, zoneMaxVisibleButtons do
@@ -1280,6 +1283,8 @@
 						unitscan_zoneScrollbar:SetMinMaxValues(1, 930)
 						unitscan_zoneScrollbar:Show()
 						eb.scroll.ScrollBar:Hide()
+						-- call searchbox
+						unistcan_searchbox:ClearFocus()						
 
 
 						unitscan_HideExistingButtons()
@@ -1330,11 +1335,12 @@
 					end
 
 
-
 					function unitscan_toggleTBC()
 						unitscan_zoneScrollbar:SetMinMaxValues(1, 1)
 						unitscan_zoneScrollbar:Hide()
 						eb.scroll.ScrollBar:Hide()
+						-- call searchbox
+						unistcan_searchbox:ClearFocus()						
 
 						unitscan_HideExistingButtons()
 
@@ -1389,6 +1395,8 @@
 						unitscan_zoneScrollbar:SetMinMaxValues(1, 1)
 						unitscan_zoneScrollbar:Hide()
 						eb.scroll.ScrollBar:Hide()
+						-- call searchbox
+						unistcan_searchbox:ClearFocus()
 
 						unitscan_HideExistingButtons()
 
@@ -1423,6 +1431,30 @@
 						end
 
 						-- Sort the visible zone buttons based on zone names
+						table.sort(visibleZoneButtons, function(a, b)
+							local zoneA = a.Text:GetText()
+							local zoneB = b.Text:GetText()
+							return zoneA < zoneB
+						end)
+
+						-- Update the button positions based on the sorted table
+						local zoneIndex = 1
+						for _, zoneButton in ipairs(visibleZoneButtons) do
+							zoneButton:ClearAllPoints()
+							zoneButton:SetPoint("TOPLEFT", 0, -(zoneIndex - 1) * buttonHeight)
+							zoneIndex = zoneIndex + 1
+						end
+					end
+
+					function unitscan_toggleMyZone()
+						-- Sort the visible zone buttons based on zone names
+						local visibleZoneButtons = {}
+						for _, button in ipairs(zoneContentFrame.Buttons) do
+							if button:IsShown() then
+								table.insert(visibleZoneButtons, button)
+							end
+						end
+
 						table.sort(visibleZoneButtons, function(a, b)
 							local zoneA = a.Text:GetText()
 							local zoneB = b.Text:GetText()
@@ -1520,55 +1552,74 @@
 				-- Set the anchor point based on the provided anchor parameter
 				if anchor == "Zones" then
 					-- position first button
-					expbtn[title]:SetPoint("TOPLEFT", unitscanLC["Page1"], "TOPLEFT", 155, -70)
+					expbtn[title]:SetPoint("TOPLEFT", unitscanLC["Page1"], "TOPLEFT", 150, -70)
 				else
 					-- position other buttons, add gap
 					expbtn[title]:SetPoint("TOPLEFT", expbtn[anchor], "BOTTOMLEFT", 0, -5)
 				end
 
 				-- Set the OnClick script for the buttons
-				if title == "CLASSIC" then
+				if title == "My Zone" then
 					expbtn[title]:SetScript("OnClick", function()
-						unitscan_toggleCLASSIC()
-						if selectedButton ~= expbtn[title] then
-							-- Show the expTexture
-							expTexture:Show()
-							-- Hide the previous selectedButton's expTexture (if any)
+						local currentZone = GetZoneText()
+						local matchingButton
+
+						-- Hide all zone buttons initially
+						for _, button in ipairs(zoneContentFrame.Buttons) do
+							button:Hide()
+						end
+
+						for _, button in ipairs(zoneContentFrame.Buttons) do
+							local zone = button.Text:GetText()
+							if zone == currentZone then
+								matchingButton = button
+								matchingButton:Show()
+							end
+						end
+
+						unitscan_toggleMyZone()
+
+						-- Clear focus of search box
+						unistcan_searchbox:ClearFocus()
+
+						-- Update selected button
+						if matchingButton then
+							matchingButton:Click()
 							if selectedButton then
 								selectedButton.expTexture:Hide()
 							end
-							-- Set the selectedButton to the current button
 							selectedButton = expbtn[title]
-
+							selectedButton.expTexture:Show()
 						end
 					end)
+
 					expbtn[title].text:SetTextColor(1, 1, 1)
-
-				elseif title == "TBC" then
+				else
 					expbtn[title]:SetScript("OnClick", function()
-						unitscan_toggleTBC()
+						if title == "CLASSIC" then
+							unitscan_toggleCLASSIC()
+						elseif title == "TBC" then
+							unitscan_toggleTBC()
+						elseif title == "WOTLK" then
+							unitscan_toggleWOTLK()
+						end
+
 						if selectedButton ~= expbtn[title] then
-							expTexture:Show()
+							expbtn[title].expTexture:Show()
 							if selectedButton then
 								selectedButton.expTexture:Hide()
 							end
 							selectedButton = expbtn[title]
 						end
 					end)
-					expbtn[title].text:SetTextColor(0, 1, 0)
 
-				elseif title == "WOTLK" then
-					expbtn[title]:SetScript("OnClick", function()
-						unitscan_toggleWOTLK()
-						if selectedButton ~= expbtn[title] then
-							expTexture:Show()
-							if selectedButton then
-								selectedButton.expTexture:Hide()
-							end
-							selectedButton = expbtn[title]
-						end
-					end)
-					expbtn[title].text:SetTextColor(0.7, 0.85, 1)
+					if title == "CLASSIC" then
+						expbtn[title].text:SetTextColor(1, 1, 1)
+					elseif title == "TBC" then
+						expbtn[title].text:SetTextColor(0, 1, 0)
+					elseif title == "WOTLK" then
+						expbtn[title].text:SetTextColor(0.7, 0.85, 1)
+					end
 				end
 
 				-- Function to hide the selectedButton.expTexture
@@ -1581,13 +1632,13 @@
 				-- Set the OnEnter script for the buttons
 				expbtn[title]:SetScript("OnEnter", function()
 					-- Show the expTexture on mouseover
-					expTexture:Show()
+					expbtn[title].expTexture:Show()
 				end)
 				-- Set the OnLeave script for the buttons
 				expbtn[title]:SetScript("OnLeave", function()
 					-- Hide the expTexture on mouse leave, but only if the button is not the selectedButton
 					if selectedButton ~= expbtn[title] then
-						expTexture:Hide()
+						expbtn[title].expTexture:Hide()
 					end
 				end)
 			end
@@ -1596,128 +1647,10 @@
 			MakeButtonNow("CLASSIC", "Zones")
 			MakeButtonNow("TBC", "CLASSIC")
 			MakeButtonNow("WOTLK", "TBC")
-
-			--===== Add new Button to open rare mob tab with current zone =====--
 			MakeButtonNow("My Zone", "WOTLK")
-			expbtn["My Zone"].text:SetTextColor(1, 1, 1)
-			expbtn["My Zone"]:SetScript("OnClick", function()
-			    -- Get the current zone
-			    local currentZone = GetZoneText()
-			    --print(currentZone)
-			    
-			    -- Find the button matching the current zone
-			    local matchingButton
-			    for _, button in ipairs(zoneContentFrame.Buttons) do
-			        if button.Text:GetText() == currentZone then
-			            matchingButton = button
-			            break
-			        end
-			    end
 
-			    -- Click the matching button if found
-			    if matchingButton then
-			        matchingButton:Click()
-			    end
-			end)
 
----- Create a table for each button
---local expbtn = {}
---local selectedButton = nil
 
----- Create buttons
---local function MakeButtonNow(title, anchor)
---    expbtn[title] = CreateFrame("Button", nil, unitscanLC["Page1"])
---    expbtn[title]:SetSize(80, 16)
-
---    -- Create a text label for the button
---    expbtn[title].text = expbtn[title]:CreateFontString(nil, "OVERLAY", "GameFontNormal")
---    expbtn[title].text:SetPoint("LEFT")
---    expbtn[title].text:SetText(title)
---    expbtn[title].text:SetJustifyH("LEFT")
-
---    -- Create the expTexture
---    local expTexture = expbtn[title]:CreateTexture(nil, "BACKGROUND")
---    expTexture:SetAllPoints(true)
---    expTexture:SetPoint("RIGHT", -25, 0)
---    expTexture:SetPoint("LEFT", 0, 0)
---    expTexture:SetTexture(1.0, 0.5, 0.0, 0.6)
---    expTexture:Hide()
---    expbtn[title].expTexture = expTexture
-
---    -- Set the anchor point based on the provided anchor parameter
---    if anchor == "Zones" then
---        -- position first button
---        expbtn[title]:SetPoint("TOPLEFT", unitscanLC["Page1"], "TOPLEFT", 155, -70)
---    else
---        -- position other buttons, add gap
---        expbtn[title]:SetPoint("TOPLEFT", expbtn[anchor], "BOTTOMLEFT", 0, -5)
---    end
-
---    -- Set the OnClick script for the buttons
---    expbtn[title]:SetScript("OnClick", function()
---        if selectedButton ~= expbtn[title] then
---            -- Hide the previous selectedButton's expTexture (if any)
---            if selectedButton then
---                selectedButton.expTexture:Hide()
---            end
---            -- Show the expTexture
---            expTexture:Show()
---            -- Set the selectedButton to the current button
---            selectedButton = expbtn[title]
-
---            -- Perform specific actions based on the clicked button
---            if title == "CLASSIC" then
---                unitscan_toggleCLASSIC()
---            elseif title == "TBC" then
---                unitscan_toggleTBC()
---            elseif title == "WOTLK" then
---                unitscan_toggleWOTLK()
---            end
---        end
---    end)
-
---    -- Set the OnEnter script for the buttons
---    expbtn[title]:SetScript("OnEnter", function()
---        -- Show the expTexture on mouseover
---        expTexture:Show()
---    end)
-
---    -- Set the OnLeave script for the buttons
---    expbtn[title]:SetScript("OnLeave", function()
---        -- Hide the expTexture on mouse leave, but only if the button is not the selectedButton
---        if selectedButton ~= expbtn[title] then
---            expTexture:Hide()
---        end
---    end)
---end
-
----- Call the MakeButtonNow function for each button
---MakeButtonNow("CLASSIC", "Zones")
---MakeButtonNow("TBC", "CLASSIC")
---MakeButtonNow("WOTLK", "TBC")
-
----- Add your new button here
---MakeButtonNow("My Zone", "WOTLK")
---expbtn["My Zone"].text:SetTextColor(1, 1, 1)
---expbtn["My Zone"]:SetScript("OnClick", function()
---    -- Get the current zone
---    local currentZone = GetZoneText()
---    print(currentZone)
-    
---    -- Find the button matching the current zone
---    local matchingButton
---    for _, button in ipairs(zoneContentFrame.Buttons) do
---        if button.Text:GetText() == currentZone then
---            matchingButton = button
---            break
---        end
---    end
-
---    -- Click the matching button if found
---    if matchingButton then
---        matchingButton:Click()
---    end
---end)
 
 			--------------------------------------------------------------------------------
 			-- Create Search Box
@@ -1855,6 +1788,9 @@
 					self.clearButton:Hide()
 				end
 			end)
+
+			unistcan_searchbox = sBox
+
 
 			--------------------------------------------------------------------------------
 			-- Create Search & Close Button, source code from ElvUI - Enhanced.
