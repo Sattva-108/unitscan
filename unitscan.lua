@@ -1231,6 +1231,27 @@
 					end)
 
 					
+					zoneButton:SetScript("OnEvent", function()
+						if event == "PLAYER_ENTERING_WORLD" then
+							local currentZone = GetZoneText();
+							-- Find the button matching the current zone
+							local matchingButton
+							for _, button in ipairs(zoneContentFrame.Buttons) do
+								if button.Text:GetText() == currentZone then
+									unitscan_zoneMatchingButton = button
+									break
+								end
+							end
+
+							-- Click the matching button if found
+							if unitscan_zoneMatchingButton then
+								unitscan_zoneMatchingButton:Click()
+								zoneButton:UnregisterEvent("PLAYER_ENTERING_WORLD")
+							end
+						end
+					end)
+					zoneButton:RegisterEvent("PLAYER_ENTERING_WORLD")
+
 
 
 					zoneButton:SetScript("OnEnter", function(self)
@@ -1576,7 +1597,127 @@
 			MakeButtonNow("TBC", "CLASSIC")
 			MakeButtonNow("WOTLK", "TBC")
 
+			--===== Add new Button to open rare mob tab with current zone =====--
+			MakeButtonNow("My Zone", "WOTLK")
+			expbtn["My Zone"].text:SetTextColor(1, 1, 1)
+			expbtn["My Zone"]:SetScript("OnClick", function()
+			    -- Get the current zone
+			    local currentZone = GetZoneText()
+			    --print(currentZone)
+			    
+			    -- Find the button matching the current zone
+			    local matchingButton
+			    for _, button in ipairs(zoneContentFrame.Buttons) do
+			        if button.Text:GetText() == currentZone then
+			            matchingButton = button
+			            break
+			        end
+			    end
 
+			    -- Click the matching button if found
+			    if matchingButton then
+			        matchingButton:Click()
+			    end
+			end)
+
+---- Create a table for each button
+--local expbtn = {}
+--local selectedButton = nil
+
+---- Create buttons
+--local function MakeButtonNow(title, anchor)
+--    expbtn[title] = CreateFrame("Button", nil, unitscanLC["Page1"])
+--    expbtn[title]:SetSize(80, 16)
+
+--    -- Create a text label for the button
+--    expbtn[title].text = expbtn[title]:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+--    expbtn[title].text:SetPoint("LEFT")
+--    expbtn[title].text:SetText(title)
+--    expbtn[title].text:SetJustifyH("LEFT")
+
+--    -- Create the expTexture
+--    local expTexture = expbtn[title]:CreateTexture(nil, "BACKGROUND")
+--    expTexture:SetAllPoints(true)
+--    expTexture:SetPoint("RIGHT", -25, 0)
+--    expTexture:SetPoint("LEFT", 0, 0)
+--    expTexture:SetTexture(1.0, 0.5, 0.0, 0.6)
+--    expTexture:Hide()
+--    expbtn[title].expTexture = expTexture
+
+--    -- Set the anchor point based on the provided anchor parameter
+--    if anchor == "Zones" then
+--        -- position first button
+--        expbtn[title]:SetPoint("TOPLEFT", unitscanLC["Page1"], "TOPLEFT", 155, -70)
+--    else
+--        -- position other buttons, add gap
+--        expbtn[title]:SetPoint("TOPLEFT", expbtn[anchor], "BOTTOMLEFT", 0, -5)
+--    end
+
+--    -- Set the OnClick script for the buttons
+--    expbtn[title]:SetScript("OnClick", function()
+--        if selectedButton ~= expbtn[title] then
+--            -- Hide the previous selectedButton's expTexture (if any)
+--            if selectedButton then
+--                selectedButton.expTexture:Hide()
+--            end
+--            -- Show the expTexture
+--            expTexture:Show()
+--            -- Set the selectedButton to the current button
+--            selectedButton = expbtn[title]
+
+--            -- Perform specific actions based on the clicked button
+--            if title == "CLASSIC" then
+--                unitscan_toggleCLASSIC()
+--            elseif title == "TBC" then
+--                unitscan_toggleTBC()
+--            elseif title == "WOTLK" then
+--                unitscan_toggleWOTLK()
+--            end
+--        end
+--    end)
+
+--    -- Set the OnEnter script for the buttons
+--    expbtn[title]:SetScript("OnEnter", function()
+--        -- Show the expTexture on mouseover
+--        expTexture:Show()
+--    end)
+
+--    -- Set the OnLeave script for the buttons
+--    expbtn[title]:SetScript("OnLeave", function()
+--        -- Hide the expTexture on mouse leave, but only if the button is not the selectedButton
+--        if selectedButton ~= expbtn[title] then
+--            expTexture:Hide()
+--        end
+--    end)
+--end
+
+---- Call the MakeButtonNow function for each button
+--MakeButtonNow("CLASSIC", "Zones")
+--MakeButtonNow("TBC", "CLASSIC")
+--MakeButtonNow("WOTLK", "TBC")
+
+---- Add your new button here
+--MakeButtonNow("My Zone", "WOTLK")
+--expbtn["My Zone"].text:SetTextColor(1, 1, 1)
+--expbtn["My Zone"]:SetScript("OnClick", function()
+--    -- Get the current zone
+--    local currentZone = GetZoneText()
+--    print(currentZone)
+    
+--    -- Find the button matching the current zone
+--    local matchingButton
+--    for _, button in ipairs(zoneContentFrame.Buttons) do
+--        if button.Text:GetText() == currentZone then
+--            matchingButton = button
+--            break
+--        end
+--    end
+
+--    -- Click the matching button if found
+--    if matchingButton then
+--        matchingButton:Click()
+--    end
+--end)
 
 			--------------------------------------------------------------------------------
 			-- Create Search Box
