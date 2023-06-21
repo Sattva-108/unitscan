@@ -27,6 +27,8 @@
 
 	--===== Check the current locale of the WoW client =====--
 	local currentLocale = GetLocale()
+	local ClientVersion = GetBuildInfo()
+	local GameLocale = GetLocale()
 
 	--===== Check for game version =====--
 	local isTBC = select(4, GetBuildInfo()) == 20400 -- true if TBC 2.4.3
@@ -966,6 +968,18 @@
 			-- First - Load the Database of Rare Mobs.
 			unitscan_LoadRareSpawns()
 
+
+			--------------------------------------------------------------------------------
+			-- Define urlencode function for Lua 5.3
+			--------------------------------------------------------------------------------
+
+
+			local function urlencode(str)
+				return string.gsub(str, "([^%w%.%- ])", function(c)
+					return string.format("%%%02X", string.byte(c))
+				end):gsub(" ", "+")
+			end
+
 			--------------------------------------------------------------------------------
 			-- Create Frame for RARE MOB buttons
 			--------------------------------------------------------------------------------
@@ -1012,11 +1026,11 @@
 					if index <= maxVisibleButtons then
 						local button = CreateFrame("Button", nil, contentFrame)
 						button:SetSize(contentFrame:GetWidth(), buttonHeight)
-						if index >= 2 then
-							button:SetPoint("TOPLEFT", 0.5, -(index - 1) * buttonHeight - 0.5) -- Increase the vertical position by 1 to reduce overlap
-						else
+						--if index >= 2 then
+						--	button:SetPoint("TOPLEFT", 0.5, -(index - 1) * buttonHeight - 0.5) -- Increase the vertical position by 1 to reduce overlap
+						--else
 							button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
-						end
+						--end
 
 						-- Create a texture region within the button frame
 						local texture = button:CreateTexture(nil, "BACKGROUND")
@@ -1067,8 +1081,10 @@
 						button:SetScript("OnMouseDown", function(self, button)
 							if button == "RightButton" then
 								local rare = self.Text:GetText()
-								rare = string.gsub(rare, " ", "+")
+								local encodedRare = urlencode(rare)
+								encodedRare = string.gsub(encodedRare, " ", "+") -- Replace space with plus sign
 								local wowheadLocale = ""
+
 								if GameLocale == "deDE" then wowheadLocale = "de/search?q="
 								elseif GameLocale == "esMX" then wowheadLocale = "es/search?q="
 								elseif GameLocale == "esES" then wowheadLocale = "es/search?q="
@@ -1081,7 +1097,7 @@
 								elseif GameLocale == "zhTW" then wowheadLocale = "cn/search?q="
 								else wowheadLocale = "search?q="
 								end
-								local rareLink = "https://www.wowhead.com/wotlk/" .. wowheadLocale .. rare .. "#npcs"
+								local rareLink = "https://www.wowhead.com/wotlk/" .. wowheadLocale .. encodedRare .. "#npcs"
 								unitscanLC:ShowSystemEditBox(rareLink, false)
 								unitscan_searchbox:ClearFocus()
 							end
@@ -1287,11 +1303,11 @@
 
 										-- Set button text and position
 										button.Text:SetText(data.name) -- Use the name from data
-										if index >= 2 then
-											button:SetPoint("TOPLEFT", 0.5, -(index - 1) * buttonHeight - 0.5) -- Increase the vertical position by 1 to reduce overlap
-										else
+										--if index >= 2 then
+										--	button:SetPoint("TOPLEFT", 0.5, -(index - 1) * buttonHeight - 0.5) -- Increase the vertical position by 1 to reduce overlap
+										--else
 											button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
-										end
+										--end
 										button:Show()
 
 										index = index + 1
@@ -1336,15 +1352,20 @@
 						end
 					end)
 
+
+
+
+
+
 					--------------------------------------------------------------------------------
-					-- OnMouseDown script. WoWHead Link
+					-- OnMouseDown script. WoWHead Link for zone 
 					--------------------------------------------------------------------------------
 
 
 					zoneButton:SetScript("OnMouseDown", function(self, button)
 						if button == "RightButton" then
 							local selectedZone = self.Text:GetText()
-							selectedZone = string.gsub(selectedZone, " ", "+")
+							local encodedZone = urlencode(selectedZone)
 							local wowheadLocale = ""
 							if GameLocale == "deDE" then wowheadLocale = "de/search?q="
 							elseif GameLocale == "esMX" then wowheadLocale = "es/search?q="
@@ -1358,7 +1379,7 @@
 							elseif GameLocale == "zhTW" then wowheadLocale = "cn/search?q="
 							else wowheadLocale = "search?q="
 							end
-							local zoneLink = "https://www.wowhead.com/wotlk/" .. wowheadLocale .. selectedZone .. "#zones"
+							local zoneLink = "https://www.wowhead.com/wotlk/" .. wowheadLocale .. encodedZone .. "#zones"
 							unitscanLC:ShowSystemEditBox(zoneLink, false)
 							unitscan_searchbox:ClearFocus()
 						end
@@ -1768,11 +1789,11 @@
 
 							-- Set button text and position
 							button.Text:SetText(rare)
-							if visibleButtonsCount >= 1 then
-								button:SetPoint("TOPLEFT", 0.5, -(visibleButtonsCount * buttonHeight + 0.5)) -- Increase the vertical position by 1 to reduce overlap
-							else
+							--if visibleButtonsCount >= 1 then
+							--	button:SetPoint("TOPLEFT", 0.5, -(visibleButtonsCount * buttonHeight + 0.5)) -- Increase the vertical position by 1 to reduce overlap
+							--else
 								button:SetPoint("TOPLEFT", 0, -(visibleButtonsCount * buttonHeight))
-							end
+							--end
 							button:Show()
 
 							visibleButtonsCount = visibleButtonsCount + 1
@@ -3423,7 +3444,7 @@
 		-- Add main title (shown above menu in the corner)
 		PageF.mt = PageF:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
 		PageF.mt:SetPoint('TOPLEFT', 16, -16)
-		PageF.mt:SetText("unitscan")
+		PageF.mt:SetText("\124cff00ff00unitscan")
 
 		-- Add version text (shown underneath main title)
 		PageF.v = PageF:CreateFontString(nil, 'ARTWORK', 'GameFontHighlightSmall')
@@ -3466,12 +3487,12 @@
 
 
 
-----------------------------------------------------------------------
--- 	L90: Create options panel pages (no content yet)
-----------------------------------------------------------------------
+	----------------------------------------------------------------------
+	-- 	L90: Create options panel pages (no content yet)
+	----------------------------------------------------------------------
 
 	-- Function to add menu button
-	function unitscanLC:MakeMN(name, text, parent, anchor, x, y, width, height)
+	function unitscanLC:MakeMN(name, text, parent, anchor, x, y, width, height, disabled)
 
 		local mbtn = CreateFrame("Button", nil, parent)
 		unitscanLC[name] = mbtn
@@ -3505,12 +3526,14 @@
 			mbtn.t:Hide()
 		end)
 
+		if disabled then mbtn:Hide() end
+
 		return mbtn, mbtn.s
 
 	end
 
 	-- Function to create individual options panel pages
-	function unitscanLC:MakePage(name, title, menu, menuname, menuparent, menuanchor, menux, menuy, menuwidth, menuheight)
+	function unitscanLC:MakePage(name, title, menu, menuname, menuparent, menuanchor, menux, menuy, menuwidth, menuheight, disabled)
 
 		-- Create frame
 		local oPage = CreateFrame("Frame", nil, unitscanLC["PageF"]);
@@ -3525,7 +3548,7 @@
 
 		-- Add menu item if needed
 		if menu then
-			unitscanLC[menu], unitscanLC[menu .. ".s"] = unitscanLC:MakeMN(menu, menuname, menuparent, menuanchor, menux, menuy, menuwidth, menuheight)
+			unitscanLC[menu], unitscanLC[menu .. ".s"] = unitscanLC:MakeMN(menu, menuname, menuparent, menuanchor, menux, menuy, menuwidth, menuheight, disabled)
 			unitscanLC[name]:SetScript("OnShow", function() unitscanLC[menu .. ".s"]:Show(); end)
 			unitscanLC[name]:SetScript("OnHide", function() unitscanLC[menu .. ".s"]:Hide(); end)
 		end
@@ -3536,15 +3559,15 @@
 
 	-- Create options pages
 	unitscanLC["Page0"] = unitscanLC:MakePage("Page0", "Home"			, "unitscanNav0", "Home"			, unitscanLC["PageF"], "TOPLEFT", 16, -72, 112, 20)
-	unitscanLC["Page1"] = unitscanLC:MakePage("Page1", "Automation"	, "unitscanNav1", "Automation"	, unitscanLC["PageF"], "TOPLEFT", 16, -112, 112, 20)
-	unitscanLC["Page2"] = unitscanLC:MakePage("Page2", "Social"		, "unitscanNav2", "Social"		, unitscanLC["PageF"], "TOPLEFT", 16, -132, 112, 20)
-	unitscanLC["Page3"] = unitscanLC:MakePage("Page3", "Chat"			, "unitscanNav3", "Chat"			, unitscanLC["PageF"], "TOPLEFT", 16, -152, 112, 20)
-	unitscanLC["Page4"] = unitscanLC:MakePage("Page4", "Text"			, "unitscanNav4", "Text"			, unitscanLC["PageF"], "TOPLEFT", 16, -172, 112, 20)
-	unitscanLC["Page5"] = unitscanLC:MakePage("Page5", "Interface"	, "unitscanNav5", "Interface"	, unitscanLC["PageF"], "TOPLEFT", 16, -192, 112, 20)
-	unitscanLC["Page6"] = unitscanLC:MakePage("Page6", "Frames"		, "unitscanNav6", "Frames"		, unitscanLC["PageF"], "TOPLEFT", 16, -212, 112, 20)
-	unitscanLC["Page7"] = unitscanLC:MakePage("Page7", "System"		, "unitscanNav7", "System"		, unitscanLC["PageF"], "TOPLEFT", 16, -232, 112, 20)
+	unitscanLC["Page1"] = unitscanLC:MakePage("Page1", "Rare Ignore List"	, "unitscanNav1", "Rare Ignore"	, unitscanLC["PageF"], "TOPLEFT", 16, -112, 112, 20)
+	unitscanLC["Page2"] = unitscanLC:MakePage("Page2", "Social"		, "unitscanNav2", "Social"		, unitscanLC["PageF"], "TOPLEFT", 16, -132, 112, 20, true)
+	unitscanLC["Page3"] = unitscanLC:MakePage("Page3", "Chat"			, "unitscanNav3", "Chat"			, unitscanLC["PageF"], "TOPLEFT", 16, -152, 112, 20, true)
+	unitscanLC["Page4"] = unitscanLC:MakePage("Page4", "Text"			, "unitscanNav4", "Text"			, unitscanLC["PageF"], "TOPLEFT", 16, -172, 112, 20, true)
+	unitscanLC["Page5"] = unitscanLC:MakePage("Page5", "Interface"	, "unitscanNav5", "Interface"	, unitscanLC["PageF"], "TOPLEFT", 16, -192, 112, 20, true)
+	unitscanLC["Page6"] = unitscanLC:MakePage("Page6", "Frames"		, "unitscanNav6", "Frames"		, unitscanLC["PageF"], "TOPLEFT", 16, -212, 112, 20, true)
+	unitscanLC["Page7"] = unitscanLC:MakePage("Page7", "System"		, "unitscanNav7", "System"		, unitscanLC["PageF"], "TOPLEFT", 16, -232, 112, 20, true)
 	unitscanLC["Page8"] = unitscanLC:MakePage("Page8", "Settings"		, "unitscanNav8", "Settings"		, unitscanLC["PageF"], "TOPLEFT", 16, -272, 112, 20)
-	unitscanLC["Page9"] = unitscanLC:MakePage("Page9", "Media"		, "unitscanNav9", "Media"		, unitscanLC["PageF"], "TOPLEFT", 16, -292, 112, 20)
+	unitscanLC["Page9"] = unitscanLC:MakePage("Page9", "Media"		, "unitscanNav9", "Media"		, unitscanLC["PageF"], "TOPLEFT", 16, -292, 112, 20, true)
 
 	-- Page navigation mechanism
 	for i = 0, unitscanLC["NumberOfPages"] do
@@ -3559,9 +3582,9 @@
 	-- Use a variable to contain the page number (makes it easier to move options around)
 	local pg;
 
-----------------------------------------------------------------------
--- 	LC0: Welcome
-----------------------------------------------------------------------
+	----------------------------------------------------------------------
+	-- 	LC0: Welcome
+	----------------------------------------------------------------------
 
 	pg = "Page0";
 
