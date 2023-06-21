@@ -994,7 +994,7 @@
 						local button = CreateFrame("Button", nil, contentFrame)
 						button:SetSize(contentFrame:GetWidth(), buttonHeight)
 						if index >= 2 then
-							button:SetPoint("TOPLEFT", 0.5, -(index - 1) * buttonHeight - 1) -- Increase the vertical position by 1 to reduce overlap
+							button:SetPoint("TOPLEFT", 0.5, -(index - 1) * buttonHeight - 0.5) -- Increase the vertical position by 1 to reduce overlap
 						else
 							button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
 						end
@@ -1037,8 +1037,41 @@
 							end
 
 							-- Clear focus of search box
-							unistcan_searchbox:ClearFocus()
+							unitscan_searchbox:ClearFocus()
 						end)
+
+						--------------------------------------------------------------------------------
+						-- WowHead Link OnMouseDown for rare mob
+						--------------------------------------------------------------------------------
+
+
+						button:SetScript("OnMouseDown", function(self, button)
+							if button == "RightButton" then
+								local rare = self.Text:GetText()
+								rare = string.gsub(rare, " ", "+")
+								local wowheadLocale = ""
+								if GameLocale == "deDE" then wowheadLocale = "de/search?q="
+								elseif GameLocale == "esMX" then wowheadLocale = "es/search?q="
+								elseif GameLocale == "esES" then wowheadLocale = "es/search?q="
+								elseif GameLocale == "frFR" then wowheadLocale = "fr/search?q="
+								elseif GameLocale == "itIT" then wowheadLocale = "it/search?q="
+								elseif GameLocale == "ptBR" then wowheadLocale = "pt/search?q="
+								elseif GameLocale == "ruRU" then wowheadLocale = "ru/search?q="
+								elseif GameLocale == "koKR" then wowheadLocale = "ko/search?q="
+								elseif GameLocale == "zhCN" then wowheadLocale = "cn/search?q="
+								elseif GameLocale == "zhTW" then wowheadLocale = "cn/search?q="
+								else wowheadLocale = "search?q="
+								end
+								local rareLink = "https://www.wowhead.com/wotlk/" .. wowheadLocale .. rare
+								unitscanLC:ShowSystemEditBox(rareLink, false)
+								unitscan_searchbox:ClearFocus()
+							end
+						end)
+
+						--------------------------------------------------------------------------------
+						-- Other Scripts
+						--------------------------------------------------------------------------------
+
 
 						-- Set button texture update function for OnShow event
 						button:SetScript("OnShow", function(self)
@@ -1202,7 +1235,7 @@
 					end
 
 					--------------------------------------------------------------------------------
-					-- OnClick, OnEnter, OnLeave funcs for Zone buttons.
+					-- OnClick script
 					--------------------------------------------------------------------------------
 
 
@@ -1236,7 +1269,7 @@
 										-- Set button text and position
 										button.Text:SetText(data.name) -- Use the name from data
 										if index >= 2 then
-											button:SetPoint("TOPLEFT", 0.5, -(index - 1) * buttonHeight - 1) -- Increase the vertical position by 1 to reduce overlap
+											button:SetPoint("TOPLEFT", 0.5, -(index - 1) * buttonHeight - 0.5) -- Increase the vertical position by 1 to reduce overlap
 										else
 											button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
 										end
@@ -1274,7 +1307,7 @@
 						end
 
 						-- Clear focus of search box
-						unistcan_searchbox:ClearFocus()
+						unitscan_searchbox:ClearFocus()
 
 						-- Hide unused buttons
 						for i = index, zoneMaxVisibleButtons do
@@ -1283,6 +1316,40 @@
 							end
 						end
 					end)
+
+					--------------------------------------------------------------------------------
+					-- OnMouseDown script. WoWHead Link
+					--------------------------------------------------------------------------------
+
+
+					zoneButton:SetScript("OnMouseDown", function(self, button)
+						if button == "RightButton" then
+							local selectedZone = self.Text:GetText()
+							selectedZone = string.gsub(selectedZone, " ", "+")
+							local wowheadLocale = ""
+							if GameLocale == "deDE" then wowheadLocale = "de/search?q="
+							elseif GameLocale == "esMX" then wowheadLocale = "es/search?q="
+							elseif GameLocale == "esES" then wowheadLocale = "es/search?q="
+							elseif GameLocale == "frFR" then wowheadLocale = "fr/search?q="
+							elseif GameLocale == "itIT" then wowheadLocale = "it/search?q="
+							elseif GameLocale == "ptBR" then wowheadLocale = "pt/search?q="
+							elseif GameLocale == "ruRU" then wowheadLocale = "ru/search?q="
+							elseif GameLocale == "koKR" then wowheadLocale = "ko/search?q="
+							elseif GameLocale == "zhCN" then wowheadLocale = "cn/search?q="
+							elseif GameLocale == "zhTW" then wowheadLocale = "cn/search?q="
+							else wowheadLocale = "search?q="
+							end
+							local zoneLink = "https://www.wowhead.com/wotlk/" .. wowheadLocale .. selectedZone
+							unitscanLC:ShowSystemEditBox(zoneLink, false)
+							unitscan_searchbox:ClearFocus()
+						end
+					end)
+
+
+
+					--------------------------------------------------------------------------------
+					-- OnEvent Script
+					--------------------------------------------------------------------------------
 
 					
 					zoneButton:SetScript("OnEvent", function()
@@ -1307,6 +1374,9 @@
 					end)
 					zoneButton:RegisterEvent("PLAYER_ENTERING_WORLD")
 
+					--------------------------------------------------------------------------------
+					-- Other Scripts
+					--------------------------------------------------------------------------------
 
 
 					zoneButton:SetScript("OnEnter", function(self)
@@ -1336,7 +1406,7 @@
 						unitscan_zoneScrollbar:Show()
 						eb.scroll.ScrollBar:Hide()
 						-- call searchbox
-						unistcan_searchbox:ClearFocus()						
+						unitscan_searchbox:ClearFocus()						
 
 
 						unitscan_HideExistingButtons()
@@ -1392,7 +1462,7 @@
 						unitscan_zoneScrollbar:Hide()
 						eb.scroll.ScrollBar:Hide()
 						-- call searchbox
-						unistcan_searchbox:ClearFocus()						
+						unitscan_searchbox:ClearFocus()						
 
 						unitscan_HideExistingButtons()
 
@@ -1448,7 +1518,7 @@
 						unitscan_zoneScrollbar:Hide()
 						eb.scroll.ScrollBar:Hide()
 						-- call searchbox
-						unistcan_searchbox:ClearFocus()
+						unitscan_searchbox:ClearFocus()
 
 						unitscan_HideExistingButtons()
 
@@ -1503,7 +1573,7 @@
 						unitscan_zoneScrollbar:Hide()
 						eb.scroll.ScrollBar:Hide()
 						-- call searchbox
-						unistcan_searchbox:ClearFocus()
+						unitscan_searchbox:ClearFocus()
 						-- Sort the visible zone buttons based on zone names
 						local visibleZoneButtons = {}
 						for _, button in ipairs(zoneContentFrame.Buttons) do
@@ -1662,7 +1732,7 @@
 						unitscan_zoneScrollbar:Hide()
 						eb.scroll.ScrollBar:Hide()
 						-- call searchbox
-						unistcan_searchbox:ClearFocus()
+						unitscan_searchbox:ClearFocus()
 
 
 
@@ -1680,7 +1750,7 @@
 							-- Set button text and position
 							button.Text:SetText(rare)
 							if visibleButtonsCount >= 1 then
-								button:SetPoint("TOPLEFT", 0.5, -(visibleButtonsCount * buttonHeight + 1)) -- Increase the vertical position by 1 to reduce overlap
+								button:SetPoint("TOPLEFT", 0.5, -(visibleButtonsCount * buttonHeight + 0.5)) -- Increase the vertical position by 1 to reduce overlap
 							else
 								button:SetPoint("TOPLEFT", 0, -(visibleButtonsCount * buttonHeight))
 							end
@@ -1699,7 +1769,7 @@
 
 						end
 						-- Clear focus of search box
-						unistcan_searchbox:ClearFocus()
+						unitscan_searchbox:ClearFocus()
 
 						if selectedButton ~= expbtn[title] then
 							expbtn[title].expTexture:Show()
@@ -1945,7 +2015,7 @@
 				end
 			end)
 
-			unistcan_searchbox = sBox
+			unitscan_searchbox = sBox
 
 
 			--------------------------------------------------------------------------------
@@ -4224,6 +4294,56 @@ local LYELLOW = "\124cffffff9a"
 						end
 					end
 				end
+			elseif command == "id" then
+				-- Show web link
+				if not unitscanLC.WowheadLock then
+					-- Set Wowhead link prefix
+						if GameLocale == "deDE" then unitscanLC.WowheadLock = "wowhead.com/wotlk/de"
+					elseif GameLocale == "esMX" then unitscanLC.WowheadLock = "wowhead.com/wotlk/es"
+					elseif GameLocale == "esES" then unitscanLC.WowheadLock = "wowhead.com/wotlk/es"
+					elseif GameLocale == "frFR" then unitscanLC.WowheadLock = "wowhead.com/wotlk/fr"
+					elseif GameLocale == "itIT" then unitscanLC.WowheadLock = "wowhead.com/wotlk/it"
+					elseif GameLocale == "ptBR" then unitscanLC.WowheadLock = "wowhead.com/wotlk/pt"
+					elseif GameLocale == "ruRU" then unitscanLC.WowheadLock = "wowhead.com/wotlk/ru"
+					elseif GameLocale == "koKR" then unitscanLC.WowheadLock = "wowhead.com/wotlk/ko"
+					elseif GameLocale == "zhCN" then unitscanLC.WowheadLock = "wowhead.com/wotlk/cn"
+					elseif GameLocale == "zhTW" then unitscanLC.WowheadLock = "wowhead.com/wotlk/cn"
+					else							 unitscanLC.WowheadLock = "wowhead.com/wotlk"
+					end
+				end
+				-- Store frame under mouse
+				local mouseFocus = GetMouseFocus()
+				-- ItemRefTooltip or GameTooltip
+				local tooltip
+				if mouseFocus == ItemRefTooltip then tooltip = ItemRefTooltip else tooltip = GameTooltip end
+				-- Process tooltip
+				if tooltip:IsShown() then
+					-- NPC
+					local npcName = UnitName("mouseover")
+					local npcGuid = UnitGUID("mouseover") or nil
+					if npcName and npcGuid then
+						local void, void, void, void, void, npcID = strsplit("-", npcGuid)
+						if npcID then
+							unitscanLC:ShowSystemEditBox("https://" .. unitscanLC.WowheadLock .. "/npc=" .. npcID, false)
+							unitscanLC.FactoryEditBox.f:SetText(L["NPC"] .. ": " .. npcName .. " (" .. npcID .. ")")
+							return
+						end
+					end
+					-- Unknown tooltip (this must be last)
+					local tipTitle = GameTooltipTextLeft1:GetText()
+					if tipTitle then
+						-- Show unknown link
+						local unitFocus
+						if mouseFocus == WorldFrame then unitFocus = "mouseover" else unitFocus = select(2, GameTooltip:GetUnit()) end
+						if not unitFocus or not UnitIsPlayer(unitFocus) then
+							tipTitle = tipTitle:gsub("|c%x%x%x%x%x%x%x%x", "") -- Remove color tag
+							unitscanLC:ShowSystemEditBox("https://" .. unitscanLC.WowheadLock .. "/search?q=" .. tipTitle, false)
+							unitscanLC.FactoryEditBox.f:SetText("|cffff0000" .. L["Link will search Wowhead"])
+							return
+						end
+					end
+				end
+				return
 			else
 				unitscan.toggle_target(parameter)
 			end
