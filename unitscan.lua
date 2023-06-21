@@ -120,10 +120,12 @@
 	function unitscanLC:ShowSystemEditBox(word, focuschat)
 		if not unitscanLC.FactoryEditBox then
 			-- Create frame for first time
-			local eFrame = CreateFrame("FRAME", nil, UIParent)
+			local eFrame = CreateFrame("FRAME", nil, unitscanLC["Page1"])
 			unitscanLC.FactoryEditBox = eFrame
-			eFrame:SetSize(700, 110)
-			eFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 150)
+			eFrame:SetSize(712, 110)
+			eFrame:SetScale(0.8)
+			eFrame:SetPoint("BOTTOM", unitscanLC["Page1"], "TOP", 0, 5)
+			eFrame:SetClampedToScreen(true)
 			eFrame:SetFrameStrata("FULLSCREEN_DIALOG")
 			-- eFrame:SetFrameLevel(5000)
 			eFrame:EnableMouse(true)
@@ -203,7 +205,15 @@
 			-- eFrame.b:SetScript("OnEnterPressed", eFrame.b.HighlightText)
 			-- eFrame.b:SetScript("OnMouseDown", eFrame.b.ClearFocus)
 			-- eFrame.b:SetScript("OnMouseUp", eFrame.b.HighlightText)
-			eFrame.b:SetScript("OnChar", function() eFrame.b:SetText(word); eFrame.b:HighlightText(); end);
+			eFrame.b:SetScript("OnChar", function(_, char) 
+				if char ~= 'W' and char ~= 'A' and char ~= 'S' and char ~= 'D' then 
+					eFrame.b:Hide()
+					eFrame.b:SetFocus(false)
+				end 
+				eFrame.b:SetText(word); 
+				eFrame.b:HighlightText(); 
+			end);
+
 			eFrame.b:SetScript("OnMouseUp", function() eFrame.b:HighlightText(); end);
 			eFrame.b:SetScript("OnEscapePressed", function() eFrame:Hide() end)
 			eFrame.b:SetFocus(true)
@@ -214,7 +224,16 @@
 		unitscanLC.FactoryEditBox:Show()
 		unitscanLC.FactoryEditBox.b:SetText(word)
 		unitscanLC.FactoryEditBox.b:HighlightText()
-		unitscanLC.FactoryEditBox.b:SetScript("OnChar", function() unitscanLC.FactoryEditBox.b:SetFocus(true) unitscanLC.FactoryEditBox.b:SetText(word) unitscanLC.FactoryEditBox.b:HighlightText() end)
+		unitscanLC.FactoryEditBox.b:SetScript("OnChar", function(_, char) 
+			if char ~= 'W' and char ~= 'A' and char ~= 'S' and char ~= 'D' then 
+				unitscanLC.FactoryEditBox:Hide()
+				unitscanLC.FactoryEditBox.b:SetFocus(false)
+			end 
+			unitscanLC.FactoryEditBox.b:SetFocus(true) 
+			unitscanLC.FactoryEditBox.b:SetText(word) 
+			unitscanLC.FactoryEditBox.b:HighlightText() 
+		end);
+
 		unitscanLC.FactoryEditBox.b:SetScript("OnKeyUp", function() unitscanLC.FactoryEditBox.b:SetFocus(true) unitscanLC.FactoryEditBox.b:SetText(word) unitscanLC.FactoryEditBox.b:HighlightText() end)
 	end
 
@@ -1062,7 +1081,7 @@
 								elseif GameLocale == "zhTW" then wowheadLocale = "cn/search?q="
 								else wowheadLocale = "search?q="
 								end
-								local rareLink = "https://www.wowhead.com/wotlk/" .. wowheadLocale .. rare
+								local rareLink = "https://www.wowhead.com/wotlk/" .. wowheadLocale .. rare .. "#npcs"
 								unitscanLC:ShowSystemEditBox(rareLink, false)
 								unitscan_searchbox:ClearFocus()
 							end
@@ -1339,7 +1358,7 @@
 							elseif GameLocale == "zhTW" then wowheadLocale = "cn/search?q="
 							else wowheadLocale = "search?q="
 							end
-							local zoneLink = "https://www.wowhead.com/wotlk/" .. wowheadLocale .. selectedZone
+							local zoneLink = "https://www.wowhead.com/wotlk/" .. wowheadLocale .. selectedZone .. "#zones"
 							unitscanLC:ShowSystemEditBox(zoneLink, false)
 							unitscan_searchbox:ClearFocus()
 						end

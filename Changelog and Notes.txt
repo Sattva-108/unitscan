@@ -72,3 +72,4 @@ If the button was visible for user defined time and mob is out of range then hid
 Test Hookscript instead of SetScript to avoid taints for right clicking in 2.4.3.
 ignore print if removed then yellow or white color.
 zonebuttons on searchbox changed hide scrollbar if too few displayed
+make wowhead link by default enabled checkbox, but disabled on user un-check
