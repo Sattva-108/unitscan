@@ -1358,7 +1358,7 @@
 
 
 					--------------------------------------------------------------------------------
-					-- OnMouseDown script. WoWHead Link for zone 
+					-- WoWHead Link for zone
 					--------------------------------------------------------------------------------
 
 
@@ -1394,6 +1394,7 @@
 					
 					zoneButton:SetScript("OnEvent", function()
 						if event == "PLAYER_ENTERING_WORLD" then
+							LibCompat.After(1, function() unitscan_myzoneGUIButton:Click() end)
 							unitscan_myzoneGUIButton:Click()
 							--local currentZone = GetZoneText();
 							---- Find the button matching the current zone

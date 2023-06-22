@@ -44,6 +44,10 @@ RareList - check for global variables may be conflicting with other addons. (Ren
 
 Global -  rename rare_spawns table to something more unique
 
+WowHeadLink - should i only do encoding url for ruRU??? Seems ok for French.
+
+WebLink -  remove user button warning for it in GUI
+
 
 
 
@@ -73,3 +77,4 @@ Test Hookscript instead of SetScript to avoid taints for right clicking in 2.4.3
 ignore print if removed then yellow or white color.
 zonebuttons on searchbox changed hide scrollbar if too few displayed
 make wowhead link by default enabled checkbox, but disabled on user un-check
+Toggle the wowhead link window on second click.
