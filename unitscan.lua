@@ -907,6 +907,61 @@
 
 
 			--------------------------------------------------------------------------------
+			-- Check for the existence of required tables
+			--------------------------------------------------------------------------------
+
+			if not rare_spawns["CLASSIC"] or not rare_spawns["TBC"] or not rare_spawns["WOTLK"] then
+				print("\124cffFF0000unitscan Error: Missing one or more required tables \124cff00FFFFCLASSIC\124cffFF0000, \124cff00FFFFTBC\124cffFF0000, or \124cff00FFFFWOTLK\124cffFF0000 in \124cff00FFFFrare_spawns\124cffFF0000 table.")
+
+				do
+
+					local panelFrame = CreateFrame("FRAME", nil, unitscanLC["Page1"])
+					panelFrame:SetAllPoints(unitscanLC["Page1"])
+
+					-- Adjust the position of panelFrame within unitscanLC["Page1"]
+					panelFrame:SetPoint("TOPLEFT", unitscanLC["Page1"], "TOPLEFT", 130, 0)
+
+					panelFrame.name = "unitscan"
+
+					local mainTitle = unitscanLC:MakeTx(panelFrame, "unitscan", 0, 0)
+					mainTitle:SetFont(mainTitle:GetFont(), 72)
+					mainTitle:ClearAllPoints()
+					mainTitle:SetPoint("TOP", 0, -72)
+
+					local expTitle = unitscanLC:MakeTx(panelFrame, "Rare Ignore List", 0, 0)
+					expTitle:SetFont(expTitle:GetFont(), 32)
+					expTitle:ClearAllPoints()
+					expTitle:SetPoint("TOP", 0, -152)
+
+					local subTitle = unitscanLC:MakeTx(panelFrame, "Discord: Sattva#7238", 0, 0)
+					subTitle:SetFont(subTitle:GetFont(), 20)
+					subTitle:ClearAllPoints()
+					subTitle:SetPoint("BOTTOM", 0, 72)
+
+					local slashTitleLine1 = unitscanLC:MakeTx(panelFrame, "Your Language database doesn't have", 0, 0)
+					slashTitleLine1:SetFont(slashTitleLine1:GetFont(), 20)
+					slashTitleLine1:ClearAllPoints()
+					slashTitleLine1:SetPoint("BOTTOM", subTitle, "TOP", 0, 40)
+
+					local slashTitleLine2 = unitscanLC:MakeTx(panelFrame, "any rare mobs in it, contact discord", 0, 0)
+					slashTitleLine2:SetFont(slashTitleLine2:GetFont(), 20)
+					slashTitleLine2:ClearAllPoints()
+					slashTitleLine2:SetPoint("BOTTOM", slashTitleLine1, "TOP", 0, -50)
+
+					local panelTexture = panelFrame:CreateTexture(nil, "BACKGROUND")
+					panelTexture:SetAllPoints()
+					panelTexture:SetTexture("Interface\\GLUES\\Models\\UI_MainMenu\\swordgradient2")
+					panelTexture:SetAlpha(0.2)
+					panelTexture:SetTexCoord(0, 1, 1, 0)
+
+					return
+
+				end
+
+			end
+
+
+			--------------------------------------------------------------------------------
 			-- Define urlencode function for Lua 5.3
 			--------------------------------------------------------------------------------
 
@@ -3700,7 +3755,7 @@ local LYELLOW = "\124cffffff9a"
 
 		-- Slash command for global function
 		_G.SLASH_UNITSCAN1 = "/unitscan"
-		_G.SLASH_UNITSCAN2 = "/uns"
+		--_G.SLASH_UNITSCAN2 = "/uns"
 
 		SlashCmdList["UNITSCAN"] = function(self)
 		-- Run slash command function

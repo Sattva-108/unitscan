@@ -6,6 +6,8 @@
 	local void, unitscan = ...
 	local L = unitscan.L
 
+	local messagePrinted = false  -- Flag variable to track if the message has been printed
+
 	--===== Check the current locale of the WoW client =====--
 	local currentLocale = GetLocale()
 
@@ -1821,9 +1823,15 @@
 					--     }
 				else
 					-- If the current locale is not recognized, you can define a default table or display an error message
-					if DEFAULT_CHAT_FRAME then
-						DEFAULT_CHAT_FRAME:AddMessage("|cFF00FF00unitscan warning:|r " .. "|cffffff9aunrecognized client language, rare list is not populated. Only enGB / enUS & ruRU clients are currently supported for rare list.|r" .. "|cFFFFFF00 \nYou can still add any units via unitscan commands!|r")
-					end
+
+
+					LibCompat.After(3, function()
+						if DEFAULT_CHAT_FRAME and not messagePrinted then
+							DEFAULT_CHAT_FRAME:AddMessage("|cFF00FF00unitscan warning:|r " .. "|cffffff9aunrecognized client language, rare list is not populated. Only enGB / enUS & ruRU & zhCN clients are currently supported for rare list.|r" .. "|cFFFFFF00 \nYou can still add any units via unitscan commands!|r")
+							messagePrinted = true
+						end
+					end)
+
 					rare_spawns = {
 					}
 				end
