@@ -452,7 +452,7 @@
 	end
 
 	-- Find out if Leatrix Plus is showing (main panel or config panel)
-	function unitscanLC:IsPlusShowing()
+	function unitscanLC:IsUnitscanShowing()
 		if unitscanLC["PageF"]:IsShown() then return true end
 		for k, v in pairs(usConfigList) do
 			if v:IsShown() then
@@ -615,36 +615,6 @@
 	function unitscanLC:SetDim()
 		--unitscanLC:LockOption("AutomateQuests", "AutomateQuestsBtn", false)			-- Automate quests
 		--unitscanLC:LockOption("AutoAcceptRes", "AutoAcceptResBtn", false)			-- Accept resurrection
-		--unitscanLC:LockOption("AutoReleasePvP", "AutoReleasePvPBtn", false)			-- Release in PvP
-		--unitscanLC:LockOption("AutoSellJunk", "AutoSellJunkBtn", false)				-- Sell junk automatically
-		--unitscanLC:LockOption("AutoRepairGear", "AutoRepairBtn", false)				-- Repair automatically
-		unitscanLC:LockOption("InviteFromWhisper", "InvWhisperBtn", false)			-- Invite from whispers
-		unitscanLC:LockOption("FilterChatMessages", "FilterChatMessagesBtn", true)	-- Filter chat messages
-		unitscanLC:LockOption("MailFontChange", "MailTextBtn", true)					-- Resize mail text
-		unitscanLC:LockOption("QuestFontChange", "QuestTextBtn", true)				-- Resize quest text
-		unitscanLC:LockOption("BookFontChange", "BookTextBtn", true)					-- Resize book text
-		unitscanLC:LockOption("MinimapModder", "ModMinimapBtn", true)				-- Enhance minimap
-		unitscanLC:LockOption("TipModEnable", "MoveTooltipButton", true)				-- Enhance tooltip
-		-- unitscanLC:LockOption("EnhanceDressup", "EnhanceDressupBtn", true)			-- Enhance dressup
-		unitscanLC:LockOption("EnhanceQuestLog", "EnhanceQuestLogBtn", true)			-- Enhance quest log
-		unitscanLC:LockOption("EnhanceTrainers", "EnhanceTrainersBtn", true)			-- Enhance trainers
-		-- unitscanLC:LockOption("ShowCooldowns", "CooldownsButton", true)				-- Show cooldowns
-		unitscanLC:LockOption("ShowPlayerChain", "ModPlayerChain", true)				-- Show player chain
-		unitscanLC:LockOption("ShowWowheadLinks", "ShowWowheadLinksBtn", true)		-- Show Wowhead links
-		unitscanLC:LockOption("ShowFlightTimes", "ShowFlightTimesBtn", true)			-- Show flight times
-		unitscanLC:LockOption("FrmEnabled", "MoveFramesButton", true)				-- Manage frames
-		unitscanLC:LockOption("ManageBuffs", "ManageBuffsButton", true)				-- Manage buffs
-		unitscanLC:LockOption("ManageWidget", "ManageWidgetButton", true)			-- Manage widget
-		unitscanLC:LockOption("ManageFocus", "ManageFocusButton", true)				-- Manage focus
-		unitscanLC:LockOption("ManageTimer", "ManageTimerButton", true)				-- Manage timer
-		unitscanLC:LockOption("ManageDurability", "ManageDurabilityButton", true)	-- Manage durability
-		unitscanLC:LockOption("ManageVehicle", "ManageVehicleButton", true)			-- Manage vehicle
-		unitscanLC:LockOption("ClassColFrames", "ClassColFramesBtn", true)			-- Class colored frames
-		unitscanLC:LockOption("SetWeatherDensity", "SetWeatherDensityBtn", false)	-- Set weather density
-		unitscanLC:LockOption("ViewPortEnable", "ModViewportBtn", true)				-- Enable viewport
-		unitscanLC:LockOption("MuteGameSounds", "MuteGameSoundsBtn", false)			-- Mute game sounds
-		unitscanLC:LockOption("MuteCustomSounds", "MuteCustomSoundsBtn", false)		-- Mute custom sounds
-		unitscanLC:LockOption("StandAndDismount", "DismountBtn", true)				-- Dismount me
 	end
 
 
@@ -655,92 +625,20 @@
 	-- Set the reload button state
 	function unitscanLC:ReloadCheck()
 
-		-- Chat
-		if	(unitscanLC["UseEasyChatResizing"]	~= unitscanDB["UseEasyChatResizing"])	-- Use easy resizing
-		or	(unitscanLC["NoCombatLogTab"]		~= unitscanDB["NoCombatLogTab"])			-- Hide the combat log
-		or	(unitscanLC["NoChatButtons"]			~= unitscanDB["NoChatButtons"])			-- Hide chat buttons
-		or	(unitscanLC["UnclampChat"]			~= unitscanDB["UnclampChat"])			-- Unclamp chat frame
-		or	(unitscanLC["MoveChatEditBoxToTop"]	~= unitscanDB["MoveChatEditBoxToTop"])	-- Move editbox to top
-		or	(unitscanLC["MoreFontSizes"]			~= unitscanDB["MoreFontSizes"])			-- More font sizes
-		or	(unitscanLC["NoStickyChat"]			~= unitscanDB["NoStickyChat"])			-- Disable sticky chat
-		or	(unitscanLC["UseArrowKeysInChat"]	~= unitscanDB["UseArrowKeysInChat"])		-- Use arrow keys in chat
-		or	(unitscanLC["NoChatFade"]			~= unitscanDB["NoChatFade"])				-- Disable chat fade
-		or	(unitscanLC["ClassColorsInChat"]		~= unitscanDB["ClassColorsInChat"])		-- Use class colors in chat
-		or	(unitscanLC["RecentChatWindow"]		~= unitscanDB["RecentChatWindow"])		-- Recent chat window
-		or	(unitscanLC["MaxChatHstory"]			~= unitscanDB["MaxChatHstory"])			-- Increase chat history
-		or	(unitscanLC["FilterChatMessages"]	~= unitscanDB["FilterChatMessages"])		-- Filter chat messages
-		or	(unitscanLC["RestoreChatMessages"]	~= unitscanDB["RestoreChatMessages"])	-- Restore chat messages
+		---- Chat
+		--if	(unitscanLC["UseEasyChatResizing"]	~= unitscanDB["UseEasyChatResizing"])	-- Use easy resizing
+		--or	(unitscanLC["NoCombatLogTab"]		~= unitscanDB["NoCombatLogTab"])			-- Hide the combat log
+		--or	(unitscanLC["NoChatButtons"]			~= unitscanDB["NoChatButtons"])			-- Hide chat buttons
 
-		-- Text
-		or	(unitscanLC["HideErrorMessages"]		~= unitscanDB["HideErrorMessages"])		-- Hide error messages
-		or	(unitscanLC["NoHitIndicators"]		~= unitscanDB["NoHitIndicators"])		-- Hide portrait text
-		or	(unitscanLC["HideZoneText"]			~= unitscanDB["HideZoneText"])			-- Hide zone text
-		or	(unitscanLC["HideKeybindText"]		~= unitscanDB["HideKeybindText"])		-- Hide keybind text
-		or	(unitscanLC["HideMacroText"]			~= unitscanDB["HideMacroText"])			-- Hide macro text
-
-		or	(unitscanLC["MailFontChange"]		~= unitscanDB["MailFontChange"])			-- Resize mail text
-		or	(unitscanLC["QuestFontChange"]		~= unitscanDB["QuestFontChange"])		-- Resize quest text
-		or	(unitscanLC["BookFontChange"]		~= unitscanDB["BookFontChange"])			-- Resize book text
-
-		-- Interface
-		or	(unitscanLC["MinimapModder"]			~= unitscanDB["MinimapModder"])			-- Enhance minimap
-		or	(unitscanLC["HideMiniAddonButtons"]	~= unitscanDB["HideMiniAddonButtons"])	-- Enhance minimap	
-		or	(unitscanLC["SquareMinimap"]			~= unitscanDB["SquareMinimap"])			-- Square minimap
-		or	(unitscanLC["CombineAddonButtons"]	~= unitscanDB["CombineAddonButtons"])	-- Combine addon buttons
-		or	(unitscanLC["HideMiniTracking"]		~= unitscanDB["HideMiniTracking"])		-- Hide tracking button
-		or	(unitscanLC["MiniExcludeList"]		~= unitscanDB["MiniExcludeList"])		-- Minimap exclude list
-		or	(unitscanLC["TipModEnable"]			~= unitscanDB["TipModEnable"])			-- Enhance tooltip
-		or	(unitscanLC["TipNoHealthBar"]		~= unitscanDB["TipNoHealthBar"])			-- Tooltip hide health bar
-		or	(unitscanLC["EnhanceDressup"]		~= unitscanDB["EnhanceDressup"])			-- Enhance dressup
-		or	(unitscanLC["EnhanceQuestLog"]		~= unitscanDB["EnhanceQuestLog"])		-- Enhance quest log
-		or	(unitscanLC["EnhanceProfessions"]	~= unitscanDB["EnhanceProfessions"])		-- Enhance professions
-		or	(unitscanLC["EnhanceTrainers"]		~= unitscanDB["EnhanceTrainers"])		-- Enhance trainers
-		or	(unitscanLC["ShowVolume"]			~= unitscanDB["ShowVolume"])				-- Show volume slider
-		or	(unitscanLC["AhExtras"]				~= unitscanDB["AhExtras"])				-- Show auction controls
-		-- or	(unitscanLC["ShowCooldowns"]			~= unitscanDB["ShowCooldowns"])			-- Show cooldowns
-		or	(unitscanLC["DurabilityStatus"]		~= unitscanDB["DurabilityStatus"])		-- Show durability status
-		or	(unitscanLC["ShowVanityControls"]	~= unitscanDB["ShowVanityControls"])		-- Show vanity controls
-		or	(unitscanLC["ShowBagSearchBox"]		~= unitscanDB["ShowBagSearchBox"])		-- Show bag search box
-		-- or	(unitscanLC["ShowRaidToggle"]		~= unitscanDB["ShowRaidToggle"])			-- Show raid button
-		or	(unitscanLC["ShowPlayerChain"]		~= unitscanDB["ShowPlayerChain"])		-- Show player chain
-		or	(unitscanLC["ShowReadyTimer"]		~= unitscanDB["ShowReadyTimer"])			-- Show ready timer
-		or	(unitscanLC["ShowWowheadLinks"]		~= unitscanDB["ShowWowheadLinks"])		-- Show Wowhead links
-		or	(unitscanLC["ShowFlightTimes"]		~= unitscanDB["ShowFlightTimes"])		-- Show flight times
-
-		-- Frames
-		or	(unitscanLC["FrmEnabled"]			~= unitscanDB["FrmEnabled"])				-- Manage frames
-		or	(unitscanLC["ManageBuffs"]			~= unitscanDB["ManageBuffs"])			-- Manage buffs
-		or	(unitscanLC["ManageWidget"]			~= unitscanDB["ManageWidget"])			-- Manage widget
-		or	(unitscanLC["ManageFocus"]			~= unitscanDB["ManageFocus"])			-- Manage focus
-		or	(unitscanLC["ManageTimer"]			~= unitscanDB["ManageTimer"])			-- Manage timer
-		or	(unitscanLC["ManageDurability"]		~= unitscanDB["ManageDurability"])		-- Manage durability
-		or	(unitscanLC["ManageVehicle"]			~= unitscanDB["ManageVehicle"])			-- Manage vehicle
-		or	(unitscanLC["ClassColFrames"]		~= unitscanDB["ClassColFrames"])			-- Class colored frames
-		or	(unitscanLC["NoAlerts"]				~= unitscanDB["NoAlerts"])				-- Hide alerts
-		or	(unitscanLC["NoGryphons"]			~= unitscanDB["NoGryphons"])				-- Hide gryphons
-		or	(unitscanLC["NoClassBar"]			~= unitscanDB["NoClassBar"])				-- Hide stance bar
-
-		-- System
-		or	(unitscanLC["ViewPortEnable"]		~= unitscanDB["ViewPortEnable"])			-- Enable viewport
-		or	(unitscanLC["NoRestedEmotes"]		~= unitscanDB["NoRestedEmotes"])			-- Silence rested emotes
-		or	(unitscanLC["NoBagAutomation"]		~= unitscanDB["NoBagAutomation"])		-- Disable bag automation
-		or	(unitscanLC["CharAddonList"]			~= unitscanDB["CharAddonList"])			-- Show character addons
-		or	(unitscanLC["FasterLooting"]			~= unitscanDB["FasterLooting"])			-- Faster auto loot
-		or	(unitscanLC["FasterMovieSkip"]		~= unitscanDB["FasterMovieSkip"])		-- Faster movie skip
-		or	(unitscanLC["StandAndDismount"]		~= unitscanDB["StandAndDismount"])		-- Dismount me
-		or	(unitscanLC["ShowVendorPrice"]		~= unitscanDB["ShowVendorPrice"])		-- Show vendor price
-		or	(unitscanLC["CombatPlates"]			~= unitscanDB["CombatPlates"])			-- Combat plates
-		or	(unitscanLC["EasyItemDestroy"]		~= unitscanDB["EasyItemDestroy"])		-- Easy item destroy
-
-		then
-			-- Enable the reload button
-			unitscanLC:LockItem(unitscanCB["ReloadUIButton"], false)
-			unitscanCB["ReloadUIButton"].f:Show()
-		else
-			-- Disable the reload button
-			unitscanLC:LockItem(unitscanCB["ReloadUIButton"], true)
-			unitscanCB["ReloadUIButton"].f:Hide()
-		end
+		--then
+		--	-- Enable the reload button
+		--	unitscanLC:LockItem(unitscanCB["ReloadUIButton"], false)
+		--	unitscanCB["ReloadUIButton"].f:Show()
+		--else
+		--	-- Disable the reload button
+		--	unitscanLC:LockItem(unitscanCB["ReloadUIButton"], true)
+		--	unitscanCB["ReloadUIButton"].f:Hide()
+		--end
 
 	end
 
@@ -765,7 +663,7 @@
 
                 if arg1 == "LeftButton" then
 					-- No modifier key toggles the options panel
-					if unitscanLC:IsPlusShowing() then
+					if unitscanLC:IsUnitscanShowing() then
 						unitscanLC:HideFrames()
 						unitscanLC:HideConfigPanels()
 					else
@@ -858,6 +756,45 @@
 		--	end)
 
 		--end
+
+		----------------------------------------------------------------------
+		-- Create panel in game options panel
+		----------------------------------------------------------------------
+
+		do
+
+			local interPanel = CreateFrame("FRAME")
+			interPanel.name = "unitscan"
+
+			local maintitle = unitscanLC:MakeTx(interPanel, "unitscan", 0, 0)
+			maintitle:SetFont(maintitle:GetFont(), 72)
+			maintitle:ClearAllPoints()
+			maintitle:SetPoint("TOP", 0, -72)
+
+			local expTitle = unitscanLC:MakeTx(interPanel, "Wrath of the Lich King Classic", 0, 0)
+			expTitle:SetFont(expTitle:GetFont(), 32)
+			expTitle:ClearAllPoints()
+			expTitle:SetPoint("TOP", 0, -152)
+
+			local subTitle = unitscanLC:MakeTx(interPanel, "Discord: Sattva#7238", 0, 0)
+			subTitle:SetFont(subTitle:GetFont(), 20)
+			subTitle:ClearAllPoints()
+			subTitle:SetPoint("BOTTOM", 0, 72)
+
+			local slashTitle = unitscanLC:MakeTx(interPanel, "/unitscan help", 0, 0)
+			slashTitle:SetFont(slashTitle:GetFont(), 72)
+			slashTitle:ClearAllPoints()
+			slashTitle:SetPoint("BOTTOM", subTitle, "TOP", 0, 40)
+
+			local pTex = interPanel:CreateTexture(nil, "BACKGROUND")
+			pTex:SetAllPoints()
+			pTex:SetTexture("Interface\\GLUES\\Models\\UI_MainMenu\\swordgradient2")
+			pTex:SetAlpha(0.2)
+			pTex:SetTexCoord(0, 1, 1, 0)
+
+			InterfaceOptions_AddCategory(interPanel)
+
+		end
 
 
 		----------------------------------------------------------------------
@@ -1396,21 +1333,6 @@
 						if event == "PLAYER_ENTERING_WORLD" then
 							LibCompat.After(1, function() unitscan_myzoneGUIButton:Click() end)
 							unitscan_myzoneGUIButton:Click()
-							--local currentZone = GetZoneText();
-							---- Find the button matching the current zone
-							--local matchingButton
-							--for _, button in ipairs(zoneContentFrame.Buttons) do
-							--	if button.Text:GetText() == currentZone then
-							--		unitscan_zoneMatchingButton = button
-							--		break
-							--	end
-							--end
-
-							---- Click the matching button if found
-							--if unitscan_zoneMatchingButton then
-							--	unitscan_zoneMatchingButton:Click()
-							--	zoneButton:UnregisterEvent("PLAYER_ENTERING_WORLD")
-							--end
 						end
 					end)
 					zoneButton:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -2195,246 +2117,12 @@
 					if unitscanDB[oldvar] and not unitscanDB[newvar] then unitscanDB[newvar] = unitscanDB[oldvar]; unitscanDB[oldvar] = nil end
 				end
 
-				UpdateVars("MuteStriders", "MuteMechSteps")					-- 2.5.108 (1st June 2022)
-				UpdateVars("MinimapMod", "MinimapModder")					-- 2.5.120 (24th August 2022)
+				--UpdateVars("MuteStriders", "MuteMechSteps")					-- 2.5.108 (1st June 2022)
+				--UpdateVars("MinimapMod", "MinimapModder")					-- 2.5.120 (24th August 2022)
 
 				---- Automation
 				--unitscanLC:LoadVarChk("AutomateQuests", "Off")				-- Automate quests
-				--unitscanLC:LoadVarChk("AutoQuestShift", "Off")				-- Automate quests requires shift
-				--unitscanLC:LoadVarChk("AutoQuestAvailable", "On")			-- Accept available quests
-				--unitscanLC:LoadVarChk("AutoQuestCompleted", "On")			-- Turn-in completed quests
-				--unitscanLC:LoadVarNum("AutoQuestKeyMenu", 1, 1, 4)			-- Automate quests override key
-				--unitscanLC:LoadVarChk("AutomateGossip", "Off")				-- Automate gossip
-				--unitscanLC:LoadVarChk("AutoAcceptSummon", "Off")				-- Accept summon
-				--unitscanLC:LoadVarChk("AutoAcceptRes", "Off")				-- Accept resurrection
-				--unitscanLC:LoadVarChk("AutoResNoCombat", "On")				-- Accept resurrection exclude combat
-				--unitscanLC:LoadVarChk("AutoReleasePvP", "Off")				-- Release in PvP
-				--unitscanLC:LoadVarChk("AutoReleaseNoAlterac", "Off")			-- Release in PvP Exclude Alterac Valley
-				--unitscanLC:LoadVarNum("AutoReleaseDelay", 200, 200, 3000)	-- Release in PvP Delay
 
-				--unitscanLC:LoadVarChk("AutoSellJunk", "Off")					-- Sell junk automatically
-				--unitscanLC:LoadVarChk("AutoSellShowSummary", "On")			-- Sell junk summary in chat
-				--unitscanLC:LoadVarStr("AutoSellExcludeList", "")				-- Sell junk exclude list
-				--unitscanLC:LoadVarChk("AutoRepairGear", "Off")				-- Repair automatically
-				--unitscanLC:LoadVarChk("AutoRepairGuildFunds", "On")			-- Repair using guild funds
-				--unitscanLC:LoadVarChk("AutoRepairShowSummary", "On")			-- Repair show summary in chat
-
-				-- Social
-				unitscanLC:LoadVarChk("NoDuelRequests", "Off")				-- Block duels
-				unitscanLC:LoadVarChk("NoPartyInvites", "Off")				-- Block party invites
-				-- unitscanLC:LoadVarChk("NoFriendRequests", "Off")				-- Block friend requests
-				unitscanLC:LoadVarChk("NoSharedQuests", "Off")				-- Block shared quests
-
-				unitscanLC:LoadVarChk("AcceptPartyFriends", "Off")			-- Party from friends
-				unitscanLC:LoadVarChk("InviteFromWhisper", "Off")			-- Invite from whispers
-				unitscanLC:LoadVarChk("InviteFriendsOnly", "Off")			-- Restrict invites to friends
-				unitscanLC["InvKey"]	= unitscanDB["InvKey"] or "inv"			-- Invite from whisper keyword
-				unitscanLC:LoadVarChk("FriendlyGuild", "On")					-- Friendly guild
-
-				-- Chat
-				unitscanLC:LoadVarChk("UseEasyChatResizing", "Off")			-- Use easy resizing
-				unitscanLC:LoadVarChk("NoCombatLogTab", "Off")				-- Hide the combat log
-				unitscanLC:LoadVarChk("NoChatButtons", "Off")				-- Hide chat buttons
-				unitscanLC:LoadVarChk("UnclampChat", "Off")					-- Unclamp chat frame
-				unitscanLC:LoadVarChk("MoveChatEditBoxToTop", "Off")			-- Move editbox to top
-				unitscanLC:LoadVarChk("MoreFontSizes", "Off")				-- More font sizes
-
-				unitscanLC:LoadVarChk("NoStickyChat", "Off")					-- Disable sticky chat
-				unitscanLC:LoadVarChk("UseArrowKeysInChat", "Off")			-- Use arrow keys in chat
-				unitscanLC:LoadVarChk("NoChatFade", "Off")					-- Disable chat fade
-				unitscanLC:LoadVarChk("UnivGroupColor", "Off")				-- Universal group color
-				unitscanLC:LoadVarChk("ClassColorsInChat", "Off")			-- Use class colors in chat
-				unitscanLC:LoadVarChk("RecentChatWindow", "Off")				-- Recent chat window
-				unitscanLC:LoadVarNum("RecentChatSize", 170, 170, 600)		-- Recent chat size
-				unitscanLC:LoadVarChk("MaxChatHstory", "Off")				-- Increase chat history
-				unitscanLC:LoadVarChk("FilterChatMessages", "Off")			-- Filter chat messages
-				unitscanLC:LoadVarChk("BlockSpellLinks", "Off")				-- Block spell links
-				unitscanLC:LoadVarChk("BlockDrunkenSpam", "Off")				-- Block drunken spam
-				unitscanLC:LoadVarChk("BlockDuelSpam", "Off")				-- Block duel spam
-				unitscanLC:LoadVarChk("RestoreChatMessages", "Off")			-- Restore chat messages
-
-				-- Text
-				unitscanLC:LoadVarChk("HideErrorMessages", "Off")			-- Hide error messages
-				unitscanLC:LoadVarChk("NoHitIndicators", "Off")				-- Hide portrait text
-				unitscanLC:LoadVarChk("HideZoneText", "Off")					-- Hide zone text
-				unitscanLC:LoadVarChk("HideKeybindText", "Off")				-- Hide keybind text
-				unitscanLC:LoadVarChk("HideMacroText", "Off")				-- Hide macro text
-
-				unitscanLC:LoadVarChk("MailFontChange", "Off")				-- Resize mail text
-				unitscanLC:LoadVarNum("LeaPlusMailFontSize", 15, 10, 36)		-- Mail text slider
-
-				unitscanLC:LoadVarChk("QuestFontChange", "Off")				-- Resize quest text
-				unitscanLC:LoadVarNum("LeaPlusQuestFontSize", 12, 10, 36)	-- Quest text slider
-
-				unitscanLC:LoadVarChk("BookFontChange", "Off")				-- Resize book text
-				unitscanLC:LoadVarNum("LeaPlusBookFontSize", 15, 10, 36)		-- Book text slider
-
-				-- Interface
-				unitscanLC:LoadVarChk("MinimapModder", "Off")				-- Enhance minimap
-				unitscanLC:LoadVarChk("SquareMinimap", "Off")				-- Square minimap
-				unitscanLC:LoadVarChk("ShowWhoPinged", "On")					-- Show who pinged
-				unitscanLC:LoadVarChk("CombineAddonButtons", "Off")			-- Combine addon buttons
-				unitscanLC:LoadVarStr("MiniExcludeList", "")					-- Minimap exclude list
-				unitscanLC:LoadVarChk("HideMiniZoomBtns", "Off")				-- Hide zoom buttons
-				unitscanLC:LoadVarChk("HideMiniZoneText", "Off")				-- Hide the zone text bar
-				unitscanLC:LoadVarChk("HideMiniAddonButtons", "On")			-- Hide addon buttons
-				unitscanLC:LoadVarChk("HideMiniMapButton", "On")				-- Hide the world map button
-				unitscanLC:LoadVarChk("HideMiniTracking", "Off")				-- Hide the tracking button
-				unitscanLC:LoadVarNum("MinimapScale", 1, 1, 4)				-- Minimap scale slider
-				unitscanLC:LoadVarNum("MinimapSize", 140, 140, 560)			-- Minimap size slider
-				unitscanLC:LoadVarNum("MiniClusterScale", 1, 1, 2)			-- Minimap cluster scale
-				unitscanLC:LoadVarChk("MinimapNoScale", "Off")				-- Minimap not minimap
-				unitscanLC:LoadVarAnc("MinimapA", "TOPRIGHT")				-- Minimap anchor
-				unitscanLC:LoadVarAnc("MinimapR", "TOPRIGHT")				-- Minimap relative
-				unitscanLC:LoadVarNum("MinimapX", -17, -5000, 5000)			-- Minimap X
-				unitscanLC:LoadVarNum("MinimapY", -22, -5000, 5000)			-- Minimap Y
-				unitscanLC:LoadVarChk("TipModEnable", "Off")					-- Enhance tooltip
-				unitscanLC:LoadVarChk("TipShowRank", "On")					-- Show rank
-				unitscanLC:LoadVarChk("TipShowOtherRank", "Off")				-- Show rank for other guilds
-				unitscanLC:LoadVarChk("TipShowTarget", "On")					-- Show target
-				unitscanLC:LoadVarChk("TipHideInCombat", "Off")				-- Hide tooltips during combat
-				unitscanLC:LoadVarChk("TipHideShiftOverride", "On")			-- Hide tooltips shift override
-				unitscanLC:LoadVarChk("TipNoHealthBar", "Off")				-- Hide health bar
-				unitscanLC:LoadVarNum("LeaPlusTipSize", 1.00, 0.50, 2.00)	-- Tooltip scale slider
-				unitscanLC:LoadVarNum("TipOffsetX", -13, -5000, 5000)		-- Tooltip X offset
-				unitscanLC:LoadVarNum("TipOffsetY", 94, -5000, 5000)			-- Tooltip Y offset
-				unitscanLC:LoadVarNum("TooltipAnchorMenu", 1, 1, 5)			-- Tooltip anchor menu
-				unitscanLC:LoadVarNum("TipCursorX", 0, -128, 128)			-- Tooltip cursor X offset
-				unitscanLC:LoadVarNum("TipCursorY", 0, -128, 128)			-- Tooltip cursor Y offset
-
-				unitscanLC:LoadVarChk("EnhanceDressup", "Off")				-- Enhance dressup
-				unitscanLC:LoadVarChk("DressupItemButtons", "On")			-- Dressup item buttons
-				unitscanLC:LoadVarChk("DressupAnimControl", "On")			-- Dressup animation control
-				unitscanLC:LoadVarChk("HideDressupStats", "Off")				-- Hide dressup stats
-				unitscanLC:LoadVarChk("EnhanceQuestLog", "Off")				-- Enhance quest log
-				unitscanLC:LoadVarChk("EnhanceQuestHeaders", "On")			-- Enhance quest log toggle headers
-				unitscanLC:LoadVarChk("EnhanceQuestLevels", "On")			-- Enhance quest log quest levels
-				unitscanLC:LoadVarChk("EnhanceQuestDifficulty", "On")		-- Enhance quest log quest difficulty
-				unitscanLC:LoadVarChk("EnhanceProfessions", "Off")			-- Enhance professions
-				unitscanLC:LoadVarChk("EnhanceTrainers", "Off")				-- Enhance trainers
-				unitscanLC:LoadVarChk("ShowTrainAllBtn", "On")				-- Enhance trainers train all button
-
-				unitscanLC:LoadVarChk("ShowVolume", "Off")					-- Show volume slider
-				unitscanLC:LoadVarChk("AhExtras", "Off")						-- Show auction controls
-				unitscanLC:LoadVarChk("AhBuyoutOnly", "Off")					-- Auction buyout only
-				unitscanLC:LoadVarChk("AhGoldOnly", "Off")					-- Auction gold only
-				unitscanLC:LoadVarChk("AhTabConfirm", "Off")					-- Auction confirm on TAB pressed
-
-				-- unitscanLC:LoadVarChk("ShowCooldowns", "Off")				-- Show cooldowns
-				-- unitscanLC:LoadVarChk("ShowCooldownID", "On")				-- Show cooldown ID in tips
-				-- unitscanLC:LoadVarChk("NoCooldownDuration", "On")			-- Hide cooldown duration
-				-- unitscanLC:LoadVarChk("CooldownsOnPlayer", "Off")			-- Anchor to player
-				unitscanLC:LoadVarChk("DurabilityStatus", "Off")				-- Show durability status
-				unitscanLC:LoadVarChk("ShowVanityControls", "Off")			-- Show vanity controls
-				unitscanLC:LoadVarChk("VanityAltLayout", "Off")				-- Vanity alternative layout
-				unitscanLC:LoadVarChk("ShowBagSearchBox", "Off")				-- Show bag search box
-				-- unitscanLC:LoadVarChk("ShowRaidToggle", "Off")				-- Show raid button
-				unitscanLC:LoadVarChk("ShowPlayerChain", "Off")				-- Show player chain
-				unitscanLC:LoadVarNum("PlayerChainMenu", 2, 1, 3)			-- Player chain dropdown value
-				unitscanLC:LoadVarChk("ShowReadyTimer", "Off")				-- Show ready timer
-				unitscanLC:LoadVarChk("ShowWowheadLinks", "Off")				-- Show Wowhead links
-				unitscanLC:LoadVarChk("WowheadLinkComments", "Off")			-- Show Wowhead links to comments
-
-				unitscanLC:LoadVarChk("ShowFlightTimes", "Off")				-- Show flight times
-				unitscanLC:LoadVarChk("FlightBarBackground", "On")			-- Show flight times bar background
-				unitscanLC:LoadVarChk("FlightBarDestination", "On")			-- Show flight times bar destination
-				unitscanLC:LoadVarChk("FlightBarFillBar", "Off")				-- Show flight times bar fill mode
-				unitscanLC:LoadVarChk("FlightBarSpeech", "Off")				-- Show flight times bar speech
-
-				unitscanLC:LoadVarChk("FlightBarContribute", "On")			-- Show flight times contribute
-				unitscanLC:LoadVarAnc("FlightBarA", "TOP")					-- Show flight times anchor
-				unitscanLC:LoadVarAnc("FlightBarR", "TOP")					-- Show flight times relative
-				unitscanLC:LoadVarNum("FlightBarX", 0, -5000, 5000)			-- Show flight position X
-				unitscanLC:LoadVarNum("FlightBarY", -66, -5000, 5000)		-- Show flight position Y
-				unitscanLC:LoadVarNum("FlightBarScale", 2, 1, 5)				-- Show flight times bar scale
-				unitscanLC:LoadVarNum("FlightBarWidth", 230, 40, 460)		-- Show flight times bar width
-
-				-- Frames
-				unitscanLC:LoadVarChk("FrmEnabled", "Off")					-- Manage frames
-
-				unitscanLC:LoadVarChk("ManageBuffs", "Off")					-- Manage buffs
-				unitscanLC:LoadVarAnc("BuffFrameA", "TOPRIGHT")				-- Manage buffs anchor
-				unitscanLC:LoadVarAnc("BuffFrameR", "TOPRIGHT")				-- Manage buffs relative
-				unitscanLC:LoadVarNum("BuffFrameX", -205, -5000, 5000)		-- Manage buffs position X
-				unitscanLC:LoadVarNum("BuffFrameY", -13, -5000, 5000)		-- Manage buffs position Y
-				unitscanLC:LoadVarNum("BuffFrameScale", 1, 0.5, 2)			-- Manage buffs scale
-
-				unitscanLC:LoadVarChk("ManageWidget", "Off")					-- Manage widget
-				unitscanLC:LoadVarAnc("WidgetA", "TOP")						-- Manage widget anchor
-				unitscanLC:LoadVarAnc("WidgetR", "TOP")						-- Manage widget relative
-				unitscanLC:LoadVarNum("WidgetX", 0, -5000, 5000)				-- Manage widget position X
-				unitscanLC:LoadVarNum("WidgetY", -15, -5000, 5000)			-- Manage widget position Y
-				unitscanLC:LoadVarNum("WidgetScale", 1, 0.5, 2)				-- Manage widget scale
-
-				unitscanLC:LoadVarChk("ManageFocus", "Off")					-- Manage focus
-				unitscanLC:LoadVarAnc("FocusA", "CENTER")					-- Manage focus anchor
-				unitscanLC:LoadVarAnc("FocusR", "CENTER")					-- Manage focus relative
-				unitscanLC:LoadVarNum("FocusX", 0, -5000, 5000)				-- Manage focus position X
-				unitscanLC:LoadVarNum("FocusY", 0, -5000, 5000)				-- Manage focus position Y
-				unitscanLC:LoadVarNum("FocusScale", 1, 0.5, 2)				-- Manage focus scale
-
-				unitscanLC:LoadVarChk("ManageTimer", "Off")					-- Manage timer
-				unitscanLC:LoadVarAnc("TimerA", "TOP")						-- Manage timer anchor
-				unitscanLC:LoadVarAnc("TimerR", "TOP")						-- Manage timer relative
-				unitscanLC:LoadVarNum("TimerX", -5, -5000, 5000)				-- Manage timer position X
-				unitscanLC:LoadVarNum("TimerY", -96, -5000, 5000)			-- Manage timer position Y
-				unitscanLC:LoadVarNum("TimerScale", 1, 0.5, 2)				-- Manage timer scale
-
-				unitscanLC:LoadVarChk("ManageDurability", "Off")				-- Manage durability
-				unitscanLC:LoadVarAnc("DurabilityA", "TOPRIGHT")				-- Manage durability anchor
-				unitscanLC:LoadVarAnc("DurabilityR", "TOPRIGHT")				-- Manage durability relative
-				unitscanLC:LoadVarNum("DurabilityX", 0, -5000, 5000)			-- Manage durability position X
-				unitscanLC:LoadVarNum("DurabilityY", -192, -5000, 5000)		-- Manage durability position Y
-				unitscanLC:LoadVarNum("DurabilityScale", 1, 0.5, 2)			-- Manage durability scale
-
-				unitscanLC:LoadVarChk("ManageVehicle", "Off")				-- Manage vehicle
-				unitscanLC:LoadVarAnc("VehicleA", "TOPRIGHT")				-- Manage vehicle anchor
-				unitscanLC:LoadVarAnc("VehicleR", "TOPRIGHT")				-- Manage vehicle relative
-				unitscanLC:LoadVarNum("VehicleX", -100, -5000, 5000)			-- Manage vehicle position X
-				unitscanLC:LoadVarNum("VehicleY", -192, -5000, 5000)			-- Manage vehicle position Y
-				unitscanLC:LoadVarNum("VehicleScale", 1, 0.5, 2)				-- Manage vehicle scale
-
-				unitscanLC:LoadVarChk("ClassColFrames", "Off")				-- Class colored frames
-				unitscanLC:LoadVarChk("ClassColPlayer", "On")				-- Class colored player frame
-				unitscanLC:LoadVarChk("ClassColTarget", "On")				-- Class colored target frame
-
-				unitscanLC:LoadVarChk("NoAlerts", "Off")						-- Hide alerts
-				unitscanLC:LoadVarChk("NoGryphons", "Off")					-- Hide gryphons
-				unitscanLC:LoadVarChk("NoClassBar", "Off")					-- Hide stance bar
-
-				-- System
-				unitscanLC:LoadVarChk("NoScreenGlow", "Off")					-- Disable screen glow
-				unitscanLC:LoadVarChk("NoScreenEffects", "Off")				-- Disable screen effects
-				unitscanLC:LoadVarChk("SetWeatherDensity", "Off")			-- Set weather density
-				unitscanLC:LoadVarNum("WeatherLevel", 3, 0, 3)				-- Weather density level
-				unitscanLC:LoadVarChk("MaxCameraZoom", "Off")				-- Max camera zoom
-				unitscanLC:LoadVarChk("ViewPortEnable", "Off")				-- Enable viewport
-				unitscanLC:LoadVarNum("ViewPortTop", 0, 0, 300)				-- Top border
-				unitscanLC:LoadVarNum("ViewPortBottom", 0, 0, 300)			-- Bottom border
-				unitscanLC:LoadVarNum("ViewPortLeft", 0, 0, 300)				-- Left border
-				unitscanLC:LoadVarNum("ViewPortRight", 0, 0, 300)			-- Right border
-				unitscanLC:LoadVarNum("ViewPortResizeTop", 0, 0, 300)		-- Resize top border
-				unitscanLC:LoadVarNum("ViewPortResizeBottom", 0, 0, 300)		-- Resize bottom border
-				unitscanLC:LoadVarNum("ViewPortAlpha", 0, 0, 0.9)			-- Border alpha
-
-				unitscanLC:LoadVarChk("NoRestedEmotes", "Off")				-- Silence rested emotes
-				unitscanLC:LoadVarChk("MuteGameSounds", "Off")				-- Mute game sounds
-				unitscanLC:LoadVarChk("MuteCustomSounds", "Off")				-- Mute custom sounds
-				unitscanLC:LoadVarStr("MuteCustomList", "")					-- Mute custom sounds list
-
-				unitscanLC:LoadVarChk("NoBagAutomation", "Off")				-- Disable bag automation
-				unitscanLC:LoadVarChk("CharAddonList", "Off")				-- Show character addons
-				unitscanLC:LoadVarChk("NoConfirmLoot", "Off")				-- Disable loot warnings
-				unitscanLC:LoadVarChk("FasterLooting", "Off")				-- Faster auto loot
-				unitscanLC:LoadVarChk("FasterMovieSkip", "Off")				-- Faster movie skip
-				unitscanLC:LoadVarChk("StandAndDismount", "Off")				-- Dismount me
-				unitscanLC:LoadVarChk("DismountNoResource", "On")			-- Dismount on resource error
-				unitscanLC:LoadVarChk("DismountNoMoving", "On")				-- Dismount on moving
-				unitscanLC:LoadVarChk("DismountNoTaxi", "On")				-- Dismount on flight map open
-				unitscanLC:LoadVarChk("DismountShowFormBtn", "On")			-- Dismount cancel form button
-				unitscanLC:LoadVarChk("ShowVendorPrice", "Off")				-- Show vendor price
-				unitscanLC:LoadVarChk("CombatPlates", "Off")					-- Combat plates
-				unitscanLC:LoadVarChk("EasyItemDestroy", "Off")				-- Easy item destroy
 
 				-- Settings
 				unitscanLC:LoadVarChk("ShowMinimapIcon", "On")				-- Show minimap button
@@ -2473,15 +2161,15 @@
 					-- Disable items that conflict with Glass
 					if unitscanLC.Glass then
 						local reason = L["Cannot be used with Glass"]
-						Lock("UseEasyChatResizing", reason) -- Use easy resizing
-						Lock("NoCombatLogTab", reason) -- Hide the combat log
-						Lock("NoChatButtons", reason) -- Hide chat buttons
-						Lock("UnclampChat", reason) -- Unclamp chat frame
-						Lock("MoveChatEditBoxToTop", reason) -- Move editbox to top
-						Lock("MoreFontSizes", reason) --  More font sizes
-						Lock("NoChatFade", reason) --  Disable chat fade
-						Lock("ClassColorsInChat", reason) -- Use class colors in chat
-						Lock("RecentChatWindow", reason) -- Recent chat window
+						--Lock("UseEasyChatResizing", reason) -- Use easy resizing
+						--Lock("NoCombatLogTab", reason) -- Hide the combat log
+						--Lock("NoChatButtons", reason) -- Hide chat buttons
+						--Lock("UnclampChat", reason) -- Unclamp chat frame
+						--Lock("MoveChatEditBoxToTop", reason) -- Move editbox to top
+						--Lock("MoreFontSizes", reason) --  More font sizes
+						--Lock("NoChatFade", reason) --  Disable chat fade
+						--Lock("ClassColorsInChat", reason) -- Use class colors in chat
+						--Lock("RecentChatWindow", reason) -- Recent chat window
 					end
 
 					-- Disable items that conflict with ElvUI
@@ -2493,16 +2181,16 @@
 
 							-- Chat
 							if E.private.chat.enable then
-								Lock("UseEasyChatResizing", reason, "Chat") -- Use easy resizing
-								Lock("NoCombatLogTab", reason, "Chat") -- Hide the combat log
-								Lock("NoChatButtons", reason, "Chat") -- Hide chat buttons
-								Lock("UnclampChat", reason, "Chat") -- Unclamp chat frame
-								Lock("MoreFontSizes", reason, "Chat") --  More font sizes
-								Lock("NoStickyChat", reason, "Chat") -- Disable sticky chat
-								Lock("UseArrowKeysInChat", reason, "Chat") -- Use arrow keys in chat
-								Lock("NoChatFade", reason, "Chat") -- Disable chat fade
-								Lock("MaxChatHstory", reason, "Chat") -- Increase chat history
-								Lock("RestoreChatMessages", reason, "Chat") -- Restore chat messages
+								--Lock("UseEasyChatResizing", reason, "Chat") -- Use easy resizing
+								--Lock("NoCombatLogTab", reason, "Chat") -- Hide the combat log
+								--Lock("NoChatButtons", reason, "Chat") -- Hide chat buttons
+								--Lock("UnclampChat", reason, "Chat") -- Unclamp chat frame
+								--Lock("MoreFontSizes", reason, "Chat") --  More font sizes
+								--Lock("NoStickyChat", reason, "Chat") -- Disable sticky chat
+								--Lock("UseArrowKeysInChat", reason, "Chat") -- Use arrow keys in chat
+								--Lock("NoChatFade", reason, "Chat") -- Disable chat fade
+								--Lock("MaxChatHstory", reason, "Chat") -- Increase chat history
+								--Lock("RestoreChatMessages", reason, "Chat") -- Restore chat messages
 							end
 
 							-- Minimap
@@ -2517,31 +2205,31 @@
 
 							-- ActionBars
 							if E.private.actionbar.enable then
-								Lock("NoGryphons", reason, "ActionBars") -- Hide gryphons
-								Lock("NoClassBar", reason, "ActionBars") -- Hide stance bar
-								Lock("HideKeybindText", reason, "ActionBars") -- Hide keybind text
-								Lock("HideMacroText", reason, "ActionBars") -- Hide macro text
+								--Lock("NoGryphons", reason, "ActionBars") -- Hide gryphons
+								--Lock("NoClassBar", reason, "ActionBars") -- Hide stance bar
+								--Lock("HideKeybindText", reason, "ActionBars") -- Hide keybind text
+								--Lock("HideMacroText", reason, "ActionBars") -- Hide macro text
 							end
 
 							-- Bags
 							if E.private.bags.enable then
-								Lock("NoBagAutomation", reason, "Bags") -- Disable bag automation
-								Lock("ShowBagSearchBox", reason, "Bags") -- Show bag search box
+								--Lock("NoBagAutomation", reason, "Bags") -- Disable bag automation
+								--Lock("ShowBagSearchBox", reason, "Bags") -- Show bag search box
 							end
 
 							-- Tooltip
 							if E.private.tooltip.enable then
-								Lock("TipModEnable", reason, "Tooltip") -- Enhance tooltip
+								--Lock("TipModEnable", reason, "Tooltip") -- Enhance tooltip
 							end
 
 							-- Buffs: Disable Blizzard
 							if E.private.auras.disableBlizzard then
-								Lock("ManageBuffs", reason, "Buffs and Debuffs (Disable Blizzard)") -- Manage buffs
+								--Lock("ManageBuffs", reason, "Buffs and Debuffs (Disable Blizzard)") -- Manage buffs
 							end
 
 							-- UnitFrames: Disabled Blizzard: Focus
 							if E.private.unitframe.disabledBlizzardFrames.focus then
-								Lock("ManageFocus", reason, "UnitFrames (Disabled Blizzard Frames Focus)") -- Manage focus
+								--Lock("ManageFocus", reason, "UnitFrames (Disabled Blizzard Frames Focus)") -- Manage focus
 							end
 
 							-- UnitFrames: Disabled Blizzard: Player
@@ -2552,25 +2240,25 @@
 
 							-- UnitFrames: Disabled Blizzard: Player and Target
 							if E.private.unitframe.disabledBlizzardFrames.player or E.private.unitframe.disabledBlizzardFrames.target then
-								Lock("FrmEnabled", reason, "UnitFrames (Disabled Blizzard Frames Player and Target)") -- Manage frames
+								--Lock("FrmEnabled", reason, "UnitFrames (Disabled Blizzard Frames Player and Target)") -- Manage frames
 							end
 
 							-- UnitFrames: Disabled Blizzard: Player, Target and Focus
 							if E.private.unitframe.disabledBlizzardFrames.player or E.private.unitframe.disabledBlizzardFrames.target or E.private.unitframe.disabledBlizzardFrames.focus then
-								Lock("ClassColFrames", reason, "UnitFrames (Disabled Blizzard Frames Player, Target and Focus)") -- Class-colored frames
+								--Lock("ClassColFrames", reason, "UnitFrames (Disabled Blizzard Frames Player, Target and Focus)") -- Class-colored frames
 							end
 
 							-- Skins: Blizzard Gossip Frame
 							if E.private.skins.blizzard.enable and E.private.skins.blizzard.gossip then
-								Lock("QuestFontChange", reason, "Skins (Blizzard Gossip Frame)") -- Resize quest font
+								--Lock("QuestFontChange", reason, "Skins (Blizzard Gossip Frame)") -- Resize quest font
 							end
 
 							-- Base
 							do
-								Lock("ManageWidget", reason) -- Manage widget
-								Lock("ManageTimer", reason) -- Manage timer
-								Lock("ManageDurability", reason) -- Manage durability
-								Lock("ManageVehicle", reason) -- Manage vehicle
+							--	Lock("ManageWidget", reason) -- Manage widget
+								--Lock("ManageTimer", reason) -- Manage timer
+								--Lock("ManageDurability", reason) -- Manage durability
+								--Lock("ManageVehicle", reason) -- Manage vehicle
 							end
 
 						end
@@ -2608,246 +2296,6 @@
 
 			-- Run the logout function without wipe flag
 			unitscanLC:PlayerLogout(false)
-
-			---- Automation
-			--unitscanDB["AutomateQuests"]			= unitscanLC["AutomateQuests"]
-			--unitscanDB["AutoQuestShift"]			= unitscanLC["AutoQuestShift"]
-			--unitscanDB["AutoQuestAvailable"]		= unitscanLC["AutoQuestAvailable"]
-			--unitscanDB["AutoQuestCompleted"]		= unitscanLC["AutoQuestCompleted"]
-			--unitscanDB["AutoQuestKeyMenu"]		= unitscanLC["AutoQuestKeyMenu"]
-			--unitscanDB["AutomateGossip"]			= unitscanLC["AutomateGossip"]
-			--unitscanDB["AutoAcceptSummon"] 		= unitscanLC["AutoAcceptSummon"]
-			--unitscanDB["AutoAcceptRes"] 			= unitscanLC["AutoAcceptRes"]
-			--unitscanDB["AutoResNoCombat"] 		= unitscanLC["AutoResNoCombat"]
-			--unitscanDB["AutoReleasePvP"] 		= unitscanLC["AutoReleasePvP"]
-			--unitscanDB["AutoReleaseNoAlterac"] 	= unitscanLC["AutoReleaseNoAlterac"]
-			--unitscanDB["AutoReleaseDelay"] 		= unitscanLC["AutoReleaseDelay"]
-
-			--unitscanDB["AutoSellJunk"] 			= unitscanLC["AutoSellJunk"]
-			--unitscanDB["AutoSellShowSummary"] 	= unitscanLC["AutoSellShowSummary"]
-			--unitscanDB["AutoSellExcludeList"] 	= unitscanLC["AutoSellExcludeList"]
-			--unitscanDB["AutoRepairGear"] 		= unitscanLC["AutoRepairGear"]
-			--unitscanDB["AutoRepairGuildFunds"] 	= unitscanLC["AutoRepairGuildFunds"]
-			--unitscanDB["AutoRepairShowSummary"] 	= unitscanLC["AutoRepairShowSummary"]
-
-			-- Social
-			unitscanDB["NoDuelRequests"] 		= unitscanLC["NoDuelRequests"]
-			unitscanDB["NoPartyInvites"]			= unitscanLC["NoPartyInvites"]
-			-- unitscanDB["NoFriendRequests"]		= unitscanLC["NoFriendRequests"]
-			unitscanDB["NoSharedQuests"]			= unitscanLC["NoSharedQuests"]
-
-			unitscanDB["AcceptPartyFriends"]		= unitscanLC["AcceptPartyFriends"]
-			unitscanDB["InviteFromWhisper"]		= unitscanLC["InviteFromWhisper"]
-			unitscanDB["InviteFriendsOnly"]		= unitscanLC["InviteFriendsOnly"]
-			unitscanDB["InvKey"]					= unitscanLC["InvKey"]
-			unitscanDB["FriendlyGuild"]			= unitscanLC["FriendlyGuild"]
-
-			-- Chat
-			unitscanDB["UseEasyChatResizing"]	= unitscanLC["UseEasyChatResizing"]
-			unitscanDB["NoCombatLogTab"]			= unitscanLC["NoCombatLogTab"]
-			unitscanDB["NoChatButtons"]			= unitscanLC["NoChatButtons"]
-			unitscanDB["UnclampChat"]			= unitscanLC["UnclampChat"]
-			unitscanDB["MoveChatEditBoxToTop"]	= unitscanLC["MoveChatEditBoxToTop"]
-			unitscanDB["MoreFontSizes"]			= unitscanLC["MoreFontSizes"]
-
-			unitscanDB["NoStickyChat"] 			= unitscanLC["NoStickyChat"]
-			unitscanDB["UseArrowKeysInChat"]		= unitscanLC["UseArrowKeysInChat"]
-			unitscanDB["NoChatFade"]				= unitscanLC["NoChatFade"]
-			unitscanDB["UnivGroupColor"]			= unitscanLC["UnivGroupColor"]
-			unitscanDB["ClassColorsInChat"]		= unitscanLC["ClassColorsInChat"]
-			unitscanDB["RecentChatWindow"]		= unitscanLC["RecentChatWindow"]
-			unitscanDB["RecentChatSize"]			= unitscanLC["RecentChatSize"]
-			unitscanDB["MaxChatHstory"]			= unitscanLC["MaxChatHstory"]
-			unitscanDB["FilterChatMessages"]		= unitscanLC["FilterChatMessages"]
-			unitscanDB["BlockSpellLinks"]		= unitscanLC["BlockSpellLinks"]
-			unitscanDB["BlockDrunkenSpam"]		= unitscanLC["BlockDrunkenSpam"]
-			unitscanDB["BlockDuelSpam"]			= unitscanLC["BlockDuelSpam"]
-			unitscanDB["RestoreChatMessages"]	= unitscanLC["RestoreChatMessages"]
-
-			-- Text
-			unitscanDB["HideErrorMessages"]		= unitscanLC["HideErrorMessages"]
-			unitscanDB["NoHitIndicators"]		= unitscanLC["NoHitIndicators"]
-			unitscanDB["HideZoneText"] 			= unitscanLC["HideZoneText"]
-			unitscanDB["HideKeybindText"] 		= unitscanLC["HideKeybindText"]
-			unitscanDB["HideMacroText"] 			= unitscanLC["HideMacroText"]
-
-			unitscanDB["MailFontChange"] 		= unitscanLC["MailFontChange"]
-			unitscanDB["LeaPlusMailFontSize"] 	= unitscanLC["LeaPlusMailFontSize"]
-
-			unitscanDB["QuestFontChange"] 		= unitscanLC["QuestFontChange"]
-			unitscanDB["LeaPlusQuestFontSize"]	= unitscanLC["LeaPlusQuestFontSize"]
-
-			unitscanDB["BookFontChange"] 		= unitscanLC["BookFontChange"]
-			unitscanDB["LeaPlusBookFontSize"]	= unitscanLC["LeaPlusBookFontSize"]
-
-			-- Interface
-			unitscanDB["MinimapModder"]			= unitscanLC["MinimapModder"]
-			unitscanDB["SquareMinimap"]			= unitscanLC["SquareMinimap"]
-			unitscanDB["ShowWhoPinged"]			= unitscanLC["ShowWhoPinged"]
-			unitscanDB["CombineAddonButtons"]	= unitscanLC["CombineAddonButtons"]
-			unitscanDB["MiniExcludeList"] 		= unitscanLC["MiniExcludeList"]
-			unitscanDB["HideMiniZoomBtns"]		= unitscanLC["HideMiniZoomBtns"]
-			unitscanDB["HideMiniZoneText"]		= unitscanLC["HideMiniZoneText"]
-			unitscanDB["HideMiniAddonButtons"]	= unitscanLC["HideMiniAddonButtons"]
-			unitscanDB["HideMiniMapButton"]		= unitscanLC["HideMiniMapButton"]
-			unitscanDB["HideMiniTracking"]		= unitscanLC["HideMiniTracking"]
-			unitscanDB["MinimapScale"]			= unitscanLC["MinimapScale"]
-			unitscanDB["MinimapSize"]			= unitscanLC["MinimapSize"]
-			unitscanDB["MiniClusterScale"]		= unitscanLC["MiniClusterScale"]
-			unitscanDB["MinimapNoScale"]			= unitscanLC["MinimapNoScale"]
-			unitscanDB["MinimapA"]				= unitscanLC["MinimapA"]
-			unitscanDB["MinimapR"]				= unitscanLC["MinimapR"]
-			unitscanDB["MinimapX"]				= unitscanLC["MinimapX"]
-			unitscanDB["MinimapY"]				= unitscanLC["MinimapY"]
-
-			unitscanDB["TipModEnable"]			= unitscanLC["TipModEnable"]
-			unitscanDB["TipShowRank"]			= unitscanLC["TipShowRank"]
-			unitscanDB["TipShowOtherRank"]		= unitscanLC["TipShowOtherRank"]
-			unitscanDB["TipShowTarget"]			= unitscanLC["TipShowTarget"]
-			unitscanDB["TipHideInCombat"]		= unitscanLC["TipHideInCombat"]
-			unitscanDB["TipHideShiftOverride"]	= unitscanLC["TipHideShiftOverride"]
-			unitscanDB["TipNoHealthBar"]			= unitscanLC["TipNoHealthBar"]
-			unitscanDB["LeaPlusTipSize"]			= unitscanLC["LeaPlusTipSize"]
-			unitscanDB["TipOffsetX"]				= unitscanLC["TipOffsetX"]
-			unitscanDB["TipOffsetY"]				= unitscanLC["TipOffsetY"]
-			unitscanDB["TooltipAnchorMenu"]		= unitscanLC["TooltipAnchorMenu"]
-			unitscanDB["TipCursorX"]				= unitscanLC["TipCursorX"]
-			unitscanDB["TipCursorY"]				= unitscanLC["TipCursorY"]
-
-			unitscanDB["EnhanceDressup"]			= unitscanLC["EnhanceDressup"]
-			unitscanDB["DressupItemButtons"]		= unitscanLC["DressupItemButtons"]
-			unitscanDB["DressupAnimControl"]		= unitscanLC["DressupAnimControl"]
-			unitscanDB["HideDressupStats"]		= unitscanLC["HideDressupStats"]
-			unitscanDB["EnhanceQuestLog"]		= unitscanLC["EnhanceQuestLog"]
-			unitscanDB["EnhanceQuestHeaders"]	= unitscanLC["EnhanceQuestHeaders"]
-			unitscanDB["EnhanceQuestLevels"]		= unitscanLC["EnhanceQuestLevels"]
-			unitscanDB["EnhanceQuestDifficulty"]	= unitscanLC["EnhanceQuestDifficulty"]
-
-			unitscanDB["EnhanceProfessions"]		= unitscanLC["EnhanceProfessions"]
-			unitscanDB["EnhanceTrainers"]		= unitscanLC["EnhanceTrainers"]
-			unitscanDB["ShowTrainAllBtn"]		= unitscanLC["ShowTrainAllBtn"]
-
-			unitscanDB["ShowVolume"] 			= unitscanLC["ShowVolume"]
-			unitscanDB["AhExtras"]				= unitscanLC["AhExtras"]
-			unitscanDB["AhBuyoutOnly"]			= unitscanLC["AhBuyoutOnly"]
-			unitscanDB["AhGoldOnly"]				= unitscanLC["AhGoldOnly"]
-			unitscanDB["AhTabConfirm"]			= unitscanLC["AhTabConfirm"]		
-
-			-- unitscanDB["ShowCooldowns"]			= unitscanLC["ShowCooldowns"]
-			-- unitscanDB["ShowCooldownID"]			= unitscanLC["ShowCooldownID"]
-			-- unitscanDB["NoCooldownDuration"]		= unitscanLC["NoCooldownDuration"]
-			-- unitscanDB["CooldownsOnPlayer"]		= unitscanLC["CooldownsOnPlayer"]
-			unitscanDB["DurabilityStatus"]		= unitscanLC["DurabilityStatus"]
-			unitscanDB["ShowVanityControls"]		= unitscanLC["ShowVanityControls"]
-			unitscanDB["VanityAltLayout"]		= unitscanLC["VanityAltLayout"]
-			unitscanDB["ShowBagSearchBox"]		= unitscanLC["ShowBagSearchBox"]
-			-- unitscanDB["ShowRaidToggle"]			= unitscanLC["ShowRaidToggle"]
-			unitscanDB["ShowPlayerChain"]		= unitscanLC["ShowPlayerChain"]
-			unitscanDB["PlayerChainMenu"]		= unitscanLC["PlayerChainMenu"]
-			unitscanDB["ShowReadyTimer"]			= unitscanLC["ShowReadyTimer"]
-			unitscanDB["ShowWowheadLinks"]		= unitscanLC["ShowWowheadLinks"]
-			unitscanDB["WowheadLinkComments"]	= unitscanLC["WowheadLinkComments"]
-
-			unitscanDB["ShowFlightTimes"]		= unitscanLC["ShowFlightTimes"]
-			unitscanDB["FlightBarBackground"]	= unitscanLC["FlightBarBackground"]
-			unitscanDB["FlightBarDestination"]	= unitscanLC["FlightBarDestination"]
-			unitscanDB["FlightBarFillBar"]		= unitscanLC["FlightBarFillBar"]
-			unitscanDB["FlightBarSpeech"]		= unitscanLC["FlightBarSpeech"]
-
-			unitscanDB["FlightBarContribute"]	= unitscanLC["FlightBarContribute"]
-			unitscanDB["FlightBarA"]				= unitscanLC["FlightBarA"]
-			unitscanDB["FlightBarR"]				= unitscanLC["FlightBarR"]
-			unitscanDB["FlightBarX"]				= unitscanLC["FlightBarX"]
-			unitscanDB["FlightBarY"]				= unitscanLC["FlightBarY"]
-			unitscanDB["FlightBarScale"]			= unitscanLC["FlightBarScale"]
-			unitscanDB["FlightBarWidth"]			= unitscanLC["FlightBarWidth"]
-
-			-- Frames
-			unitscanDB["FrmEnabled"]				= unitscanLC["FrmEnabled"]
-
-			unitscanDB["ManageBuffs"]			= unitscanLC["ManageBuffs"]
-			unitscanDB["BuffFrameA"]				= unitscanLC["BuffFrameA"]
-			unitscanDB["BuffFrameR"]				= unitscanLC["BuffFrameR"]
-			unitscanDB["BuffFrameX"]				= unitscanLC["BuffFrameX"]
-			unitscanDB["BuffFrameY"]				= unitscanLC["BuffFrameY"]
-			unitscanDB["BuffFrameScale"]			= unitscanLC["BuffFrameScale"]
-
-			unitscanDB["ManageWidget"]			= unitscanLC["ManageWidget"]
-			unitscanDB["WidgetA"]				= unitscanLC["WidgetA"]
-			unitscanDB["WidgetR"]				= unitscanLC["WidgetR"]
-			unitscanDB["WidgetX"]				= unitscanLC["WidgetX"]
-			unitscanDB["WidgetY"]				= unitscanLC["WidgetY"]
-			unitscanDB["WidgetScale"]			= unitscanLC["WidgetScale"]
-
-			unitscanDB["ManageFocus"]			= unitscanLC["ManageFocus"]
-			unitscanDB["FocusA"]					= unitscanLC["FocusA"]
-			unitscanDB["FocusR"]					= unitscanLC["FocusR"]
-			unitscanDB["FocusX"]					= unitscanLC["FocusX"]
-			unitscanDB["FocusY"]					= unitscanLC["FocusY"]
-			unitscanDB["FocusScale"]				= unitscanLC["FocusScale"]
-
-			unitscanDB["ManageTimer"]			= unitscanLC["ManageTimer"]
-			unitscanDB["TimerA"]					= unitscanLC["TimerA"]
-			unitscanDB["TimerR"]					= unitscanLC["TimerR"]
-			unitscanDB["TimerX"]					= unitscanLC["TimerX"]
-			unitscanDB["TimerY"]					= unitscanLC["TimerY"]
-			unitscanDB["TimerScale"]				= unitscanLC["TimerScale"]
-
-			unitscanDB["ManageDurability"]		= unitscanLC["ManageDurability"]
-			unitscanDB["DurabilityA"]			= unitscanLC["DurabilityA"]
-			unitscanDB["DurabilityR"]			= unitscanLC["DurabilityR"]
-			unitscanDB["DurabilityX"]			= unitscanLC["DurabilityX"]
-			unitscanDB["DurabilityY"]			= unitscanLC["DurabilityY"]
-			unitscanDB["DurabilityScale"]		= unitscanLC["DurabilityScale"]
-
-			unitscanDB["ManageVehicle"]			= unitscanLC["ManageVehicle"]
-			unitscanDB["VehicleA"]				= unitscanLC["VehicleA"]
-			unitscanDB["VehicleR"]				= unitscanLC["VehicleR"]
-			unitscanDB["VehicleX"]				= unitscanLC["VehicleX"]
-			unitscanDB["VehicleY"]				= unitscanLC["VehicleY"]
-			unitscanDB["VehicleScale"]			= unitscanLC["VehicleScale"]
-
-			unitscanDB["ClassColFrames"]			= unitscanLC["ClassColFrames"]
-			unitscanDB["ClassColPlayer"]			= unitscanLC["ClassColPlayer"]
-			unitscanDB["ClassColTarget"]			= unitscanLC["ClassColTarget"]
-
-			unitscanDB["NoAlerts"]				= unitscanLC["NoAlerts"]
-			unitscanDB["NoGryphons"]				= unitscanLC["NoGryphons"]
-			unitscanDB["NoClassBar"]				= unitscanLC["NoClassBar"]
-
-			-- System
-			unitscanDB["NoScreenGlow"] 			= unitscanLC["NoScreenGlow"]
-			unitscanDB["NoScreenEffects"] 		= unitscanLC["NoScreenEffects"]
-			unitscanDB["SetWeatherDensity"] 		= unitscanLC["SetWeatherDensity"]
-			unitscanDB["WeatherLevel"] 			= unitscanLC["WeatherLevel"]
-			unitscanDB["MaxCameraZoom"] 			= unitscanLC["MaxCameraZoom"]
-			unitscanDB["ViewPortEnable"]			= unitscanLC["ViewPortEnable"]
-			unitscanDB["ViewPortTop"]			= unitscanLC["ViewPortTop"]
-			unitscanDB["ViewPortBottom"]			= unitscanLC["ViewPortBottom"]
-			unitscanDB["ViewPortLeft"]			= unitscanLC["ViewPortLeft"]
-			unitscanDB["ViewPortRight"]			= unitscanLC["ViewPortRight"]
-			unitscanDB["ViewPortResizeTop"]		= unitscanLC["ViewPortResizeTop"]
-			unitscanDB["ViewPortResizeBottom"]	= unitscanLC["ViewPortResizeBottom"]
-			unitscanDB["ViewPortAlpha"]			= unitscanLC["ViewPortAlpha"]
-
-			unitscanDB["NoRestedEmotes"]			= unitscanLC["NoRestedEmotes"]
-			unitscanDB["MuteGameSounds"]			= unitscanLC["MuteGameSounds"]
-			unitscanDB["MuteCustomSounds"]		= unitscanLC["MuteCustomSounds"]
-			unitscanDB["MuteCustomList"]			= unitscanLC["MuteCustomList"]
-
-			unitscanDB["NoBagAutomation"]		= unitscanLC["NoBagAutomation"]
-			unitscanDB["CharAddonList"]			= unitscanLC["CharAddonList"]
-			unitscanDB["NoConfirmLoot"] 			= unitscanLC["NoConfirmLoot"]
-			unitscanDB["FasterLooting"] 			= unitscanLC["FasterLooting"]
-			unitscanDB["FasterMovieSkip"] 		= unitscanLC["FasterMovieSkip"]
-			unitscanDB["StandAndDismount"] 		= unitscanLC["StandAndDismount"]
-			unitscanDB["DismountNoResource"] 	= unitscanLC["DismountNoResource"]
-			unitscanDB["DismountNoMoving"] 		= unitscanLC["DismountNoMoving"]
-			unitscanDB["DismountNoTaxi"] 		= unitscanLC["DismountNoTaxi"]
-			unitscanDB["DismountShowFormBtn"] 	= unitscanLC["DismountShowFormBtn"]
-			unitscanDB["ShowVendorPrice"] 		= unitscanLC["ShowVendorPrice"]
-			unitscanDB["CombatPlates"]			= unitscanLC["CombatPlates"]
-			unitscanDB["EasyItemDestroy"]		= unitscanLC["EasyItemDestroy"]
 
 			-- Settings
 			unitscanDB["ShowMinimapIcon"] 		= unitscanLC["ShowMinimapIcon"]
@@ -2994,7 +2442,7 @@
 		end)
 
 		-- Set textures
-		unitscanLC:CreateBar("FootTexture", Side, 570, 48, "BOTTOM", 0.5, 0.5, 0.5, 1.0, "Interface\\addons\\unitscan\\assets\\ui-guildachievement-parchment-horizontal-desaturated.blp")
+		--unitscanLC:CreateBar("FootTexture", Side, 570, 48, "BOTTOM", 0.5, 0.5, 0.5, 1.0, "Interface\\addons\\unitscan\\assets\\ui-guildachievement-parchment-horizontal-desaturated.blp")
 		unitscanLC:CreateBar("MainTexture", Side, 570, 323, "TOPRIGHT", 0.7, 0.7, 0.7, 0.9,  "Interface\\addons\\unitscan\\assets\\ui-guildachievement-parchment-horizontal-desaturated.blp")
 
 		-- Allow movement
@@ -3432,7 +2880,7 @@
 		PageF.t:SetTexture(0.05, 0.05, 0.05, 0.9)
 
 		-- Add textures
-		unitscanLC:CreateBar("FootTexture", PageF, 570, 42, "BOTTOM", 0.5, 0.5, 0.5, 1.0, "Interface\\addons\\Leatrix_Plus\\assets\\ui-guildachievement-parchment-horizontal-desaturated.blp")
+		--unitscanLC:CreateBar("FootTexture", PageF, 570, 42, "BOTTOM", 0.5, 0.5, 0.5, 1.0, "Interface\\addons\\Leatrix_Plus\\assets\\ui-guildachievement-parchment-horizontal-desaturated.blp")
 		unitscanLC:CreateBar("MainTexture", PageF, 440, 348, "TOPRIGHT", 0.7, 0.7, 0.7, 0.7, "Interface\\addons\\Leatrix_Plus\\assets\\ui-guildachievement-parchment-horizontal-desaturated.blp")
 		unitscanLC:CreateBar("MenuTexture", PageF, 130, 348, "TOPLEFT", 0.7, 0.7, 0.7, 0.7, "Interface\\addons\\Leatrix_Plus\\assets\\ui-guildachievement-parchment-horizontal-desaturated.blp")
 
@@ -3456,7 +2904,7 @@
 		PageF.v:SetNonSpaceWrap(true); PageF.v:SetText(L["Version"] .. " " .. unitscanLC["AddonVer"])
 
 		-- Add reload UI Button
-		local reloadb = unitscanLC:CreateButton("ReloadUIButton", PageF, "Reload", "BOTTOMRIGHT", -16, 10, 0, 25, true, "Your UI needs to be reloaded for some of the changes to take effect.|n|nYou don't have to click the reload button immediately but you do need to click it when you are done making changes and you want the changes to take effect.")
+		local reloadb = unitscanLC:CreateButton("ReloadUIButton", PageF, "Reload", "BOTTOMRIGHT", -16, 25, 0, 25, true, "Your UI needs to be reloaded for some of the changes to take effect.|n|nYou don't have to click the reload button immediately but you do need to click it when you are done making changes and you want the changes to take effect.")
 		unitscanLC:LockItem(reloadb,true)
 		reloadb:SetScript("OnClick", ReloadUI)
 
@@ -3472,12 +2920,12 @@
 		CloseB:SetPoint("TOPRIGHT", 0, 0)
 		CloseB:SetScript("OnClick", unitscanLC.HideFrames)
 
-		-- Add web link Button
-		local PageFAlertButton = unitscanLC:CreateButton("PageFAlertButton", PageF, "You should keybind web link!", "BOTTOMLEFT", 16, 10, 0, 25, true, "You should set a keybind for the web link feature.  It's very useful.|n|nOpen the key bindings window (accessible from the game menu) and click Leatrix Plus.|n|nSet a keybind for Show web link.|n|nNow when your pointer is over an item, NPC or spell (and more), press your keybind to get a web link.")
-		PageFAlertButton:SetPushedTextOffset(0, 0)
-		PageF:HookScript("OnShow", function()
-			if GetBindingKey("LEATRIX_PLUS_GLOBAL_WEBLINK") then PageFAlertButton:Hide() else PageFAlertButton:Show() end
-		end)
+		---- Add web link Button
+		--local PageFAlertButton = unitscanLC:CreateButton("PageFAlertButton", PageF, "You should keybind web link!", "BOTTOMLEFT", 16, 10, 0, 25, true, "You should set a keybind for the web link feature.  It's very useful.|n|nOpen the key bindings window (accessible from the game menu) and click Leatrix Plus.|n|nSet a keybind for Show web link.|n|nNow when your pointer is over an item, NPC or spell (and more), press your keybind to get a web link.")
+		--PageFAlertButton:SetPushedTextOffset(0, 0)
+		--PageF:HookScript("OnShow", function()
+		--	if GetBindingKey("LEATRIX_PLUS_GLOBAL_WEBLINK") then PageFAlertButton:Hide() else PageFAlertButton:Show() end
+		--end)
 
 		-- Release memory
 		unitscanLC.CreateMainPanel = nil
@@ -3592,8 +3040,12 @@
 	unitscanLC:MakeTx(unitscanLC[pg], "Welcome to unitscan.", 146, -72);
 	unitscanLC:MakeWD(unitscanLC[pg], "To begin, choose an options page.", 146, -92);
 
-	unitscanLC:MakeTx(unitscanLC[pg], "Support", 146, -132);
-	unitscanLC:MakeWD(unitscanLC[pg], "\124cff00ff00" .. "Feedback Discord:" .. "\124cffffff00" .. " Sattva" .. "\124cffadd8e6" .. "#7238", 146, -152);
+	unitscanLC:MakeTx(unitscanLC[pg], "Help", 146, -132);
+	unitscanLC:MakeWD(unitscanLC[pg], "Type" .. "\124cff00ff00" .. " /unitscan help " .. "\124cffffffff" .. "for available chat commands", 146, -152);
+
+	unitscanLC:MakeTx(unitscanLC[pg], "Support", 146, -192);
+	unitscanLC:MakeWD(unitscanLC[pg], "\124cff00ff00" .. "Feedback Discord:" .. "\124cffffff00" .. " Sattva" .. "\124cffadd8e6" .. "#7238", 146, -212);
+
 
 ----------------------------------------------------------------------
 -- 	LC1: Automation
@@ -3602,22 +3054,6 @@
 	pg = "Page1";
 
 
-	--unitscanLC:MakeTx(unitscanLC[pg], "Character"					, 	146, -72);
-	--unitscanLC:MakeCB(unitscanLC[pg], "AutomateQuests"			,	"Automate quests"				,	146, -92, 	false,	"If checked, quests will be selected, accepted and turned-in automatically.|n|nQuests which have a gold requirement will not be turned-in automatically.")
-	--unitscanLC:MakeCB(unitscanLC[pg], "AutomateGossip"			,	"Automate gossip"				,	146, -112, 	false,	"If checked, you can hold down the alt key while opening a gossip window to automatically select a single gossip item.|n|nIf the gossip item type is banker, taxi, trainer, vendor, battlemaster or stable master, gossip will be skipped without needing to hold the alt key.  You can hold the shift key down to prevent this.")
-	--unitscanLC:MakeCB(unitscanLC[pg], "AutoAcceptSummon"			,	"Accept summon"					, 	146, -132, 	false,	"If checked, summon requests will be accepted automatically unless you are in combat.")
-	--unitscanLC:MakeCB(unitscanLC[pg], "AutoAcceptRes"				,	"Accept resurrection"			, 	146, -152, 	false,	"If checked, resurrection requests will be accepted automatically.")
-	--unitscanLC:MakeCB(unitscanLC[pg], "AutoReleasePvP"			,	"Release in PvP"				, 	146, -172, 	false,	"If checked, you will release automatically after you die in a battleground.|n|nYou will not release automatically if you have the ability to self-resurrect.")
-
-	--unitscanLC:MakeTx(unitscanLC[pg], "Vendors"					, 	340, -72);
-	--unitscanLC:MakeCB(unitscanLC[pg], "AutoSellJunk"				,	"Sell junk automatically"		,	340, -92, 	false,	"If checked, all grey items in your bags will be sold automatically when you visit a merchant.|n|nYou can hold the shift key down when you talk to a merchant to override this setting.")
-	--unitscanLC:MakeCB(unitscanLC[pg], "AutoRepairGear"			, 	"Repair automatically"			,	340, -112, 	false,	"If checked, your gear will be repaired automatically when you visit a suitable merchant.|n|nYou can hold the shift key down when you talk to a merchant to override this setting.")
-
-	--unitscanLC:CfgBtn("AutomateQuestsBtn", unitscanCB["AutomateQuests"])
-	--unitscanLC:CfgBtn("AutoAcceptResBtn", unitscanCB["AutoAcceptRes"])
-	--unitscanLC:CfgBtn("AutoReleasePvPBtn", unitscanCB["AutoReleasePvP"])
-	--unitscanLC:CfgBtn("AutoSellJunkBtn", unitscanCB["AutoSellJunk"])
-	--unitscanLC:CfgBtn("AutoRepairBtn", unitscanCB["AutoRepairGear"])
 
 ----------------------------------------------------------------------
 -- 	LC2: Social
@@ -3625,25 +3061,6 @@
 
 	pg = "Page2";
 
-	unitscanLC:MakeTx(unitscanLC[pg], "Blocks"					, 	146, -72);
-	unitscanLC:MakeCB(unitscanLC[pg], "NoDuelRequests"			, 	"Block duels"					,	146, -92, 	false,	"If checked, duel requests will be blocked unless the player requesting the duel is a friend.")
-	unitscanLC:MakeCB(unitscanLC[pg], "NoPartyInvites"			, 	"Block party invites"			, 	146, -112, 	false,	"If checked, party invitations will be blocked unless the player inviting you is a friend.")
-	-- unitscanLC:MakeCB(unitscanLC[pg], "NoFriendRequests"			, 	"Block friend requests"			, 	146, -132, 	false,	"If checked, BattleTag and Real ID friend requests will be automatically declined.|n|nEnabling this option will automatically decline any pending requests.")
-	unitscanLC:MakeCB(unitscanLC[pg], "NoSharedQuests"			, 	"Block shared quests"			, 	146, -152, 	false,	"If checked, shared quests will be declined unless the player sharing the quest is a friend.")
-
-	unitscanLC:MakeTx(unitscanLC[pg], "Groups"					, 	340, -72);
-	unitscanLC:MakeCB(unitscanLC[pg], "AcceptPartyFriends"		, 	"Party from friends"			, 	340, -92, 	false,	"If checked, party invitations from friends will be automatically accepted unless you are queued for a battleground.")
-	unitscanLC:MakeCB(unitscanLC[pg], "InviteFromWhisper"			,   "Invite from whispers"			,	340, -112,	false,	L["If checked, a group invite will be sent to anyone who whispers you with a set keyword as long as you are ungrouped, group leader or raid assistant and not queued for a battleground.|n|nFriends who message the keyword using Battle.net will not be sent a group invite if they are appearing offline.  They need to either change their online status or use character whispers."] .. "|n|n" .. L["Keyword"] .. ": |cffffffff" .. "dummy" .. "|r")
-
-	unitscanLC:MakeFT(unitscanLC[pg], "For all of the social options above, you can treat guild members as friends too.", 146, 380)
-	unitscanLC:MakeCB(unitscanLC[pg], "FriendlyGuild"				, 	"Guild"							, 	146, -282, 	false,	"If checked, members of your guild will be treated as friends for all of the options on this page.")
-
-	if unitscanCB["FriendlyGuild"].f:GetStringWidth() > 90 then
-		unitscanCB["FriendlyGuild"].f:SetWidth(90)
-		unitscanCB["FriendlyGuild"]:SetHitRectInsets(0, -84, 0, 0)
-	end
-
-	unitscanLC:CfgBtn("InvWhisperBtn", unitscanCB["InviteFromWhisper"])
 
 ----------------------------------------------------------------------
 -- 	LC3: Chat
@@ -3651,26 +3068,6 @@
 
 	pg = "Page3";
 
-	unitscanLC:MakeTx(unitscanLC[pg], "Chat Frame"				, 	146, -72);
-	unitscanLC:MakeCB(unitscanLC[pg], "UseEasyChatResizing"		,	"Use easy resizing"				,	146, -92,	true,	"If checked, dragging the General chat tab while the chat frame is locked will expand the chat frame upwards.|n|nIf the chat frame is unlocked, dragging the General chat tab will move the chat frame.")
-	unitscanLC:MakeCB(unitscanLC[pg], "NoCombatLogTab" 			, 	"Hide the combat log"			, 	146, -112, 	true,	"If checked, the combat log will be hidden.|n|nThe combat log must be docked in order for this option to work.|n|nIf the combat log is undocked, you can dock it by dragging the tab (and reloading your UI) or by resetting the chat windows (from the chat menu).")
-	unitscanLC:MakeCB(unitscanLC[pg], "NoChatButtons"				,	"Hide chat buttons"				,	146, -132,	true,	"If checked, chat frame buttons will be hidden.|n|nClicking chat tabs will automatically show the latest messages.|n|nUse the mouse wheel to scroll through the chat history.  Hold down SHIFT for page jump or CTRL to jump to the top or bottom of the chat history.")
-	unitscanLC:MakeCB(unitscanLC[pg], "UnclampChat"				,	"Unclamp chat frame"			,	146, -152,	true,	"If checked, you will be able to drag the chat frame to the edge of the screen.")
-	unitscanLC:MakeCB(unitscanLC[pg], "MoveChatEditBoxToTop" 		, 	"Move editbox to top"			,	146, -172, 	true,	"If checked, the editbox will be moved to the top of the chat frame.")
-	unitscanLC:MakeCB(unitscanLC[pg], "MoreFontSizes"		 		, 	"More font sizes"				,	146, -192, 	true,	"If checked, additional font sizes will be available in the chat frame font size menu.")
-
-	unitscanLC:MakeTx(unitscanLC[pg], "Mechanics"					, 	340, -72);
-	unitscanLC:MakeCB(unitscanLC[pg], "NoStickyChat"				, 	"Disable sticky chat"			,	340, -92,	true,	"If checked, sticky chat will be disabled.|n|nNote that this does not apply to temporary chat windows.")
-	unitscanLC:MakeCB(unitscanLC[pg], "UseArrowKeysInChat"		, 	"Use arrow keys in chat"		, 	340, -112, 	true,	"If checked, you can press the arrow keys to move the insertion point left and right in the chat frame.|n|nIf unchecked, the arrow keys will use the default keybind setting.")
-	unitscanLC:MakeCB(unitscanLC[pg], "NoChatFade"				, 	"Disable chat fade"				, 	340, -132, 	true,	"If checked, chat text will not fade out after a time period.")
-	unitscanLC:MakeCB(unitscanLC[pg], "UnivGroupColor"			,	"Universal group color"			,	340, -152,	false,	"If checked, raid chat will be colored blue (to match the default party chat color).")
-	unitscanLC:MakeCB(unitscanLC[pg], "ClassColorsInChat"			,	"Use class colors in chat"		,	340, -172,	true,	"If checked, class colors will be used in the chat frame.")
-	unitscanLC:MakeCB(unitscanLC[pg], "RecentChatWindow"			,	"Recent chat window"			, 	340, -192, 	true,	"If checked, you can hold down the control key and click a chat tab to view recent chat in a copy-friendly window.")
-	unitscanLC:MakeCB(unitscanLC[pg], "MaxChatHstory"				,	"Increase chat history"			, 	340, -212, 	true,	"If checked, your chat history will increase to 4096 lines.  If unchecked, the default will be used (128 lines).|n|nEnabling this option may prevent some chat text from showing during login.")
-	unitscanLC:MakeCB(unitscanLC[pg], "FilterChatMessages"		, 	"Filter chat messages"			,	340, -232, 	true,	"If checked, you can block spell links, drunken spam and duel spam.")
-	unitscanLC:MakeCB(unitscanLC[pg], "RestoreChatMessages"		, 	"Restore chat messages"			,	340, -252, 	true,	"If checked, recent chat will be restored when you reload your interface.")
-
-	unitscanLC:CfgBtn("FilterChatMessagesBtn", unitscanCB["FilterChatMessages"])
 
 ----------------------------------------------------------------------
 -- 	LC4: Text
@@ -3678,21 +3075,6 @@
 
 	pg = "Page4";
 
-	unitscanLC:MakeTx(unitscanLC[pg], "Visibility"				, 	146, -72);
-	unitscanLC:MakeCB(unitscanLC[pg], "HideErrorMessages"			, 	"Hide error messages"			,	146, -92, 	true,	"If checked, most error messages (such as 'Not enough rage') will not be shown.  Some important errors are excluded.|n|nIf you have the minimap button enabled, you can hold down the alt key and click it to toggle error messages without affecting this setting.")
-	unitscanLC:MakeCB(unitscanLC[pg], "NoHitIndicators"			, 	"Hide portrait numbers"			,	146, -112, 	true,	"If checked, damage and healing numbers in the player and pet portrait frames will be hidden.")
-	unitscanLC:MakeCB(unitscanLC[pg], "HideZoneText"				,	"Hide zone text"				,	146, -132, 	true,	"If checked, zone text will not be shown (eg. 'Ironforge').")
-	unitscanLC:MakeCB(unitscanLC[pg], "HideKeybindText"			,	"Hide keybind text"				,	146, -152, 	true,	"If checked, keybind text will not be shown on action buttons.")
-	unitscanLC:MakeCB(unitscanLC[pg], "HideMacroText"				,	"Hide macro text"				,	146, -172, 	true,	"If checked, macro text will not be shown on action buttons.")
-
-	unitscanLC:MakeTx(unitscanLC[pg], "Text Size"					, 	340, -72);
-	unitscanLC:MakeCB(unitscanLC[pg], "MailFontChange"			,	"Resize mail text"				, 	340, -92, 	true,	"If checked, you will be able to change the font size of standard mail text.|n|nThis does not affect mail created using templates (such as auction house invoices).")
-	unitscanLC:MakeCB(unitscanLC[pg], "QuestFontChange"			,	"Resize quest text"				, 	340, -112, 	true,	"If checked, you will be able to change the font size of quest text.")
-	unitscanLC:MakeCB(unitscanLC[pg], "BookFontChange"			,	"Resize book text"				, 	340, -132, 	true,	"If checked, you will be able to change the font size of book text.")
-
-	unitscanLC:CfgBtn("MailTextBtn", unitscanCB["MailFontChange"])
-	unitscanLC:CfgBtn("QuestTextBtn", unitscanCB["QuestFontChange"])
-	unitscanLC:CfgBtn("BookTextBtn", unitscanCB["BookFontChange"])
 
 ----------------------------------------------------------------------
 -- 	LC5: Interface
@@ -3700,38 +3082,6 @@
 
 	pg = "Page5";
 
-	unitscanLC:MakeTx(unitscanLC[pg], "Enhancements"				, 	146, -72);
-	unitscanLC:MakeCB(unitscanLC[pg], "MinimapModder"				,	"Enhance minimap"				, 	146, -92, 	true,	"If checked, you will be able to customise the minimap.")
-	unitscanLC:MakeCB(unitscanLC[pg], "TipModEnable"				,	"Enhance tooltip"				,	146, -112, 	true,	"If checked, the tooltip will be color coded and you will be able to modify the tooltip layout and scale.")
-	unitscanLC:MakeCB(unitscanLC[pg], "EnhanceDressup"			, 	"Enhance dressup"				,	146, -132, 	true,	"If checked, you will be able to pan (right-button) and zoom (mousewheel) in the character frame, dressup frame and inspect frame.|n|nA toggle stats button will be shown in the character frame.  You can also middle-click the character model to toggle stats.|n|nModel rotation controls will be hidden.  Buttons to toggle gear will be added to the dressup frame.")
-	unitscanLC:MakeCB(unitscanLC[pg], "EnhanceQuestLog"			, 	"Enhance quest log"				,	146, -152, 	true,	"If checked, you will be able to customise the quest log frame.")
-	unitscanLC:MakeCB(unitscanLC[pg], "EnhanceProfessions"		, 	"Enhance professions"			,	146, -172, 	true,	"If checked, the professions frame will be larger.")
-	unitscanLC:MakeCB(unitscanLC[pg], "EnhanceTrainers"			, 	"Enhance trainers"				,	146, -192, 	true,	"If checked, the skill trainer frame will be larger and feature a train all skills button.")
-
-	unitscanLC:MakeTx(unitscanLC[pg], "Extras"					, 	146, -232);
-	unitscanLC:MakeCB(unitscanLC[pg], "ShowVolume"				, 	"Show volume slider"			, 	146, -252, 	true,	"If checked, a master volume slider will be shown in the character frame.")
-	unitscanLC:MakeCB(unitscanLC[pg], "AhExtras"					, 	"Show auction controls"			, 	146, -272, 	true,	"If checked, additional functionality will be added to the auction house.|n|nBuyout only - create buyout auctions without filling in the starting price.|n|nGold only - set the copper and silver prices at 99 to speed up new auctions.|n|nFind item - search the auction house for the item you are selling.|n|nIn addition, the auction duration setting will be saved account-wide.")
-
-	unitscanLC:MakeTx(unitscanLC[pg], "Extras"					, 	340, -72);
-	-- unitscanLC:MakeCB(unitscanLC[pg], "ShowCooldowns"				, 	"Show cooldowns"				, 	340, -92, 	true,	"If checked, you will be able to place up to five beneficial cooldown icons above the target frame.")
-	unitscanLC:MakeCB(unitscanLC[pg], "DurabilityStatus"			, 	"Show durability status"		, 	340, -112, 	true,	"If checked, a button will be added to the character frame which will show your equipped item durability when you hover the pointer over it.|n|nIn addition, an overall percentage will be shown in the chat frame when you die.")
-	unitscanLC:MakeCB(unitscanLC[pg], "ShowVanityControls"		, 	"Show vanity controls"			, 	340, -132, 	true,	"If checked, helm and cloak toggle checkboxes will be shown in the character frame.|n|nYou can hold shift and right-click the checkboxes to switch layouts.")
-	unitscanLC:MakeCB(unitscanLC[pg], "ShowBagSearchBox"			, 	"Show bag search box"			, 	340, -152, 	true,	"If checked, a bag search box will be shown in the backpack frame and the bank frame.")
-	-- unitscanLC:MakeCB(unitscanLC[pg], "ShowRaidToggle"			, 	"Show raid button"				,	340, -172, 	true,	"If checked, the button to toggle the raid container frame will be shown just above the raid management frame (left side of the screen) instead of in the raid management frame itself.|n|nThis allows you to toggle the raid container frame without needing to open the raid management frame.")
-	unitscanLC:MakeCB(unitscanLC[pg], "ShowPlayerChain"			, 	"Show player chain"				,	340, -192, 	true,	"If checked, you will be able to show a rare, elite or rare elite chain around the player frame.")
-	unitscanLC:MakeCB(unitscanLC[pg], "ShowReadyTimer"			, 	"Show ready timer"				,	340, -212, 	true,	"If checked, a timer will be shown under the PvP encounter ready frame so that you know how long you have left to click the enter button.")
-	unitscanLC:MakeCB(unitscanLC[pg], "ShowWowheadLinks"			, 	"Show Wowhead links"			, 	340, -232, 	true,	"If checked, Wowhead links will be shown in the world map frame and the achievements frame.")
-	unitscanLC:MakeCB(unitscanLC[pg], "ShowFlightTimes"			, 	"Show flight times"				, 	340, -252, 	true,	"If checked, flight times will be shown in the flight map and when you take a flight.")
-
-	unitscanLC:CfgBtn("ModMinimapBtn", unitscanCB["MinimapModder"])
-	unitscanLC:CfgBtn("MoveTooltipButton", unitscanCB["TipModEnable"])
-	-- unitscanLC:CfgBtn("EnhanceDressupBtn", unitscanCB["EnhanceDressup"])
-	unitscanLC:CfgBtn("EnhanceQuestLogBtn", unitscanCB["EnhanceQuestLog"])
-	unitscanLC:CfgBtn("EnhanceTrainersBtn", unitscanCB["EnhanceTrainers"])
-	-- unitscanLC:CfgBtn("CooldownsButton", unitscanCB["ShowCooldowns"])
-	unitscanLC:CfgBtn("ModPlayerChain", unitscanCB["ShowPlayerChain"])
-	unitscanLC:CfgBtn("ShowWowheadLinksBtn", unitscanCB["ShowWowheadLinks"])
-	unitscanLC:CfgBtn("ShowFlightTimesBtn", unitscanCB["ShowFlightTimes"])
 
 ----------------------------------------------------------------------
 -- 	LC6: Frames
@@ -3739,29 +3089,6 @@
 
 	pg = "Page6";
 
-	unitscanLC:MakeTx(unitscanLC[pg], "Features"					, 	146, -72);
-	unitscanLC:MakeCB(unitscanLC[pg], "FrmEnabled"				,	"Manage frames"					, 	146, -92, 	true,	"If checked, you will be able to change the position and scale of the player frame and target frame.|n|nNote that enabling this option will prevent you from using the default UI to move the player and target frames.")
-	unitscanLC:MakeCB(unitscanLC[pg], "ManageBuffs"				,	"Manage buffs"					, 	146, -112, 	true,	"If checked, you will be able to change the position and scale of the buffs frame.")
-	unitscanLC:MakeCB(unitscanLC[pg], "ManageWidget"				,	"Manage widget"					, 	146, -132, 	true,	"If checked, you will be able to change the position and scale of the widget frame.|n|nThe widget frame is commonly used for showing PvP scores and tracking objectives.")
-	unitscanLC:MakeCB(unitscanLC[pg], "ManageFocus"				,	"Manage focus"					, 	146, -152, 	true,	"If checked, you will be able to change the position and scale of the focus frame.|n|nNote that enabling this option will prevent you from using the default UI to move the focus frame.")
-	unitscanLC:MakeCB(unitscanLC[pg], "ManageTimer"				,	"Manage timer"					, 	146, -172, 	true,	"If checked, you will be able to change the position and scale of the timer bar.|n|nThe timer bar is used for showing remaining breath when underwater as well as other things.")
-	unitscanLC:MakeCB(unitscanLC[pg], "ManageDurability"			,	"Manage durability"				, 	146, -192, 	true,	"If checked, you will be able to change the position and scale of the armored man durability frame.")
-	unitscanLC:MakeCB(unitscanLC[pg], "ManageVehicle"				,	"Manage vehicle"				, 	146, -212, 	true,	"If checked, you will be able to change the position and scale of the vehicle seat indicator frame.")
-	unitscanLC:MakeCB(unitscanLC[pg], "ClassColFrames"			, 	"Class colored frames"			,	146, -232, 	true,	"If checked, class coloring will be used in the player frame, target frame and focus frame.")
-
-	unitscanLC:MakeTx(unitscanLC[pg], "Visibility"				, 	340, -72);
-	unitscanLC:MakeCB(unitscanLC[pg], "NoAlerts"					,	"Hide alerts"					, 	340, -92, 	true,	"If checked, alert frames will not be shown.|n|nWhen you earn an achievement, a message will be shown in chat instead.")
-	unitscanLC:MakeCB(unitscanLC[pg], "NoGryphons"				,	"Hide gryphons"					, 	340, -112, 	true,	"If checked, the main bar gryphons will not be shown.")
-	unitscanLC:MakeCB(unitscanLC[pg], "NoClassBar"				,	"Hide stance bar"				, 	340, -132, 	true,	"If checked, the stance bar will not be shown.")
-
-	unitscanLC:CfgBtn("MoveFramesButton", unitscanCB["FrmEnabled"])
-	unitscanLC:CfgBtn("ManageBuffsButton", unitscanCB["ManageBuffs"])
-	unitscanLC:CfgBtn("ManageWidgetButton", unitscanCB["ManageWidget"])
-	unitscanLC:CfgBtn("ManageFocusButton", unitscanCB["ManageFocus"])
-	unitscanLC:CfgBtn("ManageTimerButton", unitscanCB["ManageTimer"])
-	unitscanLC:CfgBtn("ManageDurabilityButton", unitscanCB["ManageDurability"])
-	unitscanLC:CfgBtn("ManageVehicleButton", unitscanCB["ManageVehicle"])
-	unitscanLC:CfgBtn("ClassColFramesBtn", unitscanCB["ClassColFrames"])
 
 ----------------------------------------------------------------------
 -- 	LC7: System
@@ -3769,32 +3096,6 @@
 
 	pg = "Page7";
 
-	unitscanLC:MakeTx(unitscanLC[pg], "Graphics and Sound"		, 	146, -72);
-	unitscanLC:MakeCB(unitscanLC[pg], "NoScreenGlow"				, 	"Disable screen glow"			, 	146, -92, 	false,	"If checked, the screen glow will be disabled.|n|nEnabling this option will also disable the drunken haze effect.")
-	unitscanLC:MakeCB(unitscanLC[pg], "NoScreenEffects"			, 	"Disable screen effects"		, 	146, -112, 	false,	"If checked, the grey screen of death and the netherworld effect will be disabled.")
-	unitscanLC:MakeCB(unitscanLC[pg], "SetWeatherDensity"			, 	"Set weather density"			, 	146, -132, 	false,	"If checked, you will be able to set the density of weather effects.")
-	unitscanLC:MakeCB(unitscanLC[pg], "MaxCameraZoom"				, 	"Max camera zoom"				, 	146, -152, 	false,	"If checked, you will be able to zoom out to a greater distance.")
-	unitscanLC:MakeCB(unitscanLC[pg], "ViewPortEnable"			,	"Enable viewport"				,	146, -172, 	true,	"If checked, you will be able to create a viewport.  A viewport adds adjustable black borders around the game world.|n|nThe borders are placed on top of the game world but under the UI so you can place UI elements over them.")
-	unitscanLC:MakeCB(unitscanLC[pg], "NoRestedEmotes"			, 	"Silence rested emotes"			,	146, -192, 	true,	"If checked, emote sounds will be silenced while your character is resting or at the Grim Guzzler.|n|nEmote sounds will be enabled at all other times.")
-	unitscanLC:MakeCB(unitscanLC[pg], "MuteGameSounds"			, 	"Mute game sounds"				,	146, -212, 	false,	"If checked, you will be able to mute a selection of game sounds.")
-	unitscanLC:MakeCB(unitscanLC[pg], "MuteCustomSounds"			, 	"Mute custom sounds"			,	146, -232, 	false,	"If checked, you will be able to mute your own choice of sounds.")
-
-	unitscanLC:MakeTx(unitscanLC[pg], "Game Options"				, 	340, -72);
-	unitscanLC:MakeCB(unitscanLC[pg], "NoBagAutomation"			, 	"Disable bag automation"		, 	340, -92, 	true,	"If checked, your bags will not be opened or closed automatically when you interact with a merchant, bank or mailbox.")
-	unitscanLC:MakeCB(unitscanLC[pg], "CharAddonList"				, 	"Show character addons"			, 	340, -112, 	true,	"If checked, the addon list (accessible from the game menu) will show character based addons by default.")
-	unitscanLC:MakeCB(unitscanLC[pg], "NoConfirmLoot"				, 	"Disable loot warnings"			,	340, -132, 	false,	"If checked, confirmations will no longer appear when you choose a loot roll option or attempt to sell or mail a tradable item.")
-	unitscanLC:MakeCB(unitscanLC[pg], "FasterLooting"				, 	"Faster auto loot"				,	340, -152, 	true,	"If checked, the amount of time it takes to auto loot creatures will be significantly reduced.")
-	unitscanLC:MakeCB(unitscanLC[pg], "FasterMovieSkip"			, 	"Faster movie skip"				,	340, -172, 	true,	"If checked, you will be able to cancel cinematics without being prompted for confirmation.")
-	unitscanLC:MakeCB(unitscanLC[pg], "StandAndDismount"			, 	"Dismount me"					,	340, -192, 	true,	"If checked, you will be able to set some additional rules for when your character is automatically dismounted.")
-	unitscanLC:MakeCB(unitscanLC[pg], "ShowVendorPrice"			, 	"Show vendor price"				,	340, -212, 	true,	"If checked, the vendor price will be shown in item tooltips.")
-	unitscanLC:MakeCB(unitscanLC[pg], "CombatPlates"				, 	"Combat plates"					,	340, -232, 	true,	"If checked, enemy nameplates will be shown during combat and hidden when combat ends.")
-	unitscanLC:MakeCB(unitscanLC[pg], "EasyItemDestroy"			, 	"Easy item destroy"				,	340, -252, 	true,	"If checked, you will no longer need to type delete when destroying a superior quality item.|n|nIn addition, item links will be shown in all item destroy confirmation windows.")
-
-	unitscanLC:CfgBtn("SetWeatherDensityBtn", unitscanCB["SetWeatherDensity"])
-	unitscanLC:CfgBtn("ModViewportBtn", unitscanCB["ViewPortEnable"])
-	unitscanLC:CfgBtn("MuteGameSoundsBtn", unitscanCB["MuteGameSounds"])
-	unitscanLC:CfgBtn("MuteCustomSoundsBtn", unitscanCB["MuteCustomSounds"])
-	unitscanLC:CfgBtn("DismountBtn", unitscanCB["StandAndDismount"])
 
 ----------------------------------------------------------------------
 -- 	LC8: Settings
@@ -4283,10 +3584,15 @@ local LYELLOW = "\124cffffff9a"
 				print(" - for example: " .. GREEN .. "/unitscan " .. YELLOW .. "Hogger")
 
 				--===== Slash to only print currently tracked non-rare targets. =====--
-			elseif command == "targets" then
+			elseif command == "list" then
 				if unitscan_targets then
-					for k, v in pairs(unitscan_targets) do
-						unitscan.print(tostring(k))
+					if next(unitscan_targets) == nil then
+						unitscan.print("Unit Scanner is currently empty.")
+					else
+						print(" " .. YELLOW .. "unitscan list" .. WHITE .. " currently contains:")
+						for k, v in pairs(unitscan_targets) do
+							unitscan.print(tostring(k))
+						end
 					end
 				end
 
@@ -4307,86 +3613,86 @@ local LYELLOW = "\124cffffff9a"
 
 				--===== Slash to show all avaliable commands =====--    
 			elseif command == 'help' then
+				-- Prevent options panel from showing if a game options panel is showing
+				--if InterfaceOptionsFrame:IsShown() or VideoOptionsFrame:IsShown() or ChatConfigFrame:IsShown() then return end
+				---- Prevent options panel from showing if Blizzard Store is showing
+				--if StoreFrame and StoreFrame:GetAttribute("isshown") then return end
+				-- Toggle the options panel if game options panel is not showing
+				if unitscanLC:IsUnitscanShowing() then
+					unitscanLC:HideFrames()
+					unitscanLC:HideConfigPanels()
+				end
 
-				print(" ")
-				print(YELLOW .. "Available commands:")
 
-				unitscan.print("target")
-				print(" - Adds/removes the name of your " .. YELLOW .. "current target" .. WHITE .. " to the scanner.")
-				unitscan.print("name")
-				print(" - Adds/removes the " .. YELLOW .. "mob/player 'name'" .. WHITE .. " from the unit scanner.")
-				unitscan.print("nearby")
-				print(" - List of " .. YELLOW .. "rare mob names" .. WHITE .. " that are being scanned in your current zone.")
-				unitscan.print(YELLOW .. "ignore")
-				print(" - Adds/removes the rare mob 'name' from the unit scanner " .. YELLOW .. "ignore list.")
+				-- Help panel
+				if not unitscanLC.HelpFrame then
+					local frame = CreateFrame("FRAME", nil, UIParent)
+					frame:SetSize(570, 340); frame:SetFrameStrata("FULLSCREEN_DIALOG"); frame:SetFrameLevel(100)
+					frame.tex = frame:CreateTexture(nil, "BACKGROUND"); frame.tex:SetAllPoints(); 
+					frame.tex:SetVertexColor(0.05, 0.05, 0.05, 0.9)
+					frame.close = CreateFrame("Button", nil, frame, "UIPanelCloseButton"); frame.close:SetSize(30, 30); frame.close:SetPoint("TOPRIGHT", 0, 0); frame.close:SetScript("OnClick", function() frame:Hide() end)
+					frame:ClearAllPoints(); frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+					frame:SetClampedToScreen(true)
+					frame:SetClampRectInsets(450, -450, -300, 300)
+					frame:EnableMouse(true)
+					frame:SetMovable(true)
+					frame:RegisterForDrag("LeftButton")
+					frame:SetScript("OnDragStart", frame.StartMoving)
+					frame:SetScript("OnDragStop", function() frame:StopMovingOrSizing() frame:SetUserPlaced(false) end)
+					frame:Hide()
+					unitscanLC:CreateBar("HelpPanelMainTexture", frame, 570, 340, "TOPRIGHT", 0.7, 0.7, 0.7, 0.7,  "Interface\\addons\\Leatrix_Plus\\assets\\ui-guildachievement-parchment-horizontal-desaturated.blp")
+					-- Panel contents
+					local col1, col2, color1 = 10, 120, "|cffffffaa"
+					unitscanLC:MakeTx(frame, "unitscan Help", col1, -10)
+					unitscanLC:MakeWD(frame, color1 .. "/unitscan", col1, -30)
+					unitscanLC:MakeWD(frame, "Toggle options panel.", col2, -30)
+
+					unitscanLC:MakeWD(frame, color1 .. "/unitscan target", col1, -50)
+					unitscanLC:MakeWD(frame, "Adds/removes the name of your " .. YELLOW .. "current target" .. WHITE .. " to the scanner.", col2, -50)
+					unitscanLC:MakeWD(frame, color1 .. "/unitscan name", col1, -70)
+					unitscanLC:MakeWD(frame, "Adds/removes the " .. YELLOW .. "mob/player 'name'" .. WHITE .. " from the unit scanner.", col2, -70)
+					unitscanLC:MakeWD(frame, color1 .. "/unitscan nearby", col1, -90)
+					unitscanLC:MakeWD(frame, "List of " .. YELLOW .. "rare mob names" .. WHITE .. " that are being scanned in your current zone.", col2, -90)
+					unitscanLC:MakeWD(frame, color1 .. "/unitscan ignore", col1, -110)
+					unitscanLC:MakeWD(frame, "Adds/removes the rare mob" .. GREEN .. " 'name'" .. WHITE .. " from the unit scanner " .. RED .. "ignore list.", col2, -110)
+					unitscanLC:MakeWD(frame, color1 .. "/unitscan list", col1, -130)
+					unitscanLC:MakeWD(frame, "Prints in chat" .. GREEN .. " list of NPC/Players " .. WHITE .. "that are currently being scanned", col2, -130)
+					unitscanLC:MakeWD(frame, color1 .. "/unitscan interval", col1, -150)
+					unitscanLC:MakeWD(frame, "Choose interval, How often should we scan for unit?" .. GREY ..  " Default: 0.3 sec.", col2, -150)
+
+					--unitscanLC:MakeWD(frame, color1 .. "/ltp id", col1, -170)
+					--unitscanLC:MakeWD(frame, "Show a web link for whatever the pointer is over.", col2, -170)
+					--unitscanLC:MakeWD(frame, color1 .. "/ltp zygor", col1, -190)
+					--unitscanLC:MakeWD(frame, "Toggle the Zygor addon (reloads UI).", col2, -190)
+					--unitscanLC:MakeWD(frame, color1 .. "/ltp movie <id>", col1, -210)
+					--unitscanLC:MakeWD(frame, "Play a movie by its ID.", col2, -210)
+
+					unitscanLC:MakeWD(frame, color1 .. "/rl", col1, -310)
+					unitscanLC:MakeWD(frame, "Reload the UI.", col2, -310)
+					unitscanLC.HelpFrame = frame
+					_G["unitscanGlobalHelpPanel"] = frame
+					table.insert(UISpecialFrames, "unitscanGlobalHelpPanel")
+				end
+				if unitscanLC.HelpFrame:IsShown() then unitscanLC.HelpFrame:Hide() else unitscanLC.HelpFrame:Show() end
+				return
 
 				--===== Slash without any arguments (/unitscan) prints currently tracked user-defined units and some basic available slash commands  =====--
 				--===== If an agrugment after /unitscan is given, it will add a unit to the scanning targets. =====--
 			elseif not command then
-				print(" ")
-				unitscan.print(YELLOW .. "help")
-				print(" - Displays available unitscan " .. YELLOW .. "commands")
-				print(" ")
-				if unitscan_targets then
-					if next(unitscan_targets) == nil then
-						unitscan.print("Unit Scanner is currently empty.")
-					else
-						print(" " .. YELLOW .. "Unit Scanner" .. WHITE .. " currently contains:")
-						for k, v in pairs(unitscan_targets) do
-							unitscan.print(tostring(k))
-						end
-					end
+
+				-- Prevent options panel from showing if a game options panel is showing
+				if InterfaceOptionsFrame:IsShown() or VideoOptionsFrame:IsShown() or ChatConfigFrame:IsShown() then return end
+				-- Prevent options panel from showing if Blizzard Store is showing
+				if StoreFrame and StoreFrame:GetAttribute("isshown") then return end
+				-- Toggle the options panel if game options panel is not showing
+				if unitscanLC:IsUnitscanShowing() then
+					unitscanLC:HideFrames()
+					unitscanLC:HideConfigPanels()
+				else
+					unitscanLC:HideFrames()
+					unitscanLC["PageF"]:Show()
 				end
-			elseif command == "id" then
-				-- Show web link
-				if not unitscanLC.WowheadLock then
-					-- Set Wowhead link prefix
-						if GameLocale == "deDE" then unitscanLC.WowheadLock = "wowhead.com/wotlk/de"
-					elseif GameLocale == "esMX" then unitscanLC.WowheadLock = "wowhead.com/wotlk/es"
-					elseif GameLocale == "esES" then unitscanLC.WowheadLock = "wowhead.com/wotlk/es"
-					elseif GameLocale == "frFR" then unitscanLC.WowheadLock = "wowhead.com/wotlk/fr"
-					elseif GameLocale == "itIT" then unitscanLC.WowheadLock = "wowhead.com/wotlk/it"
-					elseif GameLocale == "ptBR" then unitscanLC.WowheadLock = "wowhead.com/wotlk/pt"
-					elseif GameLocale == "ruRU" then unitscanLC.WowheadLock = "wowhead.com/wotlk/ru"
-					elseif GameLocale == "koKR" then unitscanLC.WowheadLock = "wowhead.com/wotlk/ko"
-					elseif GameLocale == "zhCN" then unitscanLC.WowheadLock = "wowhead.com/wotlk/cn"
-					elseif GameLocale == "zhTW" then unitscanLC.WowheadLock = "wowhead.com/wotlk/cn"
-					else							 unitscanLC.WowheadLock = "wowhead.com/wotlk"
-					end
-				end
-				-- Store frame under mouse
-				local mouseFocus = GetMouseFocus()
-				-- ItemRefTooltip or GameTooltip
-				local tooltip
-				if mouseFocus == ItemRefTooltip then tooltip = ItemRefTooltip else tooltip = GameTooltip end
-				-- Process tooltip
-				if tooltip:IsShown() then
-					-- NPC
-					local npcName = UnitName("mouseover")
-					local npcGuid = UnitGUID("mouseover") or nil
-					if npcName and npcGuid then
-						local void, void, void, void, void, npcID = strsplit("-", npcGuid)
-						if npcID then
-							unitscanLC:ShowSystemEditBox("https://" .. unitscanLC.WowheadLock .. "/npc=" .. npcID, false)
-							unitscanLC.FactoryEditBox.f:SetText(L["NPC"] .. ": " .. npcName .. " (" .. npcID .. ")")
-							return
-						end
-					end
-					-- Unknown tooltip (this must be last)
-					local tipTitle = GameTooltipTextLeft1:GetText()
-					if tipTitle then
-						-- Show unknown link
-						local unitFocus
-						if mouseFocus == WorldFrame then unitFocus = "mouseover" else unitFocus = select(2, GameTooltip:GetUnit()) end
-						if not unitFocus or not UnitIsPlayer(unitFocus) then
-							tipTitle = tipTitle:gsub("|c%x%x%x%x%x%x%x%x", "") -- Remove color tag
-							unitscanLC:ShowSystemEditBox("https://" .. unitscanLC.WowheadLock .. "/search?q=" .. tipTitle, false)
-							unitscanLC.FactoryEditBox.f:SetText("|cffff0000" .. L["Link will search Wowhead"])
-							return
-						end
-					end
-				end
-				return
+				unitscanLC["Page"..unitscanLC["LeaStartPage"]]:Show()
 			else
 				unitscan.toggle_target(parameter)
 			end
