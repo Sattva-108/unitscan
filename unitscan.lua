@@ -2932,6 +2932,73 @@
 						unitscan_myzoneGUIButton = expbtn[title]
 
 						-- Modify the OnClick script for the "Ignored Rares" button
+
+
+					elseif title == "Scan List" then
+						expbtn[title]:SetScript("OnClick", function()
+							unitscan_HideExistingButtons()
+							unitscan_HideExistingZoneButtons()
+							unitscan_zoneScrollbar:SetMinMaxValues(1, 1)
+							unitscan_zoneScrollbar:Hide()
+							eb.scroll.ScrollBar:Hide()
+							-- call searchbox
+							unitscan_searchbox:ClearFocus()
+
+
+
+							visibleButtonsCount = 0 -- Reset visibleButtonsCount
+
+							-- Show all ignored rares
+							for _, rare in pairs(sortedSpawns) do
+								local button = contentFrame.Buttons[visibleButtonsCount + 1]
+								if not button then
+									button = CreateFrame("Button", nil, contentFrame)
+									button:SetSize(contentFrame:GetWidth(), buttonHeight)
+									contentFrame.Buttons[visibleButtonsCount + 1] = button
+								end
+
+								-- Set button text and position
+								if button.Text then
+									button.Text:SetText(rare)
+									--if visibleButtonsCount >= 1 then
+									--	button:SetPoint("TOPLEFT", 0.5, -(visibleButtonsCount * buttonHeight + 0.5)) -- Increase the vertical position by 1 to reduce overlap
+									--else
+										button:SetPoint("TOPLEFT", 0, -(visibleButtonsCount * buttonHeight))
+									--end
+									button:Show()
+
+									visibleButtonsCount = visibleButtonsCount + 1
+
+								end
+
+								-- print(visibleButtonsCount)
+								if visibleButtonsCount <= 13 then
+									eb.scroll.ScrollBar:Hide()
+									eb.scroll.ScrollBar:SetMinMaxValues(1, 1)
+								else
+									eb.scroll.ScrollBar:Show()
+									eb.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
+								end
+
+							end
+							-- Clear focus of search box
+							unitscan_searchbox:ClearFocus()
+
+							if selectedButton ~= expbtn[title] then
+								expbtn[title].expTexture:Show()
+								if selectedButton then
+									selectedButton.expTexture:Hide()
+								end
+								selectedButton = expbtn[title]
+							end
+
+						end)
+
+						--eb.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
+						expbtn[title].text:SetTextColor(1, 1, 1) -- Set text color for the new button
+						unitscan_scanlistGUIButton = expbtn[title]
+
+
 					elseif title == "Ignored" then
 						expbtn[title]:SetScript("OnClick", function()
 							unitscan_HideExistingButtons()
@@ -2947,7 +3014,7 @@
 							visibleButtonsCount = 0 -- Reset visibleButtonsCount
 
 							-- Show all ignored rares
-							for rare in pairs(unitscan_ignored) do
+							for _, rare in pairs(unitscan_removed) do
 								local button = contentFrame.Buttons[visibleButtonsCount + 1]
 								if not button then
 									button = CreateFrame("Button", nil, contentFrame)
@@ -2956,15 +3023,18 @@
 								end
 
 								-- Set button text and position
-								button.Text:SetText(rare)
-								--if visibleButtonsCount >= 1 then
-								--	button:SetPoint("TOPLEFT", 0.5, -(visibleButtonsCount * buttonHeight + 0.5)) -- Increase the vertical position by 1 to reduce overlap
-								--else
-									button:SetPoint("TOPLEFT", 0, -(visibleButtonsCount * buttonHeight))
-								--end
-								button:Show()
+								if button.Text then
+									button.Text:SetText(rare)
+									--if visibleButtonsCount >= 1 then
+									--	button:SetPoint("TOPLEFT", 0.5, -(visibleButtonsCount * buttonHeight + 0.5)) -- Increase the vertical position by 1 to reduce overlap
+									--else
+										button:SetPoint("TOPLEFT", 0, -(visibleButtonsCount * buttonHeight))
+									--end
+									button:Show()
 
-								visibleButtonsCount = visibleButtonsCount + 1
+									visibleButtonsCount = visibleButtonsCount + 1
+
+								end
 
 								-- print(visibleButtonsCount)
 								if visibleButtonsCount <= 13 then
@@ -3048,6 +3118,8 @@
 				MakeButtonNow("WOTLK", "TBC")
 				MakeButtonNow("My Zone", "WOTLK")
 				MakeButtonNow("Ignored", "My Zone")
+				MakeButtonNow("Scan List", "Ignored")				
+				
 
 
 
