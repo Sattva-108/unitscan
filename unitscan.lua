@@ -2097,9 +2097,9 @@
 		-- Custom Scan List
 		----------------------------------------------------------------------
 		
-		local selectedZone = nil
+		local selectedProfile = nil
 
-		local zoneButtons = {}
+		local profileButtons = {}
 
 		function unitscanLC:scan_list()
 
@@ -2135,35 +2135,35 @@
 				--------------------------------------------------------------------------------
 
 
-				local eb = CreateFrame("Frame", nil, unitscanLC["Page2"])
-				eb:SetSize(220, 280)
-				eb:SetPoint("TOPLEFT", 450	, -80)
-				eb:SetBackdrop({
+				local scanFrame = CreateFrame("Frame", nil, unitscanLC["Page2"])
+				scanFrame:SetSize(220, 280)
+				scanFrame:SetPoint("TOPLEFT", 450	, -80)
+				scanFrame:SetBackdrop({
 					bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
 					edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight",
 					edgeSize = 16,
 					insets = {left = 8, right = 6, top = 8, bottom = 8},
 				})
-				eb:SetBackdropBorderColor(1.0, 0.85, 0.0, 0.5)
-				eb:SetScale(0.8)
+				scanFrame:SetBackdropBorderColor(1.0, 0.85, 0.0, 0.5)
+				scanFrame:SetScale(0.8)
 
-				eb.scroll = CreateFrame("ScrollFrame", nil, eb)
-				eb.scroll:SetPoint("TOPLEFT", eb, 12, -10)
-				eb.scroll:SetPoint("BOTTOMRIGHT", eb, -30, 10)
+				scanFrame.scroll = CreateFrame("ScrollFrame", nil, scanFrame)
+				scanFrame.scroll:SetPoint("TOPLEFT", scanFrame, 12, -10)
+				scanFrame.scroll:SetPoint("BOTTOMRIGHT", scanFrame, -30, 10)
 
 				local buttonHeight = 20
 				local maxVisibleButtons = 450
 
-				local scanList = CreateFrame("Frame", nil, eb.scroll)
-				scanList:SetSize(eb:GetWidth() - 30, maxVisibleButtons * buttonHeight)
+				local scanList = CreateFrame("Frame", nil, scanFrame.scroll)
+				scanList:SetSize(scanFrame:GetWidth() - 30, maxVisibleButtons * buttonHeight)
 				scanList.Buttons = {}
 
-				---- Sort rare spawns by zone and expansion
+				---- Sort rare spawns by profile and expansion
 				--local sortedSpawns = {}
 				--for expansion, spawns in pairs(rare_spawns) do
-				--	for name, zone in pairs(spawns) do
-				--		sortedSpawns[zone] = sortedSpawns[zone] or {}
-				--		table.insert(sortedSpawns[zone], {name = name, expansion = expansion})
+				--	for name, profile in pairs(spawns) do
+				--		sortedSpawns[profile] = sortedSpawns[profile] or {}
+				--		table.insert(sortedSpawns[profile], {name = name, expansion = expansion})
 				--	end
 				--end
 
@@ -2176,9 +2176,9 @@
 
 				-- Create rare mob buttons
 				local index = 1
-				for zone, mobs in pairs(sortedSpawns) do
-					print(zone .. mobs)
-					zoneButtons[zone] = {}
+				for profile, mobs in pairs(sortedSpawns) do
+					print(profile .. mobs)
+					profileButtons[profile] = {}
 					--for _, name in ipairs(mobs) do
 						if index <= maxVisibleButtons then
 							local button = CreateFrame("Button", nil, scanList)
@@ -2313,26 +2313,26 @@
 							end)
 
 							button.Text:SetText(mobs)
-							-- Initially hide buttons that don't belong to the selected zone
-							--if zone == selectedZone then
+							-- Initially hide buttons that don't belong to the selected profile
+							--if profile == selectedProfile then
 							--	button:Show()
 							--else
 							--	button:Hide()
 							--end
 
 							scanList.Buttons[index] = button
-							table.insert(zoneButtons[zone], button)
+							table.insert(profileButtons[profile], button)
 						end
 						index = index + 1
 					--end
 				end
 
-				eb.scroll:SetScrollChild(scanList)
+				scanFrame.scroll:SetScrollChild(scanList)
 
 				-- Scroll functionality
-				local scrollbar = CreateFrame("Slider", nil, eb.scroll, "UIPanelScrollBarTemplate")
-				scrollbar:SetPoint("TOPRIGHT", eb.scroll, "TOPRIGHT", 20, -14)
-				scrollbar:SetPoint("BOTTOMRIGHT", eb.scroll, "BOTTOMRIGHT", 20, 14)
+				local scrollbar = CreateFrame("Slider", nil, scanFrame.scroll, "UIPanelScrollBarTemplate")
+				scrollbar:SetPoint("TOPRIGHT", scanFrame.scroll, "TOPRIGHT", 20, -14)
+				scrollbar:SetPoint("BOTTOMRIGHT", scanFrame.scroll, "BOTTOMRIGHT", 20, 14)
 
 				--scrollbar:SetMinMaxValues(1, 8300)
 				local actualMaxVisibleButtons = index - 1
@@ -2349,11 +2349,11 @@
 				end)
 
 
-				eb.scroll.ScrollBar = scrollbar
+				scanFrame.scroll.ScrollBar = scrollbar
 
 				-- Mouse wheel scrolling
-				eb.scroll:EnableMouseWheel(true)
-				eb.scroll:SetScript("OnMouseWheel", function(self, delta)
+				scanFrame.scroll:EnableMouseWheel(true)
+				scanFrame.scroll:SetScript("OnMouseWheel", function(self, delta)
 					scrollbar:SetValue(scrollbar:GetValue() - delta * 250)
 				end)
 
@@ -2371,82 +2371,82 @@
 				--------------------------------------------------------------------------------
 
 
-				local zoneFrame = CreateFrame("Frame", nil, eb)
-				zoneFrame:SetSize(180, 280)
-				zoneFrame:SetPoint("TOPRIGHT", eb, "TOPLEFT", 0, 0)
-				zoneFrame:SetBackdrop({
+				local profileFrame = CreateFrame("Frame", nil, scanFrame)
+				profileFrame:SetSize(180, 280)
+				profileFrame:SetPoint("TOPRIGHT", scanFrame, "TOPLEFT", 0, 0)
+				profileFrame:SetBackdrop({
 					bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
 					edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight",
 					edgeSize = 16,
 					insets = {left = 8, right = 6, top = 8, bottom = 8},
 				})
-				zoneFrame:SetBackdropBorderColor(1.0, 0.85, 0.0, 0.5)
-				zoneFrame:SetScale(1)
+				profileFrame:SetBackdropBorderColor(1.0, 0.85, 0.0, 0.5)
+				profileFrame:SetScale(1)
 
-				zoneFrame.scroll = CreateFrame("ScrollFrame", nil, zoneFrame)
-				zoneFrame.scroll:SetPoint("TOPLEFT", zoneFrame, 12, -10)
-				zoneFrame.scroll:SetPoint("BOTTOMRIGHT", zoneFrame, -30, 10)
+				profileFrame.scroll = CreateFrame("ScrollFrame", nil, profileFrame)
+				profileFrame.scroll:SetPoint("TOPLEFT", profileFrame, 12, -10)
+				profileFrame.scroll:SetPoint("BOTTOMRIGHT", profileFrame, -30, 10)
 
 				local buttonHeight = 20
-				local zoneMaxVisibleButtons = 1250
+				local profileMaxVisibleButtons = 1250
 
-				local zoneContentFrame = CreateFrame("Frame", nil, zoneFrame.scroll)
-				zoneContentFrame:SetSize(zoneFrame:GetWidth() - 30, zoneMaxVisibleButtons * buttonHeight)
-				zoneContentFrame.Buttons = {}
+				local profileList = CreateFrame("Frame", nil, profileFrame.scroll)
+				profileList:SetSize(profileFrame:GetWidth() - 30, profileMaxVisibleButtons * buttonHeight)
+				profileList.Buttons = {}
 
-				-- Sort the zone names alphabetically
-				local sortedZones = {}
-				for zone in pairs(sortedSpawns) do
-					table.insert(sortedZones, zone)
+				-- Sort the profile names alphabetically
+				local sortedProfiles = {}
+				for profile in pairs(sortedSpawns) do
+					table.insert(sortedProfiles, profile)
 				end
-				table.sort(sortedZones)
+				table.sort(sortedProfiles)
 
-				-- Create zone buttons
-				local zoneIndex = 1
-				for _, zone in ipairs(sortedZones) do
-					if zoneIndex <= zoneMaxVisibleButtons then
-						local zoneButton = CreateFrame("Button", nil, zoneContentFrame)
-						zoneButton:SetSize(zoneContentFrame:GetWidth(), buttonHeight)
-						zoneButton:SetPoint("TOPLEFT", 0, -(zoneIndex - 1) * buttonHeight)
+				-- Create profile buttons
+				local profileIndex = 1
+				for _, profile in ipairs(sortedProfiles) do
+					if profileIndex <= profileMaxVisibleButtons then
+						local profileButton = CreateFrame("Button", nil, profileList)
+						profileButton:SetSize(profileList:GetWidth(), buttonHeight)
+						profileButton:SetPoint("TOPLEFT", 0, -(profileIndex - 1) * buttonHeight)
 
 
 						--===== Texture for Mouseover =====--
-						local zoneTexture = zoneButton:CreateTexture(nil, "BACKGROUND")
-						zoneTexture:SetAllPoints(true)
-						zoneTexture:SetTexture("Interface\\Buttons\\WHITE8X8")
-						zoneTexture:SetVertexColor(0.0, 0.5, 1.0, 0.8)
-						zoneTexture:Hide()
+						local profileTexture = profileButton:CreateTexture(nil, "BACKGROUND")
+						profileTexture:SetAllPoints(true)
+						profileTexture:SetTexture("Interface\\Buttons\\WHITE8X8")
+						profileTexture:SetVertexColor(0.0, 0.5, 1.0, 0.8)
+						profileTexture:Hide()
 
 						--===== Texture for selected button =====--
-						zoneButton.Texture = zoneButton:CreateTexture(nil, "BACKGROUND")
-						zoneButton.Texture:SetAllPoints(true)
-						zoneButton.Texture:SetTexture(nil)
+						profileButton.Texture = profileButton:CreateTexture(nil, "BACKGROUND")
+						profileButton.Texture:SetAllPoints(true)
+						profileButton.Texture:SetTexture(nil)
 
 
 						---- DEBUG START
 						---- Create a separate font string for numeration
-						--local numerationText = zoneButton:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+						--local numerationText = profileButton:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 						--numerationText:SetPoint("LEFT", 90, 0)
-						--numerationText:SetText(zoneIndex .. ".")
+						--numerationText:SetText(profileIndex .. ".")
 						---- DEBUG END
 
-						zoneButton.Text = zoneButton:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-						zoneButton.Text:SetPoint("LEFT", 5, 0)
+						profileButton.Text = profileButton:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+						profileButton.Text:SetPoint("LEFT", 5, 0)
 
 						
 						--------------------------------------------------------------------------------
-						-- Functions to hide all rare mob names and all zone names
+						-- Functions to hide all rare mob names and all profile names
 						--------------------------------------------------------------------------------
 
 
-						function unitscan_HideExistingButtons()
+						function unitscan_HideExistingScanButtons()
 							for _, button in ipairs(scanList.Buttons) do
 								button:Hide()
 							end
 						end
 
-						function unitscan_HideExistingZoneButtons()
-							for _, button in ipairs(zoneContentFrame.Buttons) do
+						function unitscan_HideExistingProfileButtons()
+							for _, button in ipairs(profileList.Buttons) do
 								button:Hide()
 							end
 						end
@@ -2456,25 +2456,25 @@
 						--------------------------------------------------------------------------------
 
 
-						-- Modify the existing OnClick function of zone buttons
-						zoneButton:SetScript("OnClick", function(self)
-							selectedZone = self.Text:GetText()
+						-- Modify the existing OnClick function of profile buttons
+						profileButton:SetScript("OnClick", function(self)
+							selectedProfile = self.Text:GetText()
 
 							-- Reset scroll position to the top
-							eb.scroll:SetVerticalScroll(0)
+							scanFrame.scroll:SetVerticalScroll(0)
 
 							-- Reset scrollbar value to the top
 							scrollbar:SetValue(1)
 
-							--unitscan_HideExistingButtons()
+							--unitscan_HideExistingScanButtons()
 
 							local visibleButtonsCount = 0
-							-- Create rare mob buttons for the selected zone
+							-- Create rare mob buttons for the selected profile
 							local index = 1
-							for zone, mobs in pairs(sortedSpawns) do
-								if zone == selectedZone then
+							for profile, mobs in pairs(sortedSpawns) do
+								if profile == selectedProfile then
 									--for _, data in ipairs(mobs) do
-										if index <= zoneMaxVisibleButtons then
+										if index <= profileMaxVisibleButtons then
 											visibleButtonsCount = visibleButtonsCount + 1
 											local button = scanList.Buttons[index]
 											if not button then
@@ -2503,20 +2503,20 @@
 
 							-- Hide scrollbar of rare mob list if 13 or more buttons visible.
 							if visibleButtonsCount <= 13 then
-								eb.scroll.ScrollBar:Hide()
-								eb.scroll.ScrollBar:SetMinMaxValues(1, 1)
+								scanFrame.scroll.ScrollBar:Hide()
+								scanFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
 							else
-								eb.scroll.ScrollBar:Show()
-								eb.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
+								scanFrame.scroll.ScrollBar:Show()
+								scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
 							end
 
 
 							--===== Texture for selected button =====--
-							for _, button in ipairs(zoneContentFrame.Buttons) do
+							for _, button in ipairs(profileList.Buttons) do
 								if button == self then
 									-- Apply the clicked texture
 									button.Texture:SetTexture(0, 1.0, 0, 0.5)
-									zoneTexture:Hide()
+									profileTexture:Hide()
 								else
 									-- Remove texture from other buttons
 									button.Texture:SetTexture(nil)
@@ -2527,7 +2527,7 @@
 							unitscan_searchbox:ClearFocus()
 
 							-- Hide unused buttons
-							for i = index, zoneMaxVisibleButtons do
+							for i = index, profileMaxVisibleButtons do
 								if scanList.Buttons[i] then
 									scanList.Buttons[i]:Hide()
 								end
@@ -2540,14 +2540,14 @@
 
 
 						--------------------------------------------------------------------------------
-						-- WoWHead Link for zone
+						-- WoWHead Link for profile
 						--------------------------------------------------------------------------------
 
 
-						zoneButton:SetScript("OnMouseDown", function(self, button)
+						profileButton:SetScript("OnMouseDown", function(self, button)
 							if button == "RightButton" then
-								local selectedZone = self.Text:GetText()
-								local encodedZone = urlencode(selectedZone)
+								local selectedProfile = self.Text:GetText()
+								local encodedProfile = urlencode(selectedProfile)
 								local wowheadLocale = ""
 								if GameLocale == "deDE" then wowheadLocale = "de/search?q="
 								elseif GameLocale == "esMX" then wowheadLocale = "es/search?q="
@@ -2561,8 +2561,8 @@
 								elseif GameLocale == "zhTW" then wowheadLocale = "cn/search?q="
 								else wowheadLocale = "search?q="
 								end
-								local zoneLink = "https://www.wowhead.com/wotlk/" .. wowheadLocale .. encodedZone .. "#zones"
-								unitscanLC:ShowSystemEditBox(zoneLink, false)
+								local profileLink = "https://www.wowhead.com/wotlk/" .. wowheadLocale .. encodedProfile .. "#profiles"
+								unitscanLC:ShowSystemEditBox(profileLink, false)
 								unitscan_searchbox:ClearFocus()
 							end
 						end)
@@ -2574,32 +2574,32 @@
 						--------------------------------------------------------------------------------
 
 						
-						zoneButton:SetScript("OnEvent", function()
+						profileButton:SetScript("OnEvent", function()
 							if event == "PLAYER_ENTERING_WORLD" then
 								LibCompat.After(1, function() unitscan_scanlistGUIButton:Click() end)
 								unitscan_scanlistGUIButton:Click()
 							end
 						end)
-						zoneButton:RegisterEvent("PLAYER_ENTERING_WORLD")
+						profileButton:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 						--------------------------------------------------------------------------------
 						-- Other Scripts
 						--------------------------------------------------------------------------------
 
 
-						zoneButton:SetScript("OnEnter", function(self)
-							-- Handle zone button mouse enter event here
-							zoneTexture:Show()
+						profileButton:SetScript("OnEnter", function(self)
+							-- Handle profile button mouse enter event here
+							profileTexture:Show()
 						end)
 
-						zoneButton:SetScript("OnLeave", function(self)
-							-- Handle zone button mouse leave event here
-							zoneTexture:Hide()
+						profileButton:SetScript("OnLeave", function(self)
+							-- Handle profile button mouse leave event here
+							profileTexture:Hide()
 						end)
 
-						--===== Show Zone Text on button and show button itself. =====--
-						zoneButton.Text:SetText(zone)
-						zoneButton:Show()
+						--===== Show Profile Text on button and show button itself. =====--
+						profileButton.Text:SetText(profile)
+						profileButton:Show()
 
 
 						--------------------------------------------------------------------------------
@@ -2607,247 +2607,247 @@
 						--------------------------------------------------------------------------------
 
 
-						local hideZoneButton = false
+						--local hideProfileButton = false
 
-						function unitscan_toggleCLASSIC()
-							unitscan_zoneScrollbar:SetMinMaxValues(1, 930)
-							unitscan_zoneScrollbar:Show()
-							eb.scroll.ScrollBar:Hide()
-							-- call searchbox
-							unitscan_searchbox:ClearFocus()						
-
-
-							--unitscan_HideExistingButtons()
-							hideZoneButton = not hideZoneButton -- Toggle the variable
-
-							local visibleZoneButtons = {} -- Table to store visible zone buttons
-
-							for zoneIndex, zoneButton in ipairs(zoneContentFrame.Buttons) do
-								zoneButton.Texture:SetTexture(nil)
-								local zone = zoneButton.Text:GetText()
-
-								-- Find the corresponding mobs for the zone
-								local mobs = sortedSpawns[zone]
-								if mobs then
-									local shouldHideButton = hideZoneButton
-									for _, data in ipairs(mobs) do
-										if string.find(data.expansion, "CLASSIC") then
-											shouldHideButton = false -- Show CLASSIC strings
-										elseif string.find(data.expansion, "TBC") or string.find(data.expansion, "WOTLK") then
-											shouldHideButton = true -- Hide TBC and WOTLK strings
-											break
-										end
-									end
-
-									if shouldHideButton then
-										zoneButton:Hide()
-									else
-										zoneButton:Show()
-										table.insert(visibleZoneButtons, zoneButton) -- Add visible button to the table
-									end
-								end
-							end
-
-							-- Sort the visible zone buttons based on zone names
-							table.sort(visibleZoneButtons, function(a, b)
-								local zoneA = a.Text:GetText()
-								local zoneB = b.Text:GetText()
-								return zoneA < zoneB
-							end)
-
-							-- Update the button positions based on the sorted table
-							local zoneIndex = 1
-							for _, zoneButton in ipairs(visibleZoneButtons) do
-								zoneButton:ClearAllPoints()
-								zoneButton:SetPoint("TOPLEFT", 0, -(zoneIndex - 1) * buttonHeight)
-								zoneIndex = zoneIndex + 1
-							end
-						end
+						--function unitscan_toggleCLASSIC()
+						--	unitscan_profileScrollbar:SetMinMaxValues(1, 930)
+						--	unitscan_profileScrollbar:Show()
+						--	scanFrame.scroll.ScrollBar:Hide()
+						--	-- call searchbox
+						--	unitscan_searchbox:ClearFocus()						
 
 
-						function unitscan_toggleTBC()
-							unitscan_zoneScrollbar:SetMinMaxValues(1, 1)
-							unitscan_zoneScrollbar:Hide()
-							eb.scroll.ScrollBar:Hide()
-							-- call searchbox
-							unitscan_searchbox:ClearFocus()						
+						--	--unitscan_HideExistingScanButtons()
+						--	hideProfileButton = not hideProfileButton -- Toggle the variable
 
-							--unitscan_HideExistingButtons()
+						--	local visibleProfileButtons = {} -- Table to store visible profile buttons
 
-							hideZoneButton = not hideZoneButton
+						--	for profileIndex, profileButton in ipairs(profileList.Buttons) do
+						--		profileButton.Texture:SetTexture(nil)
+						--		local profile = profileButton.Text:GetText()
 
-							local visibleZoneButtons = {} -- Table to store visible zone buttons
+						--		-- Find the corresponding mobs for the profile
+						--		local mobs = sortedSpawns[profile]
+						--		if mobs then
+						--			local shouldHideButton = hideProfileButton
+						--			for _, data in ipairs(mobs) do
+						--				if string.find(data.expansion, "CLASSIC") then
+						--					shouldHideButton = false -- Show CLASSIC strings
+						--				elseif string.find(data.expansion, "TBC") or string.find(data.expansion, "WOTLK") then
+						--					shouldHideButton = true -- Hide TBC and WOTLK strings
+						--					break
+						--				end
+						--			end
 
-							for zoneIndex, zoneButton in ipairs(zoneContentFrame.Buttons) do
-								zoneButton.Texture:SetTexture(nil)
-								local zone = zoneButton.Text:GetText()
+						--			if shouldHideButton then
+						--				profileButton:Hide()
+						--			else
+						--				profileButton:Show()
+						--				table.insert(visibleProfileButtons, profileButton) -- Add visible button to the table
+						--			end
+						--		end
+						--	end
 
-								-- Find the corresponding mobs for the zone
-								local mobs = sortedSpawns[zone]
-								if mobs then
-									local shouldHideButton = hideZoneButton
-									for _, data in ipairs(mobs) do
-										if string.find(data.expansion, "TBC") then
-											shouldHideButton = false -- Show TBC strings
-										elseif string.find(data.expansion, "CLASSIC") or string.find(data.expansion, "WOTLK") then
-											shouldHideButton = true -- Hide CLASSIC and WOTLK strings
-											break
-										end
-									end
+						--	-- Sort the visible profile buttons based on profile names
+						--	table.sort(visibleProfileButtons, function(a, b)
+						--		local profileA = a.Text:GetText()
+						--		local profileB = b.Text:GetText()
+						--		return profileA < profileB
+						--	end)
 
-									if shouldHideButton then
-										zoneButton:Hide()
-									else
-										zoneButton:Show()
-										table.insert(visibleZoneButtons, zoneButton) -- Add visible button to the table
-									end
-								end
-							end
-
-							-- Sort the visible zone buttons based on zone names
-							table.sort(visibleZoneButtons, function(a, b)
-								local zoneA = a.Text:GetText()
-								local zoneB = b.Text:GetText()
-								return zoneA < zoneB
-							end)
-
-							-- Update the button positions based on the sorted table
-							local zoneIndex = 1
-							for _, zoneButton in ipairs(visibleZoneButtons) do
-								zoneButton:ClearAllPoints()
-								zoneButton:SetPoint("TOPLEFT", 0, -(zoneIndex - 1) * buttonHeight)
-								zoneIndex = zoneIndex + 1
-							end
-						end
+						--	-- Update the button positions based on the sorted table
+						--	local profileIndex = 1
+						--	for _, profileButton in ipairs(visibleProfileButtons) do
+						--		profileButton:ClearAllPoints()
+						--		profileButton:SetPoint("TOPLEFT", 0, -(profileIndex - 1) * buttonHeight)
+						--		profileIndex = profileIndex + 1
+						--	end
+						--end
 
 
-						function unitscan_toggleWOTLK()
-							unitscan_zoneScrollbar:SetMinMaxValues(1, 1)
-							unitscan_zoneScrollbar:Hide()
-							eb.scroll.ScrollBar:Hide()
-							-- call searchbox
-							unitscan_searchbox:ClearFocus()
+						--function unitscan_toggleTBC()
+						--	unitscan_profileScrollbar:SetMinMaxValues(1, 1)
+						--	unitscan_profileScrollbar:Hide()
+						--	scanFrame.scroll.ScrollBar:Hide()
+						--	-- call searchbox
+						--	unitscan_searchbox:ClearFocus()						
 
-							--unitscan_HideExistingButtons()
+						--	--unitscan_HideExistingScanButtons()
 
-							hideZoneButton = not hideZoneButton
+						--	hideProfileButton = not hideProfileButton
 
-							local visibleZoneButtons = {} -- Table to store visible zone buttons
+						--	local visibleProfileButtons = {} -- Table to store visible profile buttons
 
-							for zoneIndex, zoneButton in ipairs(zoneContentFrame.Buttons) do
-								zoneButton.Texture:SetTexture(nil)
-								local zone = zoneButton.Text:GetText()
+						--	for profileIndex, profileButton in ipairs(profileList.Buttons) do
+						--		profileButton.Texture:SetTexture(nil)
+						--		local profile = profileButton.Text:GetText()
 
-								-- Find the corresponding mobs for the zone
-								local mobs = sortedSpawns[zone]
-								if mobs then
-									local shouldHideButton = hideZoneButton
-									for _, data in ipairs(mobs) do
-										if string.find(data.expansion, "WOTLK") then
-											shouldHideButton = false -- Show WOTLK strings
-										elseif string.find(data.expansion, "CLASSIC") or string.find(data.expansion, "TBC") then
-											shouldHideButton = true -- Hide CLASSIC and TBC strings
-											break
-										end
-									end
+						--		-- Find the corresponding mobs for the profile
+						--		local mobs = sortedSpawns[profile]
+						--		if mobs then
+						--			local shouldHideButton = hideProfileButton
+						--			for _, data in ipairs(mobs) do
+						--				if string.find(data.expansion, "TBC") then
+						--					shouldHideButton = false -- Show TBC strings
+						--				elseif string.find(data.expansion, "CLASSIC") or string.find(data.expansion, "WOTLK") then
+						--					shouldHideButton = true -- Hide CLASSIC and WOTLK strings
+						--					break
+						--				end
+						--			end
 
-									if shouldHideButton then
-										zoneButton:Hide()
-									else
-										zoneButton:Show()
-										table.insert(visibleZoneButtons, zoneButton) -- Add visible button to the table
-									end
-								end
-							end
+						--			if shouldHideButton then
+						--				profileButton:Hide()
+						--			else
+						--				profileButton:Show()
+						--				table.insert(visibleProfileButtons, profileButton) -- Add visible button to the table
+						--			end
+						--		end
+						--	end
 
-							-- Sort the visible zone buttons based on zone names
-							table.sort(visibleZoneButtons, function(a, b)
-								local zoneA = a.Text:GetText()
-								local zoneB = b.Text:GetText()
-								return zoneA < zoneB
-							end)
+						--	-- Sort the visible profile buttons based on profile names
+						--	table.sort(visibleProfileButtons, function(a, b)
+						--		local profileA = a.Text:GetText()
+						--		local profileB = b.Text:GetText()
+						--		return profileA < profileB
+						--	end)
 
-							-- Update the button positions based on the sorted table
-							local zoneIndex = 1
-							for _, zoneButton in ipairs(visibleZoneButtons) do
-								zoneButton:ClearAllPoints()
-								zoneButton:SetPoint("TOPLEFT", 0, -(zoneIndex - 1) * buttonHeight)
-								zoneIndex = zoneIndex + 1
-							end
-						end
+						--	-- Update the button positions based on the sorted table
+						--	local profileIndex = 1
+						--	for _, profileButton in ipairs(visibleProfileButtons) do
+						--		profileButton:ClearAllPoints()
+						--		profileButton:SetPoint("TOPLEFT", 0, -(profileIndex - 1) * buttonHeight)
+						--		profileIndex = profileIndex + 1
+						--	end
+						--end
 
-						function unitscan_toggleMyZone()
-							unitscan_zoneScrollbar:SetMinMaxValues(1, 1)
-							unitscan_zoneScrollbar:Hide()
-							eb.scroll.ScrollBar:Hide()
-							-- call searchbox
-							unitscan_searchbox:ClearFocus()
-							-- Sort the visible zone buttons based on zone names
-							local visibleZoneButtons = {}
-							for _, button in ipairs(zoneContentFrame.Buttons) do
-								if button:IsShown() then
-									table.insert(visibleZoneButtons, button)
-								end
-							end
 
-							table.sort(visibleZoneButtons, function(a, b)
-								local zoneA = a.Text:GetText()
-								local zoneB = b.Text:GetText()
-								return zoneA < zoneB
-							end)
+						--function unitscan_toggleWOTLK()
+						--	unitscan_profileScrollbar:SetMinMaxValues(1, 1)
+						--	unitscan_profileScrollbar:Hide()
+						--	scanFrame.scroll.ScrollBar:Hide()
+						--	-- call searchbox
+						--	unitscan_searchbox:ClearFocus()
 
-							-- Update the button positions based on the sorted table
-							local zoneIndex = 1
-							for _, zoneButton in ipairs(visibleZoneButtons) do
-								zoneButton:ClearAllPoints()
-								zoneButton:SetPoint("TOPLEFT", 0, -(zoneIndex - 1) * buttonHeight)
-								zoneIndex = zoneIndex + 1
-							end
-						end
+						--	--unitscan_HideExistingScanButtons()
+
+						--	hideProfileButton = not hideProfileButton
+
+						--	local visibleProfileButtons = {} -- Table to store visible profile buttons
+
+						--	for profileIndex, profileButton in ipairs(profileList.Buttons) do
+						--		profileButton.Texture:SetTexture(nil)
+						--		local profile = profileButton.Text:GetText()
+
+						--		-- Find the corresponding mobs for the profile
+						--		local mobs = sortedSpawns[profile]
+						--		if mobs then
+						--			local shouldHideButton = hideProfileButton
+						--			for _, data in ipairs(mobs) do
+						--				if string.find(data.expansion, "WOTLK") then
+						--					shouldHideButton = false -- Show WOTLK strings
+						--				elseif string.find(data.expansion, "CLASSIC") or string.find(data.expansion, "TBC") then
+						--					shouldHideButton = true -- Hide CLASSIC and TBC strings
+						--					break
+						--				end
+						--			end
+
+						--			if shouldHideButton then
+						--				profileButton:Hide()
+						--			else
+						--				profileButton:Show()
+						--				table.insert(visibleProfileButtons, profileButton) -- Add visible button to the table
+						--			end
+						--		end
+						--	end
+
+						--	-- Sort the visible profile buttons based on profile names
+						--	table.sort(visibleProfileButtons, function(a, b)
+						--		local profileA = a.Text:GetText()
+						--		local profileB = b.Text:GetText()
+						--		return profileA < profileB
+						--	end)
+
+						--	-- Update the button positions based on the sorted table
+						--	local profileIndex = 1
+						--	for _, profileButton in ipairs(visibleProfileButtons) do
+						--		profileButton:ClearAllPoints()
+						--		profileButton:SetPoint("TOPLEFT", 0, -(profileIndex - 1) * buttonHeight)
+						--		profileIndex = profileIndex + 1
+						--	end
+						--end
+
+						--function unitscan_toggleMyProfile()
+						--	unitscan_profileScrollbar:SetMinMaxValues(1, 1)
+						--	unitscan_profileScrollbar:Hide()
+						--	scanFrame.scroll.ScrollBar:Hide()
+						--	-- call searchbox
+						--	unitscan_searchbox:ClearFocus()
+						--	-- Sort the visible profile buttons based on profile names
+						--	local visibleProfileButtons = {}
+						--	for _, button in ipairs(profileList.Buttons) do
+						--		if button:IsShown() then
+						--			table.insert(visibleProfileButtons, button)
+						--		end
+						--	end
+
+						--	table.sort(visibleProfileButtons, function(a, b)
+						--		local profileA = a.Text:GetText()
+						--		local profileB = b.Text:GetText()
+						--		return profileA < profileB
+						--	end)
+
+						--	-- Update the button positions based on the sorted table
+						--	local profileIndex = 1
+						--	for _, profileButton in ipairs(visibleProfileButtons) do
+						--		profileButton:ClearAllPoints()
+						--		profileButton:SetPoint("TOPLEFT", 0, -(profileIndex - 1) * buttonHeight)
+						--		profileIndex = profileIndex + 1
+						--	end
+						--end
 
 						--------------------------------------------------------------------------------
 						-- End of toggle Expansions functions.
 						--------------------------------------------------------------------------------
 						--------------------------------------------------------------------------------
-						-- Zone Button Code continues inside loop.
+						-- Profile Button Code continues inside loop.
 						--------------------------------------------------------------------------------
 
-						zoneContentFrame.Buttons.Texture = zoneButton.Texture
-						zoneContentFrame.Buttons[zoneIndex] = zoneButton
+						profileList.Buttons.Texture = profileButton.Texture
+						profileList.Buttons[profileIndex] = profileButton
 
 					end
-					zoneIndex = zoneIndex + 1
+					profileIndex = profileIndex + 1
 				end
 
-				zoneFrame.scroll:SetScrollChild(zoneContentFrame)
+				profileFrame.scroll:SetScrollChild(profileList)
 
-				-- Scroll functionality for zone buttons
-				local zoneScrollbar = CreateFrame("Slider", nil, zoneFrame.scroll, "UIPanelScrollBarTemplate")
-				zoneScrollbar:SetPoint("TOPRIGHT", zoneFrame.scroll, "TOPRIGHT", 20, -14)
-				zoneScrollbar:SetPoint("BOTTOMRIGHT", zoneFrame.scroll, "BOTTOMRIGHT", 20, 14)
+				-- Scroll functionality for profile buttons
+				local profileScrollbar = CreateFrame("Slider", nil, profileFrame.scroll, "UIPanelScrollBarTemplate")
+				profileScrollbar:SetPoint("TOPRIGHT", profileFrame.scroll, "TOPRIGHT", 20, -14)
+				profileScrollbar:SetPoint("BOTTOMRIGHT", profileFrame.scroll, "BOTTOMRIGHT", 20, 14)
 
-				zoneScrollbar:SetMinMaxValues(1, zoneMaxVisibleButtons)
-				zoneScrollbar:SetValueStep(1)
-				zoneScrollbar:SetValue(1)
-				zoneScrollbar:SetWidth(16)
-				zoneScrollbar:SetScript("OnValueChanged", function(self, value)
+				profileScrollbar:SetMinMaxValues(1, profileMaxVisibleButtons)
+				profileScrollbar:SetValueStep(1)
+				profileScrollbar:SetValue(1)
+				profileScrollbar:SetWidth(16)
+				profileScrollbar:SetScript("OnValueChanged", function(self, value)
 					self:GetParent():SetVerticalScroll(value)
 				end)
 
-				zoneFrame.scroll.ScrollBar = zoneScrollbar
+				profileFrame.scroll.ScrollBar = profileScrollbar
 
-				-- Mouse wheel scrolling for zone buttons
-				zoneFrame.scroll:EnableMouseWheel(true)
-				zoneFrame.scroll:SetScript("OnMouseWheel", function(self, delta)
-					zoneScrollbar:SetValue(zoneScrollbar:GetValue() - delta * 50)
+				-- Mouse wheel scrolling for profile buttons
+				profileFrame.scroll:EnableMouseWheel(true)
+				profileFrame.scroll:SetScript("OnMouseWheel", function(self, delta)
+					profileScrollbar:SetValue(profileScrollbar:GetValue() - delta * 50)
 				end)
 
-				unitscan_zoneScrollbar = zoneScrollbar
+				unitscan_profileScrollbar = profileScrollbar
 
-				---- Hide unused zone buttons
-				--for i = zoneIndex, zoneMaxVisibleButtons do
-				--	if zoneContentFrame.Buttons[i] then
-				--		zoneContentFrame.Buttons[i]:Hide()
+				---- Hide unused profile buttons
+				--for i = profileIndex, profileMaxVisibleButtons do
+				--	if profileList.Buttons[i] then
+				--		profileList.Buttons[i]:Hide()
 				--	end
 				--end
 
@@ -2897,25 +2897,25 @@
 					end
 
 					-- Set the OnClick script for the buttons
-					if title == "My Zone" then
+					if title == "My Profile" then
 						expbtn[title]:SetScript("OnClick", function()
-							local currentZone = GetZoneText()
+							local currentProfile = GetProfileText()
 							local matchingButton
 
-							---- Hide all zone buttons initially
-							--for _, button in ipairs(zoneContentFrame.Buttons) do
+							---- Hide all profile buttons initially
+							--for _, button in ipairs(profileList.Buttons) do
 							--	button:Hide()
 							--end
 
-							for _, button in ipairs(zoneContentFrame.Buttons) do
-								local zone = button.Text:GetText()
-								if zone == currentZone then
+							for _, button in ipairs(profileList.Buttons) do
+								local profile = button.Text:GetText()
+								if profile == currentProfile then
 									matchingButton = button
 									matchingButton:Show()
 								end
 							end
 
-							unitscan_toggleMyZone()
+							unitscan_toggleMyProfile()
 
 							-- Update selected button
 							if matchingButton then
@@ -2929,18 +2929,18 @@
 						end)
 
 						expbtn[title].text:SetTextColor(1, 1, 1)
-						unitscan_myzoneGUIButton = expbtn[title]
+						unitscan_myprofileGUIButton = expbtn[title]
 
 						-- Modify the OnClick script for the "Ignored Rares" button
 
 
 					elseif title == "Scan List" then
 						expbtn[title]:SetScript("OnClick", function()
-							--unitscan_HideExistingButtons()
-							unitscan_HideExistingZoneButtons()
-							unitscan_zoneScrollbar:SetMinMaxValues(1, 1)
-							unitscan_zoneScrollbar:Hide()
-							eb.scroll.ScrollBar:Hide()
+							--unitscan_HideExistingScanButtons()
+							unitscan_HideExistingProfileButtons()
+							unitscan_profileScrollbar:SetMinMaxValues(1, 1)
+							unitscan_profileScrollbar:Hide()
+							scanFrame.scroll.ScrollBar:Hide()
 							-- call searchbox
 							unitscan_searchbox:ClearFocus()
 
@@ -2974,11 +2974,11 @@
 
 								-- print(visibleButtonsCount)
 								if visibleButtonsCount <= 13 then
-									eb.scroll.ScrollBar:Hide()
-									eb.scroll.ScrollBar:SetMinMaxValues(1, 1)
+									scanFrame.scroll.ScrollBar:Hide()
+									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
 								else
-									eb.scroll.ScrollBar:Show()
-									eb.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
+									scanFrame.scroll.ScrollBar:Show()
+									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
 								end
 
 							end
@@ -2995,18 +2995,18 @@
 
 						end)
 
-						--eb.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
+						--scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
 						expbtn[title].text:SetTextColor(1, 1, 1) -- Set text color for the new button
 						unitscan_scanlistGUIButton = expbtn[title]
 
 
 					elseif title == "Ignored" then
 						expbtn[title]:SetScript("OnClick", function()
-							unitscan_HideExistingButtons()
-							unitscan_HideExistingZoneButtons()
-							unitscan_zoneScrollbar:SetMinMaxValues(1, 1)
-							unitscan_zoneScrollbar:Hide()
-							eb.scroll.ScrollBar:Hide()
+							unitscan_HideExistingScanButtons()
+							unitscan_HideExistingProfileButtons()
+							unitscan_profileScrollbar:SetMinMaxValues(1, 1)
+							unitscan_profileScrollbar:Hide()
+							scanFrame.scroll.ScrollBar:Hide()
 							-- call searchbox
 							unitscan_searchbox:ClearFocus()
 
@@ -3039,11 +3039,11 @@
 
 								-- print(visibleButtonsCount)
 								if visibleButtonsCount <= 13 then
-									eb.scroll.ScrollBar:Hide()
-									eb.scroll.ScrollBar:SetMinMaxValues(1, 1)
+									scanFrame.scroll.ScrollBar:Hide()
+									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
 								else
-									eb.scroll.ScrollBar:Show()
-									eb.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
+									scanFrame.scroll.ScrollBar:Show()
+									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
 								end
 
 							end
@@ -3060,7 +3060,7 @@
 
 						end)
 
-						--eb.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
+						--scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
 						expbtn[title].text:SetTextColor(1, 0, 0) -- Set text color for the new button
 						unitscan_ignoredGUIButton = expbtn[title]
 
@@ -3093,7 +3093,7 @@
 					end
 
 					-- Function to hide the selectedButton.expTexture
-					function unitscan_HideSelectedButtonExpTexture()
+					function unitscan_HideSelectedScanButtonExpTexture()
 						if selectedButton and selectedButton.expTexture then
 							selectedButton.expTexture:Hide()
 						end
@@ -3117,7 +3117,7 @@
 				--MakeButtonNow("CLASSIC", "Zones")
 				--MakeButtonNow("TBC", "CLASSIC")
 				--MakeButtonNow("WOTLK", "TBC")
-				--MakeButtonNow("My Zone", "WOTLK")
+				--MakeButtonNow("My Profile", "WOTLK")
 				MakeButtonNow("Scan List", "Zones")					
 				MakeButtonNow("Ignored", "Scan List")
 			
@@ -3150,16 +3150,16 @@
 
 				local function SearchButtons(text)
 					GameTooltip:Hide()
-					unitscan_HideSelectedButtonExpTexture()
+					unitscan_HideSelectedScanButtonExpTexture()
 					text = Sanitize(string.lower(text))
 
-					for zoneIndex, zoneButton in ipairs(zoneContentFrame.Buttons) do
-						zoneButton.Texture:SetTexture(nil)
-						local zone = zoneButton.Text:GetText()
-						local lowerZone = string.lower(zone) -- Convert zone name to lowercase
+					for profileIndex, profileButton in ipairs(profileList.Buttons) do
+						profileButton.Texture:SetTexture(nil)
+						local profile = profileButton.Text:GetText()
+						local lowerProfile = string.lower(profile) -- Convert profile name to lowercase
 
-						-- Find the corresponding mobs for the zone
-						local mobs = sortedSpawns[zone]
+						-- Find the corresponding mobs for the profile
+						local mobs = sortedSpawns[profile]
 						if mobs then
 							local shouldHideButton = true
 							for _, data in ipairs(mobs) do
@@ -3169,35 +3169,35 @@
 								end
 							end
 
-							-- Perform case-insensitive search by comparing lowercase zone name
-							if shouldHideButton or not string.find(lowerZone, text, 1, true) then
-								zoneButton:Hide()
+							-- Perform case-insensitive search by comparing lowercase profile name
+							if shouldHideButton or not string.find(lowerProfile, text, 1, true) then
+								profileButton:Hide()
 							else
-								zoneButton:Show()
+								profileButton:Show()
 							end
 						end
 					end
 
-					-- Sort the visible zone buttons based on zone names
-					local visibleZoneButtons = {}
-					for zoneIndex, zoneButton in ipairs(zoneContentFrame.Buttons) do
-						if zoneButton:IsShown() then
-							table.insert(visibleZoneButtons, zoneButton)
+					-- Sort the visible profile buttons based on profile names
+					local visibleProfileButtons = {}
+					for profileIndex, profileButton in ipairs(profileList.Buttons) do
+						if profileButton:IsShown() then
+							table.insert(visibleProfileButtons, profileButton)
 						end
 					end
 
-					table.sort(visibleZoneButtons, function(a, b)
-						local zoneA = a.Text:GetText()
-						local zoneB = b.Text:GetText()
-						return zoneA < zoneB
+					table.sort(visibleProfileButtons, function(a, b)
+						local profileA = a.Text:GetText()
+						local profileB = b.Text:GetText()
+						return profileA < profileB
 					end)
 
 					-- Update the button positions based on the sorted table
-					local zoneIndex = 1
-					for _, zoneButton in ipairs(visibleZoneButtons) do
-						zoneButton:ClearAllPoints()
-						zoneButton:SetPoint("TOPLEFT", 0, -(zoneIndex - 1) * buttonHeight)
-						zoneIndex = zoneIndex + 1
+					local profileIndex = 1
+					for _, profileButton in ipairs(visibleProfileButtons) do
+						profileButton:ClearAllPoints()
+						profileButton:SetPoint("TOPLEFT", 0, -(profileIndex - 1) * buttonHeight)
+						profileIndex = profileIndex + 1
 					end
 				end
 
@@ -3208,7 +3208,7 @@
 
 				local function SearchEditBox_OnTextChanged(editBox)
 					--scroll to top if text changed
-					unitscan_zoneScrollbar:SetValue(unitscan_zoneScrollbar:GetMinMaxValues())
+					unitscan_profileScrollbar:SetValue(unitscan_profileScrollbar:GetMinMaxValues())
 					
 					local text = editBox:GetText()
 					if not text or text:trim() == "" then
@@ -3217,9 +3217,9 @@
 						sBox.clearButton:Show()
 						SearchButtons(text)
 					end
-					-- Count visible zone buttons
+					-- Count visible profile buttons
 					local visibleButtonCount = 0
-					for _, button in ipairs(zoneContentFrame.Buttons) do
+					for _, button in ipairs(profileList.Buttons) do
 						if button:IsShown() then
 							visibleButtonCount = visibleButtonCount + 1
 						end
@@ -3235,18 +3235,18 @@
 
 						-- Hide scrollbar if less than 5 buttons visible
 						if visibleButtonCount <= 13 then
-							unitscan_zoneScrollbar:SetMinMaxValues(1, 1)
-							unitscan_zoneScrollbar:Hide()
+							unitscan_profileScrollbar:SetMinMaxValues(1, 1)
+							unitscan_profileScrollbar:Hide()
 						else
-							unitscan_zoneScrollbar:SetMinMaxValues(1, maxValue)
-							unitscan_zoneScrollbar:Show()
+							unitscan_profileScrollbar:SetMinMaxValues(1, maxValue)
+							unitscan_profileScrollbar:Show()
 						end  
 
 					end
 
-					if visibleButtonCount == 0 then unitscan_zoneScrollbar:SetMinMaxValues(1, 1); unitscan_zoneScrollbar:Hide() end
+					if visibleButtonCount == 0 then unitscan_profileScrollbar:SetMinMaxValues(1, 1); unitscan_profileScrollbar:Hide() end
 					-- Print count in chat
-					--print(visibleButtonCount .. " zone buttons visible.")
+					--print(visibleButtonCount .. " profile buttons visible.")
 				end
 
 				sBox:SetScript("OnTextChanged", SearchEditBox_OnTextChanged)
@@ -3273,7 +3273,7 @@
 					--GameTooltip:SetOwner(sBox, "ANCHOR_CURSOR_RIGHT",0,-80)
 					GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
 
-					GameTooltip:SetText("Zone Search")
+					GameTooltip:SetText("Profile Search")
 					GameTooltip:AddLine("Enter your search query.")
 					GameTooltip:Show()
 				end
