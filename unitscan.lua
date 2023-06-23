@@ -2154,9 +2154,9 @@
 				local buttonHeight = 20
 				local maxVisibleButtons = 450
 
-				local contentFrame = CreateFrame("Frame", nil, eb.scroll)
-				contentFrame:SetSize(eb:GetWidth() - 30, maxVisibleButtons * buttonHeight)
-				contentFrame.Buttons = {}
+				local scanList = CreateFrame("Frame", nil, eb.scroll)
+				scanList:SetSize(eb:GetWidth() - 30, maxVisibleButtons * buttonHeight)
+				scanList.Buttons = {}
 
 				---- Sort rare spawns by zone and expansion
 				--local sortedSpawns = {}
@@ -2181,8 +2181,8 @@
 					zoneButtons[zone] = {}
 					--for _, name in ipairs(mobs) do
 						if index <= maxVisibleButtons then
-							local button = CreateFrame("Button", nil, contentFrame)
-							button:SetSize(contentFrame:GetWidth(), buttonHeight)
+							local button = CreateFrame("Button", nil, scanList)
+							button:SetSize(scanList:GetWidth(), buttonHeight)
 							--if index >= 2 then
 							--	button:SetPoint("TOPLEFT", 0.5, -(index - 1) * buttonHeight - 0.5) -- Increase the vertical position by 1 to reduce overlap
 							--else
@@ -2320,14 +2320,14 @@
 							--	button:Hide()
 							--end
 
-							contentFrame.Buttons[index] = button
+							scanList.Buttons[index] = button
 							table.insert(zoneButtons[zone], button)
 						end
 						index = index + 1
 					--end
 				end
 
-				eb.scroll:SetScrollChild(contentFrame)
+				eb.scroll:SetScrollChild(scanList)
 
 				-- Scroll functionality
 				local scrollbar = CreateFrame("Slider", nil, eb.scroll, "UIPanelScrollBarTemplate")
@@ -2359,8 +2359,8 @@
 
 				-- Hide unused buttons
 				for i = index, maxVisibleButtons do
-					if contentFrame.Buttons[i] then
-						contentFrame.Buttons[i]:Hide()
+					if scanList.Buttons[i] then
+						scanList.Buttons[i]:Hide()
 					end
 				end
 
@@ -2440,7 +2440,7 @@
 
 
 						function unitscan_HideExistingButtons()
-							for _, button in ipairs(contentFrame.Buttons) do
+							for _, button in ipairs(scanList.Buttons) do
 								button:Hide()
 							end
 						end
@@ -2466,7 +2466,7 @@
 							-- Reset scrollbar value to the top
 							scrollbar:SetValue(1)
 
-							unitscan_HideExistingButtons()
+							--unitscan_HideExistingButtons()
 
 							local visibleButtonsCount = 0
 							-- Create rare mob buttons for the selected zone
@@ -2476,11 +2476,11 @@
 									--for _, data in ipairs(mobs) do
 										if index <= zoneMaxVisibleButtons then
 											visibleButtonsCount = visibleButtonsCount + 1
-											local button = contentFrame.Buttons[index]
+											local button = scanList.Buttons[index]
 											if not button then
-												button = CreateFrame("Button", nil, contentFrame)
-												button:SetSize(contentFrame:GetWidth(), buttonHeight)
-												contentFrame.Buttons[index] = button
+												button = CreateFrame("Button", nil, scanList)
+												button:SetSize(scanList:GetWidth(), buttonHeight)
+												scanList.Buttons[index] = button
 											end
 
 											-- Set button text and position
@@ -2528,8 +2528,8 @@
 
 							-- Hide unused buttons
 							for i = index, zoneMaxVisibleButtons do
-								if contentFrame.Buttons[i] then
-									contentFrame.Buttons[i]:Hide()
+								if scanList.Buttons[i] then
+									scanList.Buttons[i]:Hide()
 								end
 							end
 						end)
@@ -2574,13 +2574,13 @@
 						--------------------------------------------------------------------------------
 
 						
-						--zoneButton:SetScript("OnEvent", function()
-						--	if event == "PLAYER_ENTERING_WORLD" then
-						--		LibCompat.After(1, function() unitscan_myzoneGUIButton:Click() end)
-						--		unitscan_myzoneGUIButton:Click()
-						--	end
-						--end)
-						--zoneButton:RegisterEvent("PLAYER_ENTERING_WORLD")
+						zoneButton:SetScript("OnEvent", function()
+							if event == "PLAYER_ENTERING_WORLD" then
+								LibCompat.After(1, function() unitscan_scanlistGUIButton:Click() end)
+								unitscan_scanlistGUIButton:Click()
+							end
+						end)
+						zoneButton:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 						--------------------------------------------------------------------------------
 						-- Other Scripts
@@ -2617,7 +2617,7 @@
 							unitscan_searchbox:ClearFocus()						
 
 
-							unitscan_HideExistingButtons()
+							--unitscan_HideExistingButtons()
 							hideZoneButton = not hideZoneButton -- Toggle the variable
 
 							local visibleZoneButtons = {} -- Table to store visible zone buttons
@@ -2672,7 +2672,7 @@
 							-- call searchbox
 							unitscan_searchbox:ClearFocus()						
 
-							unitscan_HideExistingButtons()
+							--unitscan_HideExistingButtons()
 
 							hideZoneButton = not hideZoneButton
 
@@ -2728,7 +2728,7 @@
 							-- call searchbox
 							unitscan_searchbox:ClearFocus()
 
-							unitscan_HideExistingButtons()
+							--unitscan_HideExistingButtons()
 
 							hideZoneButton = not hideZoneButton
 
@@ -2844,12 +2844,12 @@
 
 				unitscan_zoneScrollbar = zoneScrollbar
 
-				-- Hide unused zone buttons
-				for i = zoneIndex, zoneMaxVisibleButtons do
-					if zoneContentFrame.Buttons[i] then
-						zoneContentFrame.Buttons[i]:Hide()
-					end
-				end
+				---- Hide unused zone buttons
+				--for i = zoneIndex, zoneMaxVisibleButtons do
+				--	if zoneContentFrame.Buttons[i] then
+				--		zoneContentFrame.Buttons[i]:Hide()
+				--	end
+				--end
 
 
 				--------------------------------------------------------------------------------
@@ -2902,10 +2902,10 @@
 							local currentZone = GetZoneText()
 							local matchingButton
 
-							-- Hide all zone buttons initially
-							for _, button in ipairs(zoneContentFrame.Buttons) do
-								button:Hide()
-							end
+							---- Hide all zone buttons initially
+							--for _, button in ipairs(zoneContentFrame.Buttons) do
+							--	button:Hide()
+							--end
 
 							for _, button in ipairs(zoneContentFrame.Buttons) do
 								local zone = button.Text:GetText()
@@ -2936,7 +2936,7 @@
 
 					elseif title == "Scan List" then
 						expbtn[title]:SetScript("OnClick", function()
-							unitscan_HideExistingButtons()
+							--unitscan_HideExistingButtons()
 							unitscan_HideExistingZoneButtons()
 							unitscan_zoneScrollbar:SetMinMaxValues(1, 1)
 							unitscan_zoneScrollbar:Hide()
@@ -2950,16 +2950,17 @@
 
 							-- Show all ignored rares
 							for _, rare in pairs(sortedSpawns) do
-								local button = contentFrame.Buttons[visibleButtonsCount + 1]
+								local button = scanList.Buttons[visibleButtonsCount + 1]
 								if not button then
-									button = CreateFrame("Button", nil, contentFrame)
-									button:SetSize(contentFrame:GetWidth(), buttonHeight)
-									contentFrame.Buttons[visibleButtonsCount + 1] = button
+									button = CreateFrame("Button", nil, scanList)
+									button:SetSize(scanList:GetWidth(), buttonHeight)
+									scanList.Buttons[visibleButtonsCount + 1] = button
 								end
 
 								-- Set button text and position
 								if button.Text then
 									button.Text:SetText(rare)
+								end
 									--if visibleButtonsCount >= 1 then
 									--	button:SetPoint("TOPLEFT", 0.5, -(visibleButtonsCount * buttonHeight + 0.5)) -- Increase the vertical position by 1 to reduce overlap
 									--else
@@ -2969,7 +2970,7 @@
 
 									visibleButtonsCount = visibleButtonsCount + 1
 
-								end
+
 
 								-- print(visibleButtonsCount)
 								if visibleButtonsCount <= 13 then
@@ -3015,11 +3016,11 @@
 
 							-- Show all ignored rares
 							for _, rare in pairs(unitscan_removed) do
-								local button = contentFrame.Buttons[visibleButtonsCount + 1]
+								local button = scanList.Buttons[visibleButtonsCount + 1]
 								if not button then
-									button = CreateFrame("Button", nil, contentFrame)
-									button:SetSize(contentFrame:GetWidth(), buttonHeight)
-									contentFrame.Buttons[visibleButtonsCount + 1] = button
+									button = CreateFrame("Button", nil, scanList)
+									button:SetSize(scanList:GetWidth(), buttonHeight)
+									scanList.Buttons[visibleButtonsCount + 1] = button
 								end
 
 								-- Set button text and position
@@ -3113,12 +3114,13 @@
 				end
 
 				-- Call the MakeButtonNow function for each button
-				MakeButtonNow("CLASSIC", "Zones")
-				MakeButtonNow("TBC", "CLASSIC")
-				MakeButtonNow("WOTLK", "TBC")
-				MakeButtonNow("My Zone", "WOTLK")
-				MakeButtonNow("Ignored", "My Zone")
-				MakeButtonNow("Scan List", "Ignored")				
+				--MakeButtonNow("CLASSIC", "Zones")
+				--MakeButtonNow("TBC", "CLASSIC")
+				--MakeButtonNow("WOTLK", "TBC")
+				--MakeButtonNow("My Zone", "WOTLK")
+				MakeButtonNow("Scan List", "Zones")					
+				MakeButtonNow("Ignored", "Scan List")
+			
 				
 
 
