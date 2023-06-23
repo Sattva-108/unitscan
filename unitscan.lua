@@ -2206,27 +2206,49 @@
 								-- Handle button click event here
 								--print("Button clicked: " .. self.Text:GetText())
 
-								--===== refresh nearby targets table =====--
-								unitscan.refresh_nearby_targets()
+								----===== refresh nearby targets table =====--
+								--unitscan.refresh_nearby_targets()
 
-								-- Get the rare mob's name from the button's text
-								local rare = string.upper(self.Text:GetText())
+								---- Get the rare mob's name from the button's text
+								--local rare = string.upper(self.Text:GetText())
 
-								if unitscan_ignored[rare] then
-									-- Remove rare from ignore list
-									unitscan_ignored[rare] = nil
-									unitscan.ignoreprintyellow("\124cffffff00" .. "- " .. rare)
-									unitscan.refresh_nearby_targets()
-									found[rare] = nil
+								--if unitscan_ignored[rare] then
+								--	-- Remove rare from ignore list
+								--	unitscan_ignored[rare] = nil
+								--	unitscan.ignoreprintyellow("\124cffffff00" .. "- " .. rare)
+								--	unitscan.refresh_nearby_targets()
+								--	found[rare] = nil
+								--	self.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
+								--	texture:Show()
+								--else
+								--	-- Add rare to ignore list
+								--	unitscan_ignored[rare] = true
+								--	unitscan.ignoreprint("+ " .. rare)
+								--	unitscan.refresh_nearby_targets()
+								--	self.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
+								--	texture:Hide()
+								--end
+
+								-- Get the unit name from the button's text
+								local key = strupper(self.Text:GetText())
+
+								if not unitscan_targets[key] then
+									-- Add unit to scan list
+									unitscan_targets[key] = true
+									unitscan.print(YELLOW .. "+ " .. key)
 									self.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
 									texture:Show()
 								else
-									-- Add rare to ignore list
-									unitscan_ignored[rare] = true
-									unitscan.ignoreprint("+ " .. rare)
-									unitscan.refresh_nearby_targets()
+									-- Remove unit from scan list
+									unitscan_targets[key] = nil
+									unitscan.print(RED .. "- " .. key)
+									found[key] = nil
 									self.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
 									texture:Hide()
+
+									-- Insert the key into unitscan_removed table
+									table.insert(unitscan_removed, key)
+
 								end
 
 								-- Clear focus of search box
@@ -2290,13 +2312,13 @@
 								texture:Hide()
 							end)
 
-							button.Text:SetText(name)
+							button.Text:SetText(mobs)
 							-- Initially hide buttons that don't belong to the selected zone
-							if zone == selectedZone then
-								button:Show()
-							else
-								button:Hide()
-							end
+							--if zone == selectedZone then
+							--	button:Show()
+							--else
+							--	button:Hide()
+							--end
 
 							contentFrame.Buttons[index] = button
 							table.insert(zoneButtons[zone], button)
@@ -2451,7 +2473,7 @@
 							local index = 1
 							for zone, mobs in pairs(sortedSpawns) do
 								if zone == selectedZone then
-									for _, data in ipairs(mobs) do
+									--for _, data in ipairs(mobs) do
 										if index <= zoneMaxVisibleButtons then
 											visibleButtonsCount = visibleButtonsCount + 1
 											local button = contentFrame.Buttons[index]
@@ -2472,7 +2494,7 @@
 
 											index = index + 1
 										end
-									end
+									--end
 								end
 							end
 
@@ -2552,13 +2574,13 @@
 						--------------------------------------------------------------------------------
 
 						
-						zoneButton:SetScript("OnEvent", function()
-							if event == "PLAYER_ENTERING_WORLD" then
-								LibCompat.After(1, function() unitscan_myzoneGUIButton:Click() end)
-								unitscan_myzoneGUIButton:Click()
-							end
-						end)
-						zoneButton:RegisterEvent("PLAYER_ENTERING_WORLD")
+						--zoneButton:SetScript("OnEvent", function()
+						--	if event == "PLAYER_ENTERING_WORLD" then
+						--		LibCompat.After(1, function() unitscan_myzoneGUIButton:Click() end)
+						--		unitscan_myzoneGUIButton:Click()
+						--	end
+						--end)
+						--zoneButton:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 						--------------------------------------------------------------------------------
 						-- Other Scripts
