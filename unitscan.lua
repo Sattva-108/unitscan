@@ -2105,63 +2105,18 @@
 
 			do
 
-				-- First - Load the Database of Rare Mobs.
-				unitscan_LoadRareSpawns()
-
-
 				--------------------------------------------------------------------------------
-				-- Check for the existence of required tables, stop and create frame if not.
+				-- Escape colors
 				--------------------------------------------------------------------------------
 
-				if not rare_spawns["CLASSIC"] or not rare_spawns["TBC"] or not rare_spawns["WOTLK"] then
-					print("\124cffFF0000unitscan Error: Missing one or more required tables \124cff00FFFFCLASSIC\124cffFF0000, \124cff00FFFFTBC\124cffFF0000, or \124cff00FFFFWOTLK\124cffFF0000 in \124cff00FFFFrare_spawns\124cffFF0000 table.")
-
-					do
-
-						local panelFrame = CreateFrame("FRAME", nil, unitscanLC["Page1"])
-						panelFrame:SetAllPoints(unitscanLC["Page1"])
-
-						-- Adjust the position of panelFrame within unitscanLC["Page1"]
-						panelFrame:SetPoint("TOPLEFT", unitscanLC["Page1"], "TOPLEFT", 130, 0)
-
-						panelFrame.name = "unitscan"
-
-						local mainTitle = unitscanLC:MakeTx(panelFrame, "unitscan", 0, 0)
-						mainTitle:SetFont(mainTitle:GetFont(), 72)
-						mainTitle:ClearAllPoints()
-						mainTitle:SetPoint("TOP", 0, -72)
-
-						local expTitle = unitscanLC:MakeTx(panelFrame, "Rare Ignore List", 0, 0)
-						expTitle:SetFont(expTitle:GetFont(), 32)
-						expTitle:ClearAllPoints()
-						expTitle:SetPoint("TOP", 0, -152)
-
-						local subTitle = unitscanLC:MakeTx(panelFrame, "Discord: sattva108", 0, 0)
-						subTitle:SetFont(subTitle:GetFont(), 20)
-						subTitle:ClearAllPoints()
-						subTitle:SetPoint("BOTTOM", 0, 72)
-
-						local slashTitleLine1 = unitscanLC:MakeTx(panelFrame, "Your Language database doesn't have", 0, 0)
-						slashTitleLine1:SetFont(slashTitleLine1:GetFont(), 20)
-						slashTitleLine1:ClearAllPoints()
-						slashTitleLine1:SetPoint("BOTTOM", subTitle, "TOP", 0, 40)
-
-						local slashTitleLine2 = unitscanLC:MakeTx(panelFrame, "any rare mobs in it, contact discord", 0, 0)
-						slashTitleLine2:SetFont(slashTitleLine2:GetFont(), 20)
-						slashTitleLine2:ClearAllPoints()
-						slashTitleLine2:SetPoint("BOTTOM", slashTitleLine1, "TOP", 0, -50)
-
-						local panelTexture = panelFrame:CreateTexture(nil, "BACKGROUND")
-						panelTexture:SetAllPoints()
-						panelTexture:SetTexture("Interface\\GLUES\\Models\\UI_MainMenu\\swordgradient2")
-						panelTexture:SetAlpha(0.2)
-						panelTexture:SetTexCoord(0, 1, 1, 0)
-
-						return
-
-					end
-
-				end
+				local RED = "\124cffff0000"
+				local YELLOW = "\124cffffff00"
+				local GREEN = "\124cff00ff00"
+				local WHITE = "\124cffffffff"
+				local ORANGE = "\124cffffa500"
+				local BLUE = "\124cff0000ff"
+				local GREY = "\124cffb4b4b4"
+				local LYELLOW = "\124cffffff9a"				
 
 
 				--------------------------------------------------------------------------------
@@ -2180,7 +2135,7 @@
 				--------------------------------------------------------------------------------
 
 
-				local eb = CreateFrame("Frame", nil, unitscanLC["Page1"])
+				local eb = CreateFrame("Frame", nil, unitscanLC["Page2"])
 				eb:SetSize(220, 280)
 				eb:SetPoint("TOPLEFT", 450	, -80)
 				eb:SetBackdrop({
@@ -2203,21 +2158,28 @@
 				contentFrame:SetSize(eb:GetWidth() - 30, maxVisibleButtons * buttonHeight)
 				contentFrame.Buttons = {}
 
-				-- Sort rare spawns by zone and expansion
+				---- Sort rare spawns by zone and expansion
+				--local sortedSpawns = {}
+				--for expansion, spawns in pairs(rare_spawns) do
+				--	for name, zone in pairs(spawns) do
+				--		sortedSpawns[zone] = sortedSpawns[zone] or {}
+				--		table.insert(sortedSpawns[zone], {name = name, expansion = expansion})
+				--	end
+				--end
+
 				local sortedSpawns = {}
-				for expansion, spawns in pairs(rare_spawns) do
-					for name, zone in pairs(spawns) do
-						sortedSpawns[zone] = sortedSpawns[zone] or {}
-						table.insert(sortedSpawns[zone], {name = name, expansion = expansion})
-					end
+				for name in pairs(unitscan_targets) do
+				    table.insert(sortedSpawns, name)
 				end
+				table.sort(sortedSpawns)
 
 
 				-- Create rare mob buttons
 				local index = 1
 				for zone, mobs in pairs(sortedSpawns) do
+					print(zone .. mobs)
 					zoneButtons[zone] = {}
-					for _, name in ipairs(mobs) do
+					--for _, name in ipairs(mobs) do
 						if index <= maxVisibleButtons then
 							local button = CreateFrame("Button", nil, contentFrame)
 							button:SetSize(contentFrame:GetWidth(), buttonHeight)
@@ -2340,7 +2302,7 @@
 							table.insert(zoneButtons[zone], button)
 						end
 						index = index + 1
-					end
+					--end
 				end
 
 				eb.scroll:SetScrollChild(contentFrame)
@@ -2883,7 +2845,7 @@
 
 				-- Create buttons
 				local function MakeButtonNow(title, anchor)
-					expbtn[title] = CreateFrame("Button", nil, unitscanLC["Page1"])
+					expbtn[title] = CreateFrame("Button", nil, unitscanLC["Page2"])
 					expbtn[title]:SetSize(80, 16)
 
 					-- Create a text label for the button
@@ -2906,7 +2868,7 @@
 					-- Set the anchor point based on the provided anchor parameter
 					if anchor == "Zones" then
 						-- position first button
-						expbtn[title]:SetPoint("TOPLEFT", unitscanLC["Page1"], "TOPLEFT", 150, -70)
+						expbtn[title]:SetPoint("TOPLEFT", unitscanLC["Page2"], "TOPLEFT", 150, -70)
 					else
 						-- position other buttons, add gap
 						expbtn[title]:SetPoint("TOPLEFT", expbtn[anchor], "BOTTOMLEFT", 0, -5)
@@ -3074,7 +3036,7 @@
 				--------------------------------------------------------------------------------
 
 
-				local sBox = unitscanLC:CreateEditBox("RareListSearchBox", unitscanLC["Page1"], 60, 10, "TOPLEFT", 150, -260, "RareListSearchBox", "RareListSearchBox")
+				local sBox = unitscanLC:CreateEditBox("RareListSearchBox", unitscanLC["Page2"], 60, 10, "TOPLEFT", 150, -260, "RareListSearchBox", "RareListSearchBox")
 				sBox:SetMaxLetters(50)
 
 
@@ -4388,8 +4350,8 @@
 		
 		function unitscan.play_sound()
 			if not last_played or GetTime() - last_played > 3 then
-				PlaySoundFile([[Interface\AddOns\unitscan\assets\Event_wardrum_ogre.ogg]], 'Sound')
-				PlaySoundFile([[Sound\Interface\MapPing.wav]], 'Sound')
+				--PlaySoundFile([[Interface\AddOns\unitscan\assets\Event_wardrum_ogre.ogg]], 'Sound')
+				--PlaySoundFile([[Sound\Interface\MapPing.wav]], 'Sound')
 				last_played = GetTime()
 			end
 		end
