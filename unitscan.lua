@@ -4,6 +4,8 @@
 --	Credit to Macumba for checking all rares in list and then adding frFR database!
 --	Code from unitscan & unitscan-rares
 --------------------------------------------------------------------------------------
+
+	LibCompat = LibStub:GetLibrary("LibCompat-1.0")
 	
 	-- Create global table
 	_G.unitscanDB = _G.unitscanDB or {}
@@ -156,7 +158,7 @@
 			-- Add feedback label
 			eFrame.x = eFrame:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
 			eFrame.x:SetPoint("TOPRIGHT", x, y)
-			eFrame.x:SetText("\124cff00ff00" .. "Feedback Discord:" .. "\124cffffff00" .. " Sattva" .. "\124cffadd8e6" .. "#7238")
+			eFrame.x:SetText("\124cff00ff00" .. "Feedback Discord:" .. "\124cffffff00" .. " sattva108")
 
 			eFrame.x:SetPoint("TOPRIGHT", eFrame, "TOPRIGHT", -12, -52)
 			hooksecurefunc(eFrame.f, "SetText", function()
@@ -776,7 +778,7 @@
 			expTitle:ClearAllPoints()
 			expTitle:SetPoint("TOP", 0, -152)
 
-			local subTitle = unitscanLC:MakeTx(interPanel, "Discord: Sattva#7238", 0, 0)
+			local subTitle = unitscanLC:MakeTx(interPanel, "Feedback Discord: sattva108", 0, 0)
 			subTitle:SetFont(subTitle:GetFont(), 20)
 			subTitle:ClearAllPoints()
 			subTitle:SetPoint("BOTTOM", 0, 72)
@@ -907,7 +909,7 @@
 
 
 			--------------------------------------------------------------------------------
-			-- Check for the existence of required tables
+			-- Check for the existence of required tables, stop and create frame if not.
 			--------------------------------------------------------------------------------
 
 			if not rare_spawns["CLASSIC"] or not rare_spawns["TBC"] or not rare_spawns["WOTLK"] then
@@ -933,7 +935,7 @@
 					expTitle:ClearAllPoints()
 					expTitle:SetPoint("TOP", 0, -152)
 
-					local subTitle = unitscanLC:MakeTx(panelFrame, "Discord: Sattva#7238", 0, 0)
+					local subTitle = unitscanLC:MakeTx(panelFrame, "Discord: sattva108", 0, 0)
 					subTitle:SetFont(subTitle:GetFont(), 20)
 					subTitle:ClearAllPoints()
 					subTitle:SetPoint("BOTTOM", 0, 72)
@@ -1040,6 +1042,9 @@
 						button:SetScript("OnClick", function(self)
 							-- Handle button click event here
 							--print("Button clicked: " .. self.Text:GetText())
+
+							--===== refresh nearby targets table =====--
+							unitscan.refresh_nearby_targets()
 
 							-- Get the rare mob's name from the button's text
 							local rare = string.upper(self.Text:GetText())
@@ -3099,7 +3104,7 @@
 	unitscanLC:MakeWD(unitscanLC[pg], "Type" .. "\124cff00ff00" .. " /unitscan help " .. "\124cffffffff" .. "for available chat commands", 146, -152);
 
 	unitscanLC:MakeTx(unitscanLC[pg], "Support", 146, -192);
-	unitscanLC:MakeWD(unitscanLC[pg], "\124cff00ff00" .. "Feedback Discord:" .. "\124cffffff00" .. " Sattva" .. "\124cffadd8e6" .. "#7238", 146, -212);
+	unitscanLC:MakeWD(unitscanLC[pg], "\124cff00ff00" .. "Feedback Discord:" .. "\124cffffff00" .. " sattva108", 146, -212);
 
 
 ----------------------------------------------------------------------
@@ -3632,137 +3637,143 @@ local LYELLOW = "\124cffffff9a"
 				return
 			end
 
-			--===== Slash to avoid people confusion if they do /unitscan name =====--    
-			elseif command == "name" then
-				print(" ")
-				unitscan.print("replace " .. YELLOW .. "'name'" .. WHITE .. " with npc you want to scan.")
-				print(" - for example: " .. GREEN .. "/unitscan " .. YELLOW .. "Hogger")
+		--===== Slash to avoid people confusion if they do /unitscan name =====--    
+		elseif command == "name" then
+			print(" ")
+			unitscan.print("replace " .. YELLOW .. "'name'" .. WHITE .. " with npc you want to scan.")
+			print(" - for example: " .. GREEN .. "/unitscan " .. YELLOW .. "Hogger")
 
-				--===== Slash to only print currently tracked non-rare targets. =====--
-			elseif command == "list" then
-				if unitscan_targets then
-					if next(unitscan_targets) == nil then
-						unitscan.print("Unit Scanner is currently empty.")
-					else
-						print(" " .. YELLOW .. "unitscan list" .. WHITE .. " currently contains:")
-						for k, v in pairs(unitscan_targets) do
-							unitscan.print(tostring(k))
-						end
-					end
-				end
-
-				--===== Slash to show rare spawns that are currently being scanned. =====--    
-			elseif command == "nearby" then
-				unitscan.print("Is someone missing?")
-				unitscan.print(" - Add it to your list with " .. GREEN .. "/unitscan name")
-				unitscan.print(YELLOW .. "ignore")
-				unitscan.print(" - Adds/removes the rare mob 'name' from the unit scanner " .. YELLOW .. "ignore list.")
-				unitscan.print(" ")
-
-				for _, target in ipairs(nearby_targets) do
-					local name, expansion = unpack(target)
-					if not (name == "Lumbering Horror" or name == "Spirit of the Damned" or name == "Bone Witch") then
-						unitscan.print(name)
-					end
-				end
-
-				--===== Slash to show all avaliable commands =====--    
-			elseif command == 'help' then
-				-- Prevent options panel from showing if a game options panel is showing
-				--if InterfaceOptionsFrame:IsShown() or VideoOptionsFrame:IsShown() or ChatConfigFrame:IsShown() then return end
-				---- Prevent options panel from showing if Blizzard Store is showing
-				--if StoreFrame and StoreFrame:GetAttribute("isshown") then return end
-				-- Toggle the options panel if game options panel is not showing
-				if unitscanLC:IsUnitscanShowing() then
-					unitscanLC:HideFrames()
-					unitscanLC:HideConfigPanels()
-				end
-
-
-				-- Help panel
-				if not unitscanLC.HelpFrame then
-					local frame = CreateFrame("FRAME", nil, UIParent)
-					frame:SetSize(570, 340); frame:SetFrameStrata("FULLSCREEN_DIALOG"); frame:SetFrameLevel(100)
-					frame.tex = frame:CreateTexture(nil, "BACKGROUND"); frame.tex:SetAllPoints(); 
-					frame.tex:SetVertexColor(0.05, 0.05, 0.05, 0.9)
-					frame.close = CreateFrame("Button", nil, frame, "UIPanelCloseButton"); frame.close:SetSize(30, 30); frame.close:SetPoint("TOPRIGHT", 0, 0); frame.close:SetScript("OnClick", function() frame:Hide() end)
-					frame:ClearAllPoints(); frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
-					frame:SetClampedToScreen(true)
-					frame:SetClampRectInsets(450, -450, -300, 300)
-					frame:EnableMouse(true)
-					frame:SetMovable(true)
-					frame:RegisterForDrag("LeftButton")
-					frame:SetScript("OnDragStart", frame.StartMoving)
-					frame:SetScript("OnDragStop", function() frame:StopMovingOrSizing() frame:SetUserPlaced(false) end)
-					frame:Hide()
-					unitscanLC:CreateBar("HelpPanelMainTexture", frame, 570, 340, "TOPRIGHT", 0.7, 0.7, 0.7, 0.7,  "Interface\\addons\\Leatrix_Plus\\assets\\ui-guildachievement-parchment-horizontal-desaturated.blp")
-					-- Panel contents
-					local col1, col2, color1 = 10, 120, "|cffffffaa"
-					unitscanLC:MakeTx(frame, "unitscan Help", col1, -10)
-					unitscanLC:MakeWD(frame, color1 .. "/unitscan", col1, -30)
-					unitscanLC:MakeWD(frame, "Toggle options panel.", col2, -30)
-
-					unitscanLC:MakeWD(frame, color1 .. "/unitscan target", col1, -50)
-					unitscanLC:MakeWD(frame, "Adds/removes the name of your " .. YELLOW .. "current target" .. WHITE .. " to the scanner.", col2, -50)
-					unitscanLC:MakeWD(frame, color1 .. "/unitscan name", col1, -70)
-					unitscanLC:MakeWD(frame, "Adds/removes the " .. YELLOW .. "mob/player 'name'" .. WHITE .. " from the unit scanner.", col2, -70)
-					unitscanLC:MakeWD(frame, color1 .. "/unitscan nearby", col1, -90)
-					unitscanLC:MakeWD(frame, "List of " .. YELLOW .. "rare mob names" .. WHITE .. " that are being scanned in your current zone.", col2, -90)
-					unitscanLC:MakeWD(frame, color1 .. "/unitscan ignore", col1, -110)
-					unitscanLC:MakeWD(frame, "Adds/removes the rare mob" .. GREEN .. " 'name'" .. WHITE .. " from the unit scanner " .. RED .. "ignore list.", col2, -110)
-					unitscanLC:MakeWD(frame, color1 .. "/unitscan list", col1, -130)
-					unitscanLC:MakeWD(frame, "Prints in chat" .. GREEN .. " list of NPC/Players " .. WHITE .. "that are currently being scanned", col2, -130)
-					unitscanLC:MakeWD(frame, color1 .. "/unitscan interval", col1, -150)
-					unitscanLC:MakeWD(frame, "Choose interval, How often should we scan for unit?" .. GREY ..  " Default: 0.3 sec.", col2, -150)
-
-					--unitscanLC:MakeWD(frame, color1 .. "/ltp id", col1, -170)
-					--unitscanLC:MakeWD(frame, "Show a web link for whatever the pointer is over.", col2, -170)
-					--unitscanLC:MakeWD(frame, color1 .. "/ltp zygor", col1, -190)
-					--unitscanLC:MakeWD(frame, "Toggle the Zygor addon (reloads UI).", col2, -190)
-					--unitscanLC:MakeWD(frame, color1 .. "/ltp movie <id>", col1, -210)
-					--unitscanLC:MakeWD(frame, "Play a movie by its ID.", col2, -210)
-
-					unitscanLC:MakeWD(frame, color1 .. "/rl", col1, -310)
-					unitscanLC:MakeWD(frame, "Reload the UI.", col2, -310)
-					unitscanLC.HelpFrame = frame
-					_G["unitscanGlobalHelpPanel"] = frame
-					table.insert(UISpecialFrames, "unitscanGlobalHelpPanel")
-				end
-				if unitscanLC.HelpFrame:IsShown() then unitscanLC.HelpFrame:Hide() else unitscanLC.HelpFrame:Show() end
-				return
-
-				--===== Slash without any arguments (/unitscan) prints currently tracked user-defined units and some basic available slash commands  =====--
-				--===== If an agrugment after /unitscan is given, it will add a unit to the scanning targets. =====--
-			elseif not command then
-
-				-- Prevent options panel from showing if a game options panel is showing
-				if InterfaceOptionsFrame:IsShown() or VideoOptionsFrame:IsShown() or ChatConfigFrame:IsShown() then return end
-				-- Prevent options panel from showing if Blizzard Store is showing
-				if StoreFrame and StoreFrame:GetAttribute("isshown") then return end
-				-- Toggle the options panel if game options panel is not showing
-				if unitscanLC:IsUnitscanShowing() then
-					unitscanLC:HideFrames()
-					unitscanLC:HideConfigPanels()
+			--===== Slash to only print currently tracked non-rare targets. =====--
+		elseif command == "list" then
+			if unitscan_targets then
+				if next(unitscan_targets) == nil then
+					unitscan.print("Unit Scanner is currently empty.")
 				else
-					unitscanLC:HideFrames()
-					unitscanLC["PageF"]:Show()
+					print(" " .. YELLOW .. "unitscan list" .. WHITE .. " currently contains:")
+					for k, v in pairs(unitscan_targets) do
+						unitscan.print(tostring(k))
+					end
 				end
-				unitscanLC["Page"..unitscanLC["LeaStartPage"]]:Show()
-			else
-				unitscan.toggle_target(parameter)
 			end
+
+			--===== Slash to show rare spawns that are currently being scanned. =====--    
+		elseif command == "nearby" then
+			unitscan.print("Is someone missing?")
+			unitscan.print(" - Add it to your list with " .. GREEN .. "/unitscan name")
+			unitscan.print(YELLOW .. "ignore")
+			unitscan.print(" - Adds/removes the rare mob 'name' from the unit scanner " .. YELLOW .. "ignore list.")
+			unitscan.print(" ")
+
+			for _, target in ipairs(nearby_targets) do
+				local name, expansion = unpack(target)
+				if not (name == "Lumbering Horror" or name == "Spirit of the Damned" or name == "Bone Witch") then
+					unitscan.print(name)
+				end
+			end
+
+			--===== Slash to show all avaliable commands =====--    
+		elseif command == 'help' then
+			-- Prevent options panel from showing if a game options panel is showing
+			--if InterfaceOptionsFrame:IsShown() or VideoOptionsFrame:IsShown() or ChatConfigFrame:IsShown() then return end
+			---- Prevent options panel from showing if Blizzard Store is showing
+			--if StoreFrame and StoreFrame:GetAttribute("isshown") then return end
+			-- Toggle the options panel if game options panel is not showing
+			if unitscanLC:IsUnitscanShowing() then
+				unitscanLC:HideFrames()
+				unitscanLC:HideConfigPanels()
+			end
+
+
+			-- Help panel
+			if not unitscanLC.HelpFrame then
+				local frame = CreateFrame("FRAME", nil, UIParent)
+				frame:SetSize(570, 340); frame:SetFrameStrata("FULLSCREEN_DIALOG"); frame:SetFrameLevel(100)
+				frame.tex = frame:CreateTexture(nil, "BACKGROUND"); frame.tex:SetAllPoints(); 
+				frame.tex:SetVertexColor(0.05, 0.05, 0.05, 0.9)
+				frame.close = CreateFrame("Button", nil, frame, "UIPanelCloseButton"); frame.close:SetSize(30, 30); frame.close:SetPoint("TOPRIGHT", 0, 0); frame.close:SetScript("OnClick", function() frame:Hide() end)
+				frame:ClearAllPoints(); frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+				frame:SetClampedToScreen(true)
+				frame:SetClampRectInsets(450, -450, -300, 300)
+				frame:EnableMouse(true)
+				frame:SetMovable(true)
+				frame:RegisterForDrag("LeftButton")
+				frame:SetScript("OnDragStart", frame.StartMoving)
+				frame:SetScript("OnDragStop", function() frame:StopMovingOrSizing() frame:SetUserPlaced(false) end)
+				frame:Hide()
+				unitscanLC:CreateBar("HelpPanelMainTexture", frame, 570, 340, "TOPRIGHT", 0.7, 0.7, 0.7, 0.7,  "Interface\\addons\\Leatrix_Plus\\assets\\ui-guildachievement-parchment-horizontal-desaturated.blp")
+				-- Panel contents
+				local col1, col2, color1 = 10, 120, "|cffffffaa"
+				unitscanLC:MakeTx(frame, "unitscan Help", col1, -10)
+				unitscanLC:MakeWD(frame, color1 .. "/unitscan", col1, -30)
+				unitscanLC:MakeWD(frame, "Toggle options panel.", col2, -30)
+
+				unitscanLC:MakeWD(frame, color1 .. "/unitscan target", col1, -50)
+				unitscanLC:MakeWD(frame, "Adds/removes the name of your " .. YELLOW .. "current target" .. WHITE .. " to the scanner.", col2, -50)
+				unitscanLC:MakeWD(frame, color1 .. "/unitscan name", col1, -70)
+				unitscanLC:MakeWD(frame, "Adds/removes the " .. YELLOW .. "mob/player 'name'" .. WHITE .. " from the unit scanner.", col2, -70)
+				unitscanLC:MakeWD(frame, color1 .. "/unitscan nearby", col1, -90)
+				unitscanLC:MakeWD(frame, "List of " .. YELLOW .. "rare mob names" .. WHITE .. " that are being scanned in your current zone.", col2, -90)
+				unitscanLC:MakeWD(frame, color1 .. "/unitscan ignore", col1, -110)
+				unitscanLC:MakeWD(frame, "Adds/removes the rare mob" .. GREEN .. " 'name'" .. WHITE .. " from the unit scanner " .. RED .. "ignore list.", col2, -110)
+				unitscanLC:MakeWD(frame, color1 .. "/unitscan list", col1, -130)
+				unitscanLC:MakeWD(frame, "Prints in chat" .. GREEN .. " list of NPC/Players " .. WHITE .. "that are currently being scanned", col2, -130)
+				unitscanLC:MakeWD(frame, color1 .. "/unitscan interval", col1, -150)
+				unitscanLC:MakeWD(frame, "Choose interval, How often should we scan for unit?" .. GREY ..  " Default: 0.3 sec.", col2, -150)
+
+				--unitscanLC:MakeWD(frame, color1 .. "/ltp id", col1, -170)
+				--unitscanLC:MakeWD(frame, "Show a web link for whatever the pointer is over.", col2, -170)
+				--unitscanLC:MakeWD(frame, color1 .. "/ltp zygor", col1, -190)
+				--unitscanLC:MakeWD(frame, "Toggle the Zygor addon (reloads UI).", col2, -190)
+				--unitscanLC:MakeWD(frame, color1 .. "/ltp movie <id>", col1, -210)
+				--unitscanLC:MakeWD(frame, "Play a movie by its ID.", col2, -210)
+
+				unitscanLC:MakeWD(frame, color1 .. "/rl", col1, -310)
+				unitscanLC:MakeWD(frame, "Reload the UI.", col2, -310)
+				unitscanLC.HelpFrame = frame
+				_G["unitscanGlobalHelpPanel"] = frame
+				table.insert(UISpecialFrames, "unitscanGlobalHelpPanel")
+			end
+			if unitscanLC.HelpFrame:IsShown() then unitscanLC.HelpFrame:Hide() else unitscanLC.HelpFrame:Show() end
+			return
+
+			--===== Slash without any arguments (/unitscan) prints currently tracked user-defined units and some basic available slash commands  =====--
+			--===== If an agrugment after /unitscan is given, it will add a unit to the scanning targets. =====--
+		elseif not command then
+
+			-- Prevent options panel from showing if a game options panel is showing
+			if InterfaceOptionsFrame:IsShown() or VideoOptionsFrame:IsShown() or ChatConfigFrame:IsShown() then return end
+			-- Prevent options panel from showing if Blizzard Store is showing
+			if StoreFrame and StoreFrame:GetAttribute("isshown") then return end
+			-- Toggle the options panel if game options panel is not showing
+			if unitscanLC:IsUnitscanShowing() then
+				unitscanLC:HideFrames()
+				unitscanLC:HideConfigPanels()
+			else
+				unitscanLC:HideFrames()
+				unitscanLC["PageF"]:Show()
+			end
+			unitscanLC["Page"..unitscanLC["LeaStartPage"]]:Show()
+		else
+			unitscan.toggle_target(parameter)
 		end
+	end
 
-		-- Slash command for global function
-		_G.SLASH_UNITSCAN1 = "/unitscan"
-		--_G.SLASH_UNITSCAN2 = "/uns"
+	-- Slash command for global function
+	_G.SLASH_UNITSCAN1 = "/unitscan"
+	--_G.SLASH_UNITSCAN2 = "/uns"
 
-		SlashCmdList["UNITSCAN"] = function(self)
-		-- Run slash command function
-		unitscanLC:SlashFunc(self)
+	SlashCmdList["UNITSCAN"] = function(self)
+	-- Run slash command function
+	unitscanLC:SlashFunc(self)
 		-- Redirect tainted variables
 		RunScript('ACTIVE_CHAT_EDIT_BOX = ACTIVE_CHAT_EDIT_BOX')
 		RunScript('LAST_ACTIVE_CHAT_EDIT_BOX = LAST_ACTIVE_CHAT_EDIT_BOX')
+	end
+
+	-- Slash command for UI reload
+	_G.SLASH_UNITSCAN_RL1 = "/rl"
+	SlashCmdList["UNITSCAN_RL"] = function()
+		ReloadUI()
 	end
 
 

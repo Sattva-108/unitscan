@@ -38,15 +38,9 @@ Changelog by Sattva 21th April 2023 #1;
 -- Before GUI push to main branch To-Do list.
 --------------------------------------------------------------------------------
 
-GUI - check what will happen to rare spawns list if localization is not recognized.
-
 RareList - check for global variables may be conflicting with other addons. (Rename if yes)
 
 Global -  rename rare_spawns table to something more unique
-
-WowHeadLink - should i only do encoding url for ruRU??? Seems ok for French.
-
-WebLink -  remove user button warning for it in GUI
 
 
 
@@ -54,9 +48,6 @@ WebLink -  remove user button warning for it in GUI
 --------------------------------------------------------------------------------
 -- User Interface To-Do list.
 --------------------------------------------------------------------------------
-
-Global - CheckBox at every page to set that one as home page.
-
 
 
 
@@ -71,10 +62,10 @@ Add a slash command to disable scanning entirely.
 Make scanning in raids optional via slash command, by default enabled. (Is it already disabled by default?)
 Add optional model viewer, via slash command, by default disabled.
 After adding new commands need to put them into /unitscan help command so that when someone do /unitscan to check for targets he doesnt get spammed with all of them.
-Add description of /ignore command in /unitscan slash.
+
 If the button was visible for user defined time and mob is out of range then hide the button (disabled by default)
 Test Hookscript instead of SetScript to avoid taints for right clicking in 2.4.3.
-ignore print if removed then yellow or white color.
+
 zonebuttons on searchbox changed hide scrollbar if too few displayed
 make wowhead link by default enabled checkbox, but disabled on user un-check
 Toggle the wowhead link window on second click.
