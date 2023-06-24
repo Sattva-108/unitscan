@@ -2355,6 +2355,147 @@
 				end
 
 
+--------------------------------------------------------------------------------
+-- History Frame
+--------------------------------------------------------------------------------
+
+
+
+-- Create the first frame for history buttons
+local historyFrame = CreateFrame("Frame", nil, unitscanLC["Page2"])
+historyFrame:SetSize(220, 280)
+historyFrame:SetPoint("TOPLEFT", 450, -80)
+historyFrame:SetBackdrop({
+	bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+	edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight",
+	edgeSize = 16,
+	insets = {left = 8, right = 6, top = 8, bottom = 8},
+})
+historyFrame:SetBackdropBorderColor(1.0, 0.85, 0.0, 0.5)
+historyFrame:SetScale(0.8)
+
+historyFrame.scroll = CreateFrame("ScrollFrame", nil, historyFrame)
+historyFrame.scroll:SetPoint("TOPLEFT", historyFrame, 12, -10)
+historyFrame.scroll:SetPoint("BOTTOMRIGHT", historyFrame, -30, 10)
+
+local buttonHeight = 20
+local maxVisibleButtons = 450
+
+local historyList = CreateFrame("Frame", nil, historyFrame.scroll)
+historyList:SetSize(historyFrame:GetWidth() - 30, maxVisibleButtons * buttonHeight)
+historyList.Buttons = {}
+
+local sortedHistory = {}
+for name in pairs(unitscan_removed) do
+	print(name)
+	table.insert(sortedHistory, name)
+end
+table.sort(sortedHistory)
+
+local index = 1
+if #sortedHistory == 0 then
+	local emptyButton = CreateFrame("Button", nil, historyList)
+	emptyButton:SetSize(historyList:GetWidth(), buttonHeight)
+	emptyButton:SetPoint("TOPLEFT", 0, 0)
+
+	historyList.Buttons[1] = emptyButton
+else
+	for _, name in ipairs(sortedHistory) do
+		if index <= maxVisibleButtons then
+			local button = CreateFrame("Button", nil, historyList)
+			button:SetSize(historyList:GetWidth(), buttonHeight)
+			button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
+
+			local texture = button:CreateTexture(nil, "BACKGROUND")
+			texture:SetAllPoints(true)
+			texture:SetTexture(1.0, 0.5, 0.0, 0.8)
+			texture:Hide()
+
+			button.IgnoreTexture = button:CreateTexture(nil, "BACKGROUND")
+			button.IgnoreTexture:SetAllPoints(true)
+
+			button.Text = button:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+			button.Text:SetPoint("LEFT", 5, 0)
+
+			button:SetScript("OnClick", function(self)
+				local key = strupper(self.Text:GetText())
+
+				if not unitscan_targets[key] then
+					unitscan_targets[key] = true
+					unitscan.print(YELLOW .. "+ " .. key)
+					self.IgnoreTexture:SetTexture(nil)
+					texture:Show()
+				else
+					unitscan_targets[key] = nil
+					unitscan.print(RED .. "- " .. key)
+					found[key] = nil
+					self.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6)
+					texture:Hide()
+
+					table.insert(unitscan_removed, key)
+				end
+
+				unitscan_searchbox:ClearFocus()
+			end)
+
+			button:SetScript("OnShow", function(self)
+				local rare = string.upper(button.Text:GetText())
+
+				if unitscan_ignored[rare] then
+					button.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6)
+				else
+					button.IgnoreTexture:SetTexture(nil)
+				end
+			end)
+
+			button:SetScript("OnEnter", function(self)
+				texture:Show()
+			end)
+
+			button:SetScript("OnLeave", function(self)
+				texture:Hide()
+			end)
+
+			button.Text:SetText(name)
+
+			historyList.Buttons[index] = button
+		end
+		index = index + 1
+	end
+end
+
+historyFrame.scroll:SetScrollChild(historyList)
+
+local scrollbar = CreateFrame("Slider", nil, historyFrame.scroll, "UIPanelScrollBarTemplate")
+scrollbar:SetPoint("TOPRIGHT", historyFrame.scroll, "TOPRIGHT", 20, -14)
+scrollbar:SetPoint("BOTTOMRIGHT", historyFrame.scroll, "BOTTOMRIGHT", 20, 14)
+
+local actualMaxVisibleButtons = index - 1
+scrollbar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
+
+scrollbar:SetValueStep(1)
+scrollbar:SetValue(1)
+scrollbar:SetWidth(16)
+scrollbar:SetScript("OnValueChanged", function(self, value)
+	local min, max = self:GetMinMaxValues()
+	local scrollRange = max - maxVisibleButtons + 1
+	local newValue = math.max(1, math.min(value, scrollRange))
+	self:GetParent():SetVerticalScroll(newValue)
+end)
+
+historyFrame.scroll.ScrollBar = scrollbar
+
+historyFrame.scroll:EnableMouseWheel(true)
+historyFrame.scroll:SetScript("OnMouseWheel", function(self, delta)
+	scrollbar:SetValue(scrollbar:GetValue() - delta * 250)
+end)
+
+for i = index, maxVisibleButtons do
+	if historyList.Buttons[i] then
+		historyList.Buttons[i]:Hide()
+	end
+end
+
 
 				--------------------------------------------------------------------------------
 				-- Create a separate frame for ZONE buttons
@@ -2434,6 +2575,13 @@
 								button:Hide()
 							end
 						end
+
+
+						function unitscan_HideExistingHistoryButtons()
+							for _, button in ipairs(historyList.Buttons) do
+								button:Hide()
+							end
+						end						
 
 						function unitscan_HideExistingProfileButtons()
 							for _, button in ipairs(profileList.Buttons) do
@@ -2932,7 +3080,8 @@
 					elseif title == "Scan List" then
 						expbtn[title]:SetScript("OnClick", function()
 							--unitscan_HideExistingScanButtons()
-							--unitscan_HideExistingProfileButtons()
+							unitscan_HideExistingHistoryButtons()
+							unitscan_HideExistingProfileButtons()
 							unitscan_profileScrollbar:SetMinMaxValues(1, 1)
 							unitscan_profileScrollbar:Hide()
 							scanFrame.scroll.ScrollBar:Hide()
@@ -3003,7 +3152,7 @@
 					elseif title == "History" then
 						expbtn[title]:SetScript("OnClick", function()
 							--unitscan_HideExistingScanButtons()
-							--unitscan_HideExistingProfileButtons()
+							unitscan_HideExistingProfileButtons()
 							unitscan_profileScrollbar:SetMinMaxValues(1, 1)
 							unitscan_profileScrollbar:Hide()
 							scanFrame.scroll.ScrollBar:Hide()
@@ -3017,11 +3166,11 @@
 							-- Show all ignored rares
 							for _, rare in pairs(unitscan_removed) do
 								print(rare)
-								local button = scanList.Buttons[visibleButtonsCount + 1]
+								local button = historyList.Buttons[visibleButtonsCount + 1]
 								if not button then
-									button = CreateFrame("Button", nil, scanList)
-									button:SetSize(scanList:GetWidth(), buttonHeight)
-									scanList.Buttons[visibleButtonsCount + 1] = button
+									button = CreateFrame("Button", nil, historyList)
+									button:SetSize(historyList:GetWidth(), buttonHeight)
+									historyList.Buttons[visibleButtonsCount + 1] = button
 								end
 
 								-- Set button text and position
