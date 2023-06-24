@@ -2173,149 +2173,172 @@
 				end
 				table.sort(sortedSpawns)
 
+
 				local index = 1
 				-- Check if sortedSpawns is empty
-				if #sortedSpawns == 0 then
-				    local emptyButton = CreateFrame("Button", nil, scanList)
-				    emptyButton:SetSize(scanList:GetWidth(), buttonHeight)
-				    emptyButton:SetPoint("TOPLEFT", 0, 0)
+                if #sortedSpawns == 0 then
+                    local emptyButton = CreateFrame("Button", nil, scanList)
+                    emptyButton:SetSize(scanList:GetWidth(), buttonHeight)
+                    emptyButton:SetPoint("TOPLEFT", 0, 0)
 
-				    --emptyButton.Text = emptyButton:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-				    --emptyButton.Text:SetPoint("LEFT", 5, 0)
-				    --emptyButton.Text:SetText("Scan list is empty")
+                    emptyButton.Text = emptyButton:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+                    emptyButton.Text:SetPoint("LEFT", 5, 0)
+                    emptyButton.Text:SetText("Scan list is empty")
 
-				    scanList.Buttons[1] = emptyButton
+                    scanList.Buttons[1] = emptyButton
 
-				else
-
-				for profile, mobs in pairs(sortedSpawns) do
-					--print(profile .. mobs)
-					profileButtons[profile] = {}
-					--for _, name in ipairs(mobs) do
-						if index <= maxVisibleButtons then
-							local button = CreateFrame("Button", nil, scanList)
-							button:SetSize(scanList:GetWidth(), buttonHeight)
-							--if index >= 2 then
-							--	button:SetPoint("TOPLEFT", 0.5, -(index - 1) * buttonHeight - 0.5) -- Increase the vertical position by 1 to reduce overlap
-							--else
-								button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
-							--end
-
-							-- Create a texture region within the button frame
-							local texture = button:CreateTexture(nil, "BACKGROUND")
-							texture:SetAllPoints(true)
-							texture:SetTexture(1.0, 0.5, 0.0, 0.8)
-							texture:Hide()
-
-							-- Create a texture region within the button frame
-							button.IgnoreTexture = button:CreateTexture(nil, "BACKGROUND")
-							button.IgnoreTexture:SetAllPoints(true)
-
-							button.Text = button:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-							button.Text:SetPoint("LEFT", 5, 0)
-
-							button:SetScript("OnClick", function(self)
-
-								-- Get the unit name from the button's text
-								local key = strupper(self.Text:GetText())
-
-								if not unitscan_targets[key] then
-									-- Add unit to scan list
-									unitscan_targets[key] = true
-									unitscan.print(YELLOW .. "+ " .. key)
-									self.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
-									texture:Show()
-								else
-									-- Remove unit from scan list
-									unitscan_targets[key] = nil
-									unitscan.print(RED .. "- " .. key)
-									found[key] = nil
-									self.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
-									texture:Hide()
-
-									-- Insert the key into unitscan_removed table
-									table.insert(unitscan_removed, key)
-
-								end
-
-								-- Clear focus of search box
-								unitscan_searchbox:ClearFocus()
-							end)
-
-							--------------------------------------------------------------------------------
-							-- WowHead Link OnMouseDown for rare mob
-							--------------------------------------------------------------------------------
+                else
 
 
-							button:SetScript("OnMouseDown", function(self, button)
-								if button == "RightButton" then
-									local rare = self.Text:GetText()
-									local encodedRare = urlencode(rare)
-									encodedRare = string.gsub(encodedRare, " ", "+") -- Replace space with plus sign
-									local wowheadLocale = ""
+					for profile, mobs in pairs(sortedSpawns) do
+						--print(profile .. mobs)
+						profileButtons[profile] = {}
+						--for _, name in ipairs(mobs) do
+							if index <= maxVisibleButtons then
+								local button = CreateFrame("Button", nil, scanList)
+								button:SetSize(scanList:GetWidth(), buttonHeight)
+								--if index >= 2 then
+								--	button:SetPoint("TOPLEFT", 0.5, -(index - 1) * buttonHeight - 0.5) -- Increase the vertical position by 1 to reduce overlap
+								--else
+									button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
+								--end
 
-									if GameLocale == "deDE" then wowheadLocale = "de/search?q="
-									elseif GameLocale == "esMX" then wowheadLocale = "es/search?q="
-									elseif GameLocale == "esES" then wowheadLocale = "es/search?q="
-									elseif GameLocale == "frFR" then wowheadLocale = "fr/search?q="
-									elseif GameLocale == "itIT" then wowheadLocale = "it/search?q="
-									elseif GameLocale == "ptBR" then wowheadLocale = "pt/search?q="
-									elseif GameLocale == "ruRU" then wowheadLocale = "ru/search?q="
-									elseif GameLocale == "koKR" then wowheadLocale = "ko/search?q="
-									elseif GameLocale == "zhCN" then wowheadLocale = "cn/search?q="
-									elseif GameLocale == "zhTW" then wowheadLocale = "cn/search?q="
-									else wowheadLocale = "search?q="
-									end
-									local rareLink = "https://www.wowhead.com/wotlk/" .. wowheadLocale .. encodedRare .. "#npcs"
-									unitscanLC:ShowSystemEditBox(rareLink, false)
-									unitscan_searchbox:ClearFocus()
-								end
-							end)
-
-							--------------------------------------------------------------------------------
-							-- Other Scripts
-							--------------------------------------------------------------------------------
-
-
-							-- Set button texture update function for OnShow event
-							button:SetScript("OnShow", function(self)
-								local rare = string.upper(button.Text:GetText())
-
-								if unitscan_ignored[rare] then
-									button.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
-								else
-									button.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
-								end
-							end)
-
-
-							button:SetScript("OnEnter", function(self)
-								-- Handle button click event here
-								texture:Show()
-							end)
-
-							button:SetScript("OnLeave", function(self)
-								-- Handle button click event here
+								-- Create a texture region within the button frame
+								local texture = button:CreateTexture(nil, "BACKGROUND")
+								texture:SetAllPoints(true)
+								texture:SetTexture(1.0, 0.5, 0.0, 0.8)
 								texture:Hide()
-							end)
 
-							button.Text:SetText(mobs)
-							-- Initially hide buttons that don't belong to the selected profile
-							--if profile == selectedProfile then
-							--	button:Show()
-							--else
-							--	button:Hide()
-							--end
+								-- Create a texture region within the button frame
+								button.IgnoreTexture = button:CreateTexture(nil, "BACKGROUND")
+								button.IgnoreTexture:SetAllPoints(true)
+
+								button.Text = button:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+								button.Text:SetPoint("LEFT", 5, 0)
+
+								button:SetScript("OnClick", function(self)
+
+									-- Get the unit name from the button's text
+									local key = strupper(self.Text:GetText())
+
+									if not unitscan_targets[key] then
+										-- Add unit to scan list
+										unitscan_targets[key] = true
+										unitscan.print(YELLOW .. "+ " .. key)
+										self.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
+										texture:Show()
+
+										-- Check if the key is in unitscan_removed table and remove it
+										for i, value in ipairs(unitscan_removed) do
+											if value == key then
+												table.remove(unitscan_removed, i)
+												print("Removed from unitscan_removed:", key)
+												break
+											end
+										end
+										
+									else
+										-- Remove unit from scan list
+										unitscan_targets[key] = nil
+										unitscan.print(RED .. "- " .. key)
+										found[key] = nil
+										self.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
+										texture:Hide()
+
+										-- Check if the key is already in unitscan_removed table
+										local isDuplicate = false
+										for _, value in ipairs(unitscan_removed) do
+											if value == key then
+												isDuplicate = true
+												break
+											end
+										end
+
+										-- Insert the key into unitscan_removed table if it's not a duplicate
+										if not isDuplicate then
+											table.insert(unitscan_removed, key)
+											print("Added to unitscan_removed:", key)
+										end
+									end
+
+									-- Clear focus of search box
+									unitscan_searchbox:ClearFocus()
+								end)
+
+								--------------------------------------------------------------------------------
+								-- WowHead Link OnMouseDown for rare mob
+								--------------------------------------------------------------------------------
+
+
+								button:SetScript("OnMouseDown", function(self, button)
+									if button == "RightButton" then
+										local rare = self.Text:GetText()
+										local encodedRare = urlencode(rare)
+										encodedRare = string.gsub(encodedRare, " ", "+") -- Replace space with plus sign
+										local wowheadLocale = ""
+
+										if GameLocale == "deDE" then wowheadLocale = "de/search?q="
+										elseif GameLocale == "esMX" then wowheadLocale = "es/search?q="
+										elseif GameLocale == "esES" then wowheadLocale = "es/search?q="
+										elseif GameLocale == "frFR" then wowheadLocale = "fr/search?q="
+										elseif GameLocale == "itIT" then wowheadLocale = "it/search?q="
+										elseif GameLocale == "ptBR" then wowheadLocale = "pt/search?q="
+										elseif GameLocale == "ruRU" then wowheadLocale = "ru/search?q="
+										elseif GameLocale == "koKR" then wowheadLocale = "ko/search?q="
+										elseif GameLocale == "zhCN" then wowheadLocale = "cn/search?q="
+										elseif GameLocale == "zhTW" then wowheadLocale = "cn/search?q="
+										else wowheadLocale = "search?q="
+										end
+										local rareLink = "https://www.wowhead.com/wotlk/" .. wowheadLocale .. encodedRare .. "#npcs"
+										unitscanLC:ShowSystemEditBox(rareLink, false)
+										unitscan_searchbox:ClearFocus()
+									end
+								end)
+
+								--------------------------------------------------------------------------------
+								-- Other Scripts
+								--------------------------------------------------------------------------------
+
+
+								-- Set button texture update function for OnShow event
+								button:SetScript("OnShow", function(self)
+									local rare = string.upper(button.Text:GetText())
+
+									if unitscan_ignored[rare] then
+										button.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
+									else
+										button.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
+									end
+								end)
+
+
+								button:SetScript("OnEnter", function(self)
+									-- Handle button click event here
+									texture:Show()
+								end)
+
+								button:SetScript("OnLeave", function(self)
+									-- Handle button click event here
+									texture:Hide()
+								end)
+
+								button.Text:SetText(mobs)
+								-- Initially hide buttons that don't belong to the selected profile
+								--if profile == selectedProfile then
+								--	button:Show()
+								--else
+								--	button:Hide()
+								--end
 
 
 
-							scanList.Buttons[index] = button
-							table.insert(profileButtons[profile], button)
-						end
-						index = index + 1
-					--end
+								scanList.Buttons[index] = button
+								table.insert(profileButtons[profile], button)
+							end
+							index = index + 1
+						--end
+					end
 				end
-			end
 
 				scanFrame.scroll:SetScrollChild(scanList)
 
