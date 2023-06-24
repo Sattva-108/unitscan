@@ -2173,11 +2173,23 @@
 				end
 				table.sort(sortedSpawns)
 
-
-				-- Create rare mob buttons
 				local index = 1
+				-- Check if sortedSpawns is empty
+				if #sortedSpawns == 0 then
+				    local emptyButton = CreateFrame("Button", nil, scanList)
+				    emptyButton:SetSize(scanList:GetWidth(), buttonHeight)
+				    emptyButton:SetPoint("TOPLEFT", 0, 0)
+
+				    --emptyButton.Text = emptyButton:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+				    --emptyButton.Text:SetPoint("LEFT", 5, 0)
+				    --emptyButton.Text:SetText("Scan list is empty")
+
+				    scanList.Buttons[1] = emptyButton
+
+				else
+
 				for profile, mobs in pairs(sortedSpawns) do
-					print(profile .. mobs)
+					--print(profile .. mobs)
 					profileButtons[profile] = {}
 					--for _, name in ipairs(mobs) do
 						if index <= maxVisibleButtons then
@@ -2203,31 +2215,6 @@
 							button.Text:SetPoint("LEFT", 5, 0)
 
 							button:SetScript("OnClick", function(self)
-								-- Handle button click event here
-								--print("Button clicked: " .. self.Text:GetText())
-
-								----===== refresh nearby targets table =====--
-								--unitscan.refresh_nearby_targets()
-
-								---- Get the rare mob's name from the button's text
-								--local rare = string.upper(self.Text:GetText())
-
-								--if unitscan_ignored[rare] then
-								--	-- Remove rare from ignore list
-								--	unitscan_ignored[rare] = nil
-								--	unitscan.ignoreprintyellow("\124cffffff00" .. "- " .. rare)
-								--	unitscan.refresh_nearby_targets()
-								--	found[rare] = nil
-								--	self.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
-								--	texture:Show()
-								--else
-								--	-- Add rare to ignore list
-								--	unitscan_ignored[rare] = true
-								--	unitscan.ignoreprint("+ " .. rare)
-								--	unitscan.refresh_nearby_targets()
-								--	self.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
-								--	texture:Hide()
-								--end
 
 								-- Get the unit name from the button's text
 								local key = strupper(self.Text:GetText())
@@ -2320,12 +2307,15 @@
 							--	button:Hide()
 							--end
 
+
+
 							scanList.Buttons[index] = button
 							table.insert(profileButtons[profile], button)
 						end
 						index = index + 1
 					--end
 				end
+			end
 
 				scanFrame.scroll:SetScrollChild(scanList)
 
@@ -2934,10 +2924,15 @@
 						-- Modify the OnClick script for the "Ignored Rares" button
 
 
+					--------------------------------------------------------------------------------
+					-- Scan List Button
+					--------------------------------------------------------------------------------
+
+
 					elseif title == "Scan List" then
 						expbtn[title]:SetScript("OnClick", function()
 							--unitscan_HideExistingScanButtons()
-							unitscan_HideExistingProfileButtons()
+							--unitscan_HideExistingProfileButtons()
 							unitscan_profileScrollbar:SetMinMaxValues(1, 1)
 							unitscan_profileScrollbar:Hide()
 							scanFrame.scroll.ScrollBar:Hide()
@@ -3000,10 +2995,15 @@
 						unitscan_scanlistGUIButton = expbtn[title]
 
 
-					elseif title == "Ignored" then
+					--------------------------------------------------------------------------------
+					-- History Button
+					--------------------------------------------------------------------------------
+
+
+					elseif title == "History" then
 						expbtn[title]:SetScript("OnClick", function()
-							unitscan_HideExistingScanButtons()
-							unitscan_HideExistingProfileButtons()
+							--unitscan_HideExistingScanButtons()
+							--unitscan_HideExistingProfileButtons()
 							unitscan_profileScrollbar:SetMinMaxValues(1, 1)
 							unitscan_profileScrollbar:Hide()
 							scanFrame.scroll.ScrollBar:Hide()
@@ -3016,6 +3016,7 @@
 
 							-- Show all ignored rares
 							for _, rare in pairs(unitscan_removed) do
+								print(rare)
 								local button = scanList.Buttons[visibleButtonsCount + 1]
 								if not button then
 									button = CreateFrame("Button", nil, scanList)
@@ -3027,69 +3028,89 @@
 								if button.Text then
 									button.Text:SetText(rare)
 									--if visibleButtonsCount >= 1 then
-									--	button:SetPoint("TOPLEFT", 0.5, -(visibleButtonsCount * buttonHeight + 0.5)) -- Increase the vertical position by 1 to reduce overlap
-									--else
+										--	button:SetPoint("TOPLEFT", 0.5, -(visibleButtonsCount * buttonHeight + 0.5)) -- Increase the vertical position by 1 to reduce overlap
+										--else
 										button:SetPoint("TOPLEFT", 0, -(visibleButtonsCount * buttonHeight))
-									--end
-									button:Show()
+										--end
+										button:Show()
 
-									visibleButtonsCount = visibleButtonsCount + 1
+										visibleButtonsCount = visibleButtonsCount + 1
+
+									end
+
+									button:SetScript("OnClick", function()
+										local buttonText = button.Text:GetText() -- Get the text of the clicked button
+
+										-- Check if the rare is already in unitscan_removed
+										local isRemoved = unitscan_removed[buttonText]
+
+										if isRemoved then
+											-- Rare is already removed, so remove it from unitscan_removed
+											unitscan_removed[buttonText] = nil
+											print(buttonText .. " has been removed from unitscan_removed.")
+										else
+											-- Rare is not removed, so add it to unitscan_removed
+											unitscan_removed[buttonText] = true
+											print(buttonText .. " has been added to unitscan_removed.")
+										end
+									end)
+
+
+									-- print(visibleButtonsCount)
+									if visibleButtonsCount <= 13 then
+										scanFrame.scroll.ScrollBar:Hide()
+										scanFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
+									else
+										scanFrame.scroll.ScrollBar:Show()
+										scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
+									end
 
 								end
 
-								-- print(visibleButtonsCount)
-								if visibleButtonsCount <= 13 then
-									scanFrame.scroll.ScrollBar:Hide()
-									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
-								else
-									scanFrame.scroll.ScrollBar:Show()
-									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
+
+								-- Clear focus of search box
+								unitscan_searchbox:ClearFocus()
+
+								if selectedButton ~= expbtn[title] then
+									expbtn[title].expTexture:Show()
+									if selectedButton then
+										selectedButton.expTexture:Hide()
+									end
+									selectedButton = expbtn[title]
 								end
 
-							end
-							-- Clear focus of search box
-							unitscan_searchbox:ClearFocus()
-
-							if selectedButton ~= expbtn[title] then
-								expbtn[title].expTexture:Show()
-								if selectedButton then
-									selectedButton.expTexture:Hide()
-								end
-								selectedButton = expbtn[title]
-							end
-
-						end)
+							end)
 
 						--scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
 						expbtn[title].text:SetTextColor(1, 0, 0) -- Set text color for the new button
-						unitscan_ignoredGUIButton = expbtn[title]
+						unitscan_historyGUIButton = expbtn[title]
 
-					else
-						expbtn[title]:SetScript("OnClick", function()
-							if title == "CLASSIC" then
-								unitscan_toggleCLASSIC()
-							elseif title == "TBC" then
-								unitscan_toggleTBC()
-							elseif title == "WOTLK" then
-								unitscan_toggleWOTLK()
-							end
+					--else
+					--	expbtn[title]:SetScript("OnClick", function()
+					--		if title == "CLASSIC" then
+						--			unitscan_toggleCLASSIC()
+						--		elseif title == "TBC" then
+							--			unitscan_toggleTBC()
+							--		elseif title == "WOTLK" then
+								--			unitscan_toggleWOTLK()
+								--		end
 
-							if selectedButton ~= expbtn[title] then
-								expbtn[title].expTexture:Show()
-								if selectedButton then
-									selectedButton.expTexture:Hide()
-								end
-								selectedButton = expbtn[title]
-							end
-						end)
+								--		if selectedButton ~= expbtn[title] then
+									--			expbtn[title].expTexture:Show()
+									--			if selectedButton then
+										--				selectedButton.expTexture:Hide()
+										--			end
+										--			selectedButton = expbtn[title]
+										--		end
+										--	end)
 
-						if title == "CLASSIC" then
-							expbtn[title].text:SetTextColor(1, 1, 0)
-						elseif title == "TBC" then
-							expbtn[title].text:SetTextColor(0, 1, 0)
-						elseif title == "WOTLK" then
-							expbtn[title].text:SetTextColor(0.7, 0.85, 1)
-						end
+										--	if title == "CLASSIC" then
+											--		expbtn[title].text:SetTextColor(1, 1, 0)
+											--	elseif title == "TBC" then
+												--		expbtn[title].text:SetTextColor(0, 1, 0)
+												--	elseif title == "WOTLK" then
+													--		expbtn[title].text:SetTextColor(0.7, 0.85, 1)
+													--	end
 					end
 
 					-- Function to hide the selectedButton.expTexture
@@ -3119,7 +3140,7 @@
 				--MakeButtonNow("WOTLK", "TBC")
 				--MakeButtonNow("My Profile", "WOTLK")
 				MakeButtonNow("Scan List", "Zones")					
-				MakeButtonNow("Ignored", "Scan List")
+				MakeButtonNow("History", "Scan List")
 			
 				
 
