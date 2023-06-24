@@ -2153,6 +2153,8 @@
 
 				local buttonHeight = 20
 				local maxVisibleButtons = 450
+				local scanListContains = false
+				local removedListContains = false
 
 				local scanList = CreateFrame("Frame", nil, scanFrame.scroll)
 				scanList:SetSize(scanFrame:GetWidth() - 30, maxVisibleButtons * buttonHeight)
@@ -2175,19 +2177,21 @@
 
 
 				local index = 1
-				-- Check if sortedSpawns is empty
-                if #sortedSpawns == 0 then
-                    local emptyButton = CreateFrame("Button", nil, scanList)
-                    emptyButton:SetSize(scanList:GetWidth(), buttonHeight)
-                    emptyButton:SetPoint("TOPLEFT", 0, 0)
+				---- Check if sortedSpawns is empty
+                --if #sortedSpawns == 0 then
+                --    local emptyButton = CreateFrame("Button", nil, scanList)
+                --    emptyButton:SetSize(scanList:GetWidth(), buttonHeight)
+                --    emptyButton:SetPoint("TOPLEFT", 0, 0)
 
-                    emptyButton.Text = emptyButton:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-                    emptyButton.Text:SetPoint("LEFT", 5, 0)
-                    emptyButton.Text:SetText("Scan list is empty")
+                --    emptyButton.Text = emptyButton:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+                --    emptyButton.Text:SetPoint("LEFT", 5, 0)
+                --    emptyButton.Text:SetText("Scan list is empty")
 
-                    scanList.Buttons[1] = emptyButton
 
-                else
+                --    scanList.Buttons[1] = emptyButton
+                --    index = index + 1 -- Increment the index value
+
+                --else
 
 
 					for profile, mobs in pairs(sortedSpawns) do
@@ -2202,6 +2206,7 @@
 								--else
 									button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
 								--end
+								scanListContains = true
 
 								-- Create a texture region within the button frame
 								local texture = button:CreateTexture(nil, "BACKGROUND")
@@ -2216,54 +2221,58 @@
 								button.Text = button:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 								button.Text:SetPoint("LEFT", 5, 0)
 
-								button:SetScript("OnClick", function(self)
 
-									-- Get the unit name from the button's text
-									local key = strupper(self.Text:GetText())
+								function unitscan_scanListOnClick()
+									button:SetScript("OnClick", function(self)
 
-									if not unitscan_targets[key] then
-										-- Add unit to scan list
-										unitscan_targets[key] = true
-										unitscan.print(YELLOW .. "+ " .. key)
-										self.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
-										texture:Show()
+										-- Get the unit name from the button's text
+										local key = strupper(self.Text:GetText())
 
-										-- Check if the key is in unitscan_removed table and remove it
-										for i, value in ipairs(unitscan_removed) do
-											if value == key then
-												table.remove(unitscan_removed, i)
-												print("Removed from unitscan_removed:", key)
-												break
+										if not unitscan_targets[key] then
+											-- Add unit to scan list
+											unitscan_targets[key] = true
+											unitscan.print(YELLOW .. "+ " .. key)
+											self.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
+											texture:Show()
+
+											-- Check if the key is in unitscan_removed table and remove it
+											for i, value in ipairs(unitscan_removed) do
+												if value == key then
+													table.remove(unitscan_removed, i)
+													print("Removed from unitscan_removed:", key)
+													break
+												end
+											end
+
+										else
+											-- Remove unit from scan list
+											unitscan_targets[key] = nil
+											unitscan.print(RED .. "- " .. key)
+											found[key] = nil
+											self.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
+											texture:Hide()
+
+											-- Check if the key is already in unitscan_removed table
+											local isDuplicate = false
+											for _, value in ipairs(unitscan_removed) do
+												if value == key then
+													isDuplicate = true
+													break
+												end
+											end
+
+											-- Insert the key into unitscan_removed table if it's not a duplicate
+											if not isDuplicate then
+												table.insert(unitscan_removed, key)
+												print("Added to unitscan_removed:", key)
 											end
 										end
-										
-									else
-										-- Remove unit from scan list
-										unitscan_targets[key] = nil
-										unitscan.print(RED .. "- " .. key)
-										found[key] = nil
-										self.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
-										texture:Hide()
 
-										-- Check if the key is already in unitscan_removed table
-										local isDuplicate = false
-										for _, value in ipairs(unitscan_removed) do
-											if value == key then
-												isDuplicate = true
-												break
-											end
-										end
-
-										-- Insert the key into unitscan_removed table if it's not a duplicate
-										if not isDuplicate then
-											table.insert(unitscan_removed, key)
-											print("Added to unitscan_removed:", key)
-										end
-									end
-
-									-- Clear focus of search box
-									unitscan_searchbox:ClearFocus()
-								end)
+										-- Clear focus of search box
+										unitscan_searchbox:ClearFocus()
+									end)
+								end
+								unitscan_scanListOnClick()
 
 								--------------------------------------------------------------------------------
 								-- WowHead Link OnMouseDown for rare mob
@@ -2337,8 +2346,46 @@
 							end
 							index = index + 1
 						--end
-					end
+					--end
 				end
+
+
+-- Check if sortedSpawns is empty
+if #sortedSpawns == 0 then
+    local emptyButton = CreateFrame("Button", nil, scanList)
+    emptyButton:SetSize(scanList:GetWidth(), buttonHeight)
+    emptyButton:SetPoint("TOPLEFT", 0, 0)
+
+    emptyButton.Text = emptyButton:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    emptyButton.Text:SetPoint("LEFT", 5, 0)
+    emptyButton.Text:SetText("Scan list is empty")
+
+    scanList.Buttons[1] = emptyButton
+else
+    -- Code for displaying buttons in the "History" section
+    for index, rare in ipairs(unitscan_removed) do
+        if index <= maxVisibleButtons then
+            local button = CreateFrame("Button", nil, scanList)
+            button:SetSize(scanList:GetWidth(), buttonHeight)
+            button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
+
+
+            -- Create and configure the button text
+            button.Text = button:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+            button.Text:SetPoint("LEFT", 10, 0) -- Set the text position within the button
+            button.Text:SetText(rare) -- Set the text content
+
+            -- Set the button click behavior
+            button:SetScript("OnClick", function()
+                -- Button click logic
+                -- ...
+            end)
+
+            scanList.Buttons[index] = button
+        end
+    end
+end
+
 
 				scanFrame.scroll:SetScrollChild(scanList)
 
@@ -2954,15 +3001,21 @@
 
 					elseif title == "Scan List" then
 						expbtn[title]:SetScript("OnClick", function()
-							--unitscan_HideExistingScanButtons()
-							--unitscan_HideExistingProfileButtons()
+							if scanListContains == true then
+							unitscan_HideExistingScanButtons()
+											unitscan_HideExistingProfileButtons()
+						end
+						if removedListContains == true then
+						unitscan_HideRemovedButtons()
+					end
 							unitscan_profileScrollbar:SetMinMaxValues(1, 1)
 							unitscan_profileScrollbar:Hide()
 							scanFrame.scroll.ScrollBar:Hide()
 							-- call searchbox
 							unitscan_searchbox:ClearFocus()
-
-
+							if scanListContains == true then 
+							unitscan_scanListOnClick()
+						end
 
 							visibleButtonsCount = 0 -- Reset visibleButtonsCount
 
@@ -3025,17 +3078,31 @@
 
 					elseif title == "History" then
 						expbtn[title]:SetScript("OnClick", function()
-							--unitscan_HideExistingScanButtons()
-							--unitscan_HideExistingProfileButtons()
+							if scanListContains == true then
+							unitscan_HideExistingScanButtons()
+											unitscan_HideExistingProfileButtons()
+						end
+			
 							unitscan_profileScrollbar:SetMinMaxValues(1, 1)
 							unitscan_profileScrollbar:Hide()
 							scanFrame.scroll.ScrollBar:Hide()
 							-- call searchbox
 							unitscan_searchbox:ClearFocus()
 
-
-
 							visibleButtonsCount = 0 -- Reset visibleButtonsCount
+
+									-- Function to hide buttons
+							function unitscan_HideRemovedButtons()
+								for _, button in ipairs(scanList.Buttons) do
+									button:Hide()
+								end
+								visibleButtonsCount = 0
+								removedListContains = false
+							end
+
+							unitscan_HideRemovedButtons() -- Call the function to hide the buttons
+
+
 
 							-- Show all ignored rares
 							for _, rare in pairs(unitscan_removed) do
@@ -3050,6 +3117,7 @@
 								-- Set button text and position
 								if button.Text then
 									button.Text:SetText(rare)
+
 									--if visibleButtonsCount >= 1 then
 										--	button:SetPoint("TOPLEFT", 0.5, -(visibleButtonsCount * buttonHeight + 0.5)) -- Increase the vertical position by 1 to reduce overlap
 										--else
@@ -3057,24 +3125,54 @@
 										--end
 										button:Show()
 
+										removedListContains = true
+
 										visibleButtonsCount = visibleButtonsCount + 1
 
 									end
 
 									button:SetScript("OnClick", function()
-										local buttonText = button.Text:GetText() -- Get the text of the clicked button
+										-- Get the unit name from the button's text
+										local key = strupper(button.Text:GetText())
 
-										-- Check if the rare is already in unitscan_removed
-										local isRemoved = unitscan_removed[buttonText]
+										if not unitscan_targets[key] then
+											-- Add unit to scan list
+											unitscan_targets[key] = true
+											unitscan.print(YELLOW .. "+ " .. key)
+											--self.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
+											--texture:Show()
 
-										if isRemoved then
-											-- Rare is already removed, so remove it from unitscan_removed
-											unitscan_removed[buttonText] = nil
-											print(buttonText .. " has been removed from unitscan_removed.")
+											-- Check if the key is in unitscan_removed table and remove it
+											for i, value in ipairs(unitscan_removed) do
+												if value == key then
+													table.remove(unitscan_removed, i)
+													print("Removed from unitscan_removed:", key)
+													break
+												end
+											end
+
 										else
-											-- Rare is not removed, so add it to unitscan_removed
-											unitscan_removed[buttonText] = true
-											print(buttonText .. " has been added to unitscan_removed.")
+											-- Remove unit from scan list
+											unitscan_targets[key] = nil
+											unitscan.print(RED .. "- " .. key)
+											found[key] = nil
+											--self.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
+											--texture:Hide()
+
+											-- Check if the key is already in unitscan_removed table
+											local isDuplicate = false
+											for _, value in ipairs(unitscan_removed) do
+												if value == key then
+													isDuplicate = true
+													break
+												end
+											end
+
+											-- Insert the key into unitscan_removed table if it's not a duplicate
+											if not isDuplicate then
+												table.insert(unitscan_removed, key)
+												print("Added to unitscan_removed:", key)
+											end
 										end
 									end)
 
@@ -3087,6 +3185,7 @@
 										scanFrame.scroll.ScrollBar:Show()
 										scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
 									end
+
 
 								end
 
