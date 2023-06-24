@@ -2153,6 +2153,8 @@
 
 				local buttonHeight = 20
 				local maxVisibleButtons = 450
+				local scanListContains = false
+				local historyListContains = false
 
 				local scanList = CreateFrame("Frame", nil, scanFrame.scroll)
 				scanList:SetSize(scanFrame:GetWidth() - 30, maxVisibleButtons * buttonHeight)
@@ -2323,6 +2325,7 @@
 							end)
 
 							button.Text:SetText(mobs)
+							scanListContains = true
 							-- Initially hide buttons that don't belong to the selected profile
 							--if profile == selectedProfile then
 							--	button:Show()
@@ -2510,6 +2513,13 @@
 							end)
 
 							button.Text:SetText(name)
+							historyListContains = true
+
+														 function unitscan_hideHistoryButtons()
+    for _, button in ipairs(historyList.Buttons) do
+      button:Hide()  
+    end  
+  end
 
 							historyList.Buttons[index] = button
 						end
@@ -2790,7 +2800,15 @@
 
 						--===== Show Profile Text on button and show button itself. =====--
 						profileButton.Text:SetText(profile)
-						profileButton:Show()
+						profileButton:Hide()
+
+						function unitscan_hideProfileButtons()
+							for _, profileButton in ipairs(profileList.Buttons) do
+								profileButton:Hide()  
+							end  
+						end
+
+						unitscan_hideProfileButtons()
 
 
 						--------------------------------------------------------------------------------
@@ -3133,8 +3151,12 @@
 					elseif title == "Scan List" then
 						expbtn[title]:SetScript("OnClick", function()
 							--unitscan_HideExistingScanButtons()
-							unitscan_HideExistingHistoryButtons()
-							unitscan_HideExistingProfileButtons()
+							if historyListContains == true then
+							--unitscan_HideExistingHistoryButtons()
+							unitscan_hideHistoryButtons()
+							--unitscan_hideProfileButtons()
+							--unitscan_HideExistingProfileButtons()
+						end
 							unitscan_profileScrollbar:SetMinMaxValues(1, 1)
 							unitscan_profileScrollbar:Hide()
 							scanFrame.scroll.ScrollBar:Hide()
@@ -3204,8 +3226,10 @@
 
 					elseif title == "History" then
 						expbtn[title]:SetScript("OnClick", function()
+							if scanListContains == true then
 							unitscan_HideExistingScanButtons()
 							unitscan_HideExistingProfileButtons()
+						end
 							unitscan_profileScrollbar:SetMinMaxValues(1, 1)
 							unitscan_profileScrollbar:Hide()
 							scanFrame.scroll.ScrollBar:Hide()
@@ -3221,6 +3245,7 @@
 								print("history " .. rare)
 								local button = historyList.Buttons[visibleButtonsCount + 1]
 								if not button then
+									print("no button")
 									button = CreateFrame("Button", nil, historyList)
 									button:SetSize(historyList:GetWidth(), buttonHeight)
 									historyList.Buttons[visibleButtonsCount + 1] = button
