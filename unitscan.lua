@@ -2147,6 +2147,8 @@
 				scanFrame:SetBackdropBorderColor(1.0, 0.85, 0.0, 0.5)
 				scanFrame:SetScale(0.8)
 
+				unitscan_scanFrame = scanFrame
+
 				scanFrame.scroll = CreateFrame("ScrollFrame", nil, scanFrame)
 				scanFrame.scroll:SetPoint("TOPLEFT", scanFrame, 12, -10)
 				scanFrame.scroll:SetPoint("BOTTOMRIGHT", scanFrame, -30, 10)
@@ -2194,24 +2196,21 @@
 				    scanList.Buttons[1] = emptyButton
 
 				end
-					function unitscan_scanListUpdate()
-						--print("called")
-						    for _, button in ipairs(scanList.Buttons) do
-        button:Hide()
-        index = 1
-    end
-				for profile, mobs in pairs(sortedSpawns) do
-					--print(profile .. mobs)
-					profileButtons[profile] = {}
-					--for _, name in ipairs(mobs) do
+				function unitscan_scanListUpdate()
+					--print("called")
+					for _, button in ipairs(scanList.Buttons) do
+						button:Hide()
+						index = 1
+					end
+					for profile, mobs in pairs(sortedSpawns) do
+						--print(profile .. mobs)
+						profileButtons[profile] = {}
+						--for _, name in ipairs(mobs) do
 						if index <= maxVisibleButtons then
 							local button = CreateFrame("Button", nil, scanList)
 							button:SetSize(scanList:GetWidth(), buttonHeight)
-							--if index >= 2 then
-							--	button:SetPoint("TOPLEFT", 0.5, -(index - 1) * buttonHeight - 0.5) -- Increase the vertical position by 1 to reduce overlap
-							--else
-								button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
-							--end
+
+							button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
 
 							-- Create a texture region within the button frame
 							local texture = button:CreateTexture(nil, "BACKGROUND")
@@ -2227,11 +2226,6 @@
 							button.Text:SetPoint("LEFT", 5, 0)
 
 							button:SetScript("OnClick", function(self)
-
-								--if historyListContains == true then
-
-								--print("sorting")
-							--end
 
 								-- Get the unit name from the button's text
 								local key = strupper(self.Text:GetText())
@@ -2252,8 +2246,8 @@
 											break
 										end
 									end
-																	unitscan_historyListUpdate()
-								unitscan_sortHistory()
+									unitscan_historyListUpdate()
+									unitscan_sortHistory()
 
 								else
 									-- Remove unit from scan list
@@ -2348,19 +2342,18 @@
 							button.Text:SetText(mobs)
 							scanListContains = true
 
-																					 function unitscan_hideScanButtons()
-    for _, button in ipairs(scanList.Buttons) do
-      button:Hide()  
-    end  
-  end
+							function unitscan_hideScanButtons()
+								for _, button in ipairs(scanList.Buttons) do
+									button:Hide()  
+								end  
+							end
+
 							-- Initially hide buttons that don't belong to the selected profile
 							--if profile == selectedProfile then
-							--	button:Show()
-							--else
-							--	button:Hide()
-							--end
-
-
+								--	button:Show()
+								--else
+								--	button:Hide()
+								--end
 
 							scanList.Buttons[index] = button
 							table.insert(profileButtons[profile], button)
@@ -2370,6 +2363,7 @@
 					--end
 					end
 				end
+				-- call above function
 				unitscan_scanListUpdate()
 
 			
@@ -2431,6 +2425,8 @@
 				historyFrame:SetBackdropBorderColor(1.0, 0.85, 0.0, 0.5)
 				historyFrame:SetScale(0.8)
 
+				unitscan_historyFrame = historyFrame
+
 				historyFrame.scroll = CreateFrame("ScrollFrame", nil, historyFrame)
 				historyFrame.scroll:SetPoint("TOPLEFT", historyFrame, 12, -10)
 				historyFrame.scroll:SetPoint("BOTTOMRIGHT", historyFrame, -30, 10)
@@ -2467,10 +2463,10 @@
 					historyList.Buttons[1] = emptyButton
 				end
 				function unitscan_historyListUpdate()
-										    for _, button in ipairs(historyList.Buttons) do
-        button:Hide()
-        index = 1
-    end
+					for _, button in ipairs(historyList.Buttons) do
+						button:Hide()
+						index = 1
+					end
 					for _, name in ipairs(sortedHistory) do
 						--print("check " .. name)
 						if index <= maxVisibleButtons then
@@ -2489,56 +2485,57 @@
 							button.Text = button:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 							button.Text:SetPoint("LEFT", 5, 0)
 
-													button:SetScript("OnClick", function()
-														unitscan_scanListUpdate()
-														if scanListContains == true then
-														unitscan_hideScanButtons()
-													end
-														-- Get the unit name from the button's text
-														local key = strupper(button.Text:GetText())
+							button:SetScript("OnClick", function()
 
-														if not unitscan_targets[key] then
-															-- Add unit to scan list
-															unitscan_targets[key] = true
-															unitscan.print(YELLOW .. "+ " .. key)
-															unitscan_sortScanList()
-															--self.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
-															--texture:Show()
+								unitscan_scanListUpdate()
+								if scanListContains == true then
+									unitscan_hideScanButtons()
+								end
+								-- Get the unit name from the button's text
+								local key = strupper(button.Text:GetText())
 
-															-- Check if the key is in unitscan_removed table and remove it
-															for i, value in ipairs(unitscan_removed) do
-																if value == key then
-																	table.remove(unitscan_removed, i)
-																	--print("Removed from unitscan_removed:", key)
-																	break
-																end
-															end
+								if not unitscan_targets[key] then
+									-- Add unit to scan list
+									unitscan_targets[key] = true
+									unitscan.print(YELLOW .. "+ " .. key)
+									unitscan_sortScanList()
+									button.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to default color
+									texture:Show()
 
-														else
-															-- Remove unit from scan list
-															unitscan_targets[key] = nil
-															unitscan.print(RED .. "- " .. key)
-															found[key] = nil
-															unitscan_sortScanList()
-															--self.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
-															--texture:Hide()
+									-- Check if the key is in unitscan_removed table and remove it
+									for i, value in ipairs(unitscan_removed) do
+										if value == key then
+											table.remove(unitscan_removed, i)
+											--print("Removed from unitscan_removed:", key)
+											break
+										end
+									end
 
-															-- Check if the key is already in unitscan_removed table
-															local isDuplicate = false
-															for _, value in ipairs(unitscan_removed) do
-																if value == key then
-																	isDuplicate = true
-																	break
-																end
-															end
+								else
+									-- Remove unit from scan list
+									unitscan_targets[key] = nil
+									unitscan.print(RED .. "- " .. key)
+									found[key] = nil
+									unitscan_sortScanList()
+									button.IgnoreTexture:SetTexture(nil) -- Set button texture to red color
+									texture:Hide()
 
-															-- Insert the key into unitscan_removed table if it's not a duplicate
-															if not isDuplicate then
-																table.insert(unitscan_removed, key)
-																--print("Added to unitscan_removed:", key)
-															end
-														end
-													end)
+									-- Check if the key is already in unitscan_removed table
+									local isDuplicate = false
+									for _, value in ipairs(unitscan_removed) do
+										if value == key then
+											isDuplicate = true
+											break
+										end
+									end
+
+									-- Insert the key into unitscan_removed table if it's not a duplicate
+									if not isDuplicate then
+										table.insert(unitscan_removed, key)
+										--print("Added to unitscan_removed:", key)
+									end
+								end
+							end)
 
 							button:SetScript("OnShow", function(self)
 								local rare = string.upper(button.Text:GetText())
@@ -2563,11 +2560,11 @@
 
 							button:Hide()
 
-														 function unitscan_hideHistoryButtons()
-    for _, button in ipairs(historyList.Buttons) do
-      button:Hide()  
-    end  
-  end
+							function unitscan_hideHistoryButtons()
+								for _, button in ipairs(historyList.Buttons) do
+									button:Hide()  
+								end  
+							end
 
 							historyList.Buttons[index] = button
 						end
@@ -3199,6 +3196,8 @@
 
 					elseif title == "Scan List" then
 						expbtn[title]:SetScript("OnClick", function()
+							unitscan_scanFrame:Show()
+							unitscan_historyFrame:Hide()
 							if scanListContains == true then 
 							unitscan_scanListUpdate()
 						end
@@ -3279,16 +3278,17 @@
 
 					elseif title == "History" then
 						expbtn[title]:SetScript("OnClick", function()
-							--if historyListContains == true then 
+							unitscan_scanFrame:Hide()
+							unitscan_historyFrame:Show()
+
 							unitscan_historyListUpdate()
 							unitscan_sortHistory()
-						--end
 							unitscan_sortScanList()
+
 							if scanListContains == true then
 								unitscan_hideScanButtons()
-							--unitscan_HideExistingScanButtons()
-							--unitscan_HideExistingProfileButtons()
-						end
+							end
+
 							unitscan_profileScrollbar:SetMinMaxValues(1, 1)
 							unitscan_profileScrollbar:Hide()
 							scanFrame.scroll.ScrollBar:Hide()
@@ -3299,57 +3299,46 @@
 
 							visibleButtonsCount = 0 -- Reset visibleButtonsCount
 
-							-- Show all ignored rares
-							for _, rare in pairs(sortedHistory) do
-								--print("history " .. rare)
-								local button = historyList.Buttons[visibleButtonsCount + 1] or CreateFrame("BUTTON")
-								if not button then
-									unitscan_sortHistory()
-unitscan_historyListUpdate()
-								end
+							-- Hide scrollbar if no units found in table.
+							if #sortedHistory == 0 then
+								historyFrame.scroll.ScrollBar:Hide()
+								historyFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
 
-								-- Set button text and position
-								if button.Text then
-									button.Text:SetText(rare)
-									--if visibleButtonsCount >= 1 then
-										--	button:SetPoint("TOPLEFT", 0.5, -(visibleButtonsCount * buttonHeight + 0.5)) -- Increase the vertical position by 1 to reduce overlap
-										--else
+							else
+
+								-- Show all ignored rares
+								for _, rare in pairs(sortedHistory) do
+									--print("history " .. rare)
+									local button = historyList.Buttons[visibleButtonsCount + 1] or CreateFrame("BUTTON")
+									if not button then
+										unitscan_sortHistory()
+										unitscan_historyListUpdate()
+										print("no button")
+									end
+
+									-- Set button text and position
+									if button.Text then
+										button.Text:SetText(rare)
+
 										button:SetPoint("TOPLEFT", 0, -(visibleButtonsCount * buttonHeight))
-										--end
+
 										button:Show()
 
 										visibleButtonsCount = visibleButtonsCount + 1
 
 									end
 
-									--button:SetScript("OnClick", function()
-									--	local buttonText = button.Text:GetText() -- Get the text of the clicked button
 
-									--	-- Check if the rare is already in unitscan_removed
-									--	local isRemoved = unitscan_removed[buttonText]
-
-									--	if isRemoved then
-									--		-- Rare is already removed, so remove it from unitscan_removed
-									--		unitscan_removed[buttonText] = nil
-									--		print(buttonText .. " has been removed from unitscan_removed.")
-									--	else
-									--		-- Rare is not removed, so add it to unitscan_removed
-									--		unitscan_removed[buttonText] = true
-									--		print(buttonText .. " has been added to unitscan_removed.")
-									--	end
-									--end)
-
-
-									-- print(visibleButtonsCount)
-									if visibleButtonsCount <= 13 then
-										scanFrame.scroll.ScrollBar:Hide()
-										scanFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
+									if visibleButtonsCount <= 13 or visibleButtonsCount == 0 then
+										historyFrame.scroll.ScrollBar:Hide()
+										historyFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
 									else
-										scanFrame.scroll.ScrollBar:Show()
-										scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
+										historyFrame.scroll.ScrollBar:Show()
+										historyFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
 									end
 
 								end
+							end
 
 
 								-- Clear focus of search box
