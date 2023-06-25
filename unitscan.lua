@@ -2170,10 +2170,15 @@
 				--end
 
 				local sortedSpawns = {}
+				function sortspawns()
+					sortedSpawns = {} -- Clear the table before sorting
 				for name in pairs(unitscan_targets) do
 				    table.insert(sortedSpawns, name)
+				    --print("Inserted name:", name)
 				end
 				table.sort(sortedSpawns)
+			end
+			sortspawns()
 
 				local index = 1
 				-- Check if sortedSpawns is empty
@@ -2188,8 +2193,13 @@
 
 				    scanList.Buttons[1] = emptyButton
 
-				else
-
+				end
+					function scanlistpopulate()
+						print("called")
+						    for _, button in ipairs(scanList.Buttons) do
+        button:Hide()
+        index = 1
+    end
 				for profile, mobs in pairs(sortedSpawns) do
 					print(profile .. mobs)
 					profileButtons[profile] = {}
@@ -2225,6 +2235,7 @@
 									-- Add unit to scan list
 									unitscan_targets[key] = true
 									unitscan.print(YELLOW .. "+ " .. key)
+									sortspawns()
 									self.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
 									texture:Show()
 
@@ -2242,6 +2253,7 @@
 									unitscan_targets[key] = nil
 									unitscan.print(RED .. "- " .. key)
 									found[key] = nil
+									sortspawns()
 									self.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
 									texture:Hide()
 
@@ -2306,7 +2318,7 @@
 							button:SetScript("OnShow", function(self)
 								local rare = string.upper(button.Text:GetText())
 
-								if unitscan_ignored[rare] then
+								if unitscan_removed[rare] then
 									button.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
 								else
 									button.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
@@ -2326,6 +2338,12 @@
 
 							button.Text:SetText(mobs)
 							scanListContains = true
+
+																					 function unitscan_hideScanButtons()
+    for _, button in ipairs(scanList.Buttons) do
+      button:Hide()  
+    end  
+  end
 							-- Initially hide buttons that don't belong to the selected profile
 							--if profile == selectedProfile then
 							--	button:Show()
@@ -2339,9 +2357,13 @@
 							table.insert(profileButtons[profile], button)
 						end
 						index = index + 1
+						print(index)
 					--end
 					end
 				end
+				scanlistpopulate()
+
+			
 
 				scanFrame.scroll:SetScrollChild(scanList)
 
@@ -2450,6 +2472,10 @@
 							button.Text:SetPoint("LEFT", 5, 0)
 
 													button:SetScript("OnClick", function()
+														scanlistpopulate()
+														if scanListContains == true then
+														unitscan_hideScanButtons()
+													end
 														-- Get the unit name from the button's text
 														local key = strupper(button.Text:GetText())
 
@@ -2457,6 +2483,7 @@
 															-- Add unit to scan list
 															unitscan_targets[key] = true
 															unitscan.print(YELLOW .. "+ " .. key)
+															sortspawns()
 															--self.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
 															--texture:Show()
 
@@ -2474,6 +2501,7 @@
 															unitscan_targets[key] = nil
 															unitscan.print(RED .. "- " .. key)
 															found[key] = nil
+															sortspawns()
 															--self.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
 															--texture:Hide()
 
@@ -2497,7 +2525,7 @@
 							button:SetScript("OnShow", function(self)
 								local rare = string.upper(button.Text:GetText())
 
-								if unitscan_ignored[rare] then
+								if unitscan_removed[rare] then
 									button.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6)
 								else
 									button.IgnoreTexture:SetTexture(nil)
@@ -3150,6 +3178,10 @@
 
 					elseif title == "Scan List" then
 						expbtn[title]:SetScript("OnClick", function()
+							if scanListContains == true then 
+							scanlistpopulate()
+						end
+							sortspawns()
 							--unitscan_HideExistingScanButtons()
 							if historyListContains == true then
 							--unitscan_HideExistingHistoryButtons()
@@ -3226,9 +3258,11 @@
 
 					elseif title == "History" then
 						expbtn[title]:SetScript("OnClick", function()
+							sortspawns()
 							if scanListContains == true then
-							unitscan_HideExistingScanButtons()
-							unitscan_HideExistingProfileButtons()
+								unitscan_hideScanButtons()
+							--unitscan_HideExistingScanButtons()
+							--unitscan_HideExistingProfileButtons()
 						end
 							unitscan_profileScrollbar:SetMinMaxValues(1, 1)
 							unitscan_profileScrollbar:Hide()
