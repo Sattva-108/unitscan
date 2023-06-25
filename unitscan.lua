@@ -2194,7 +2194,7 @@
 				    scanList.Buttons[1] = emptyButton
 
 				end
-					function scanlistpopulate()
+					function unitscan_scanListUpdate()
 						print("called")
 						    for _, button in ipairs(scanList.Buttons) do
         button:Hide()
@@ -2227,6 +2227,11 @@
 							button.Text:SetPoint("LEFT", 5, 0)
 
 							button:SetScript("OnClick", function(self)
+								unitscan_historyListUpdate()
+								if historyListContains == true then
+								unitscan_sortHistory()
+								print("sorting")
+							end
 
 								-- Get the unit name from the button's text
 								local key = strupper(self.Text:GetText())
@@ -2361,7 +2366,7 @@
 					--end
 					end
 				end
-				scanlistpopulate()
+				unitscan_scanListUpdate()
 
 			
 
@@ -2434,12 +2439,16 @@
 				historyList.Buttons = {}
 
 				local sortedHistory = {}
+				function unitscan_sortHistory()
+					sortedHistory = {}
 				for _, name in pairs(unitscan_removed) do
-					--print(name)
+					print(name)
 					table.insert(sortedHistory, name)
 					print("inserted " .. name)
 				end
 				table.sort(sortedHistory)
+				end
+				unitscan_sortHistory()
 				--for name in pairs(unitscan_targets) do
 				--				-- Print the contents of unitscan_targets
 				--print("unitscan_targets:", name)
@@ -2452,7 +2461,12 @@
 					emptyButton:SetPoint("TOPLEFT", 0, 0)
 
 					historyList.Buttons[1] = emptyButton
-				else
+				end
+				function unitscan_historyListUpdate()
+										    for _, button in ipairs(historyList.Buttons) do
+        button:Hide()
+        index = 1
+    end
 					for _, name in ipairs(sortedHistory) do
 						print("check " .. name)
 						if index <= maxVisibleButtons then
@@ -2472,7 +2486,7 @@
 							button.Text:SetPoint("LEFT", 5, 0)
 
 													button:SetScript("OnClick", function()
-														scanlistpopulate()
+														unitscan_scanListUpdate()
 														if scanListContains == true then
 														unitscan_hideScanButtons()
 													end
@@ -2543,6 +2557,8 @@
 							button.Text:SetText(name)
 							historyListContains = true
 
+							button:Hide()
+
 														 function unitscan_hideHistoryButtons()
     for _, button in ipairs(historyList.Buttons) do
       button:Hide()  
@@ -2554,6 +2570,7 @@
 						index = index + 1
 					end
 				end
+				unitscan_historyListUpdate()
 
 				historyFrame.scroll:SetScrollChild(historyList)
 
@@ -2805,8 +2822,8 @@
 						
 						profileButton:SetScript("OnEvent", function()
 							if event == "PLAYER_ENTERING_WORLD" then
-								LibCompat.After(1, function() unitscan_scanlistGUIButton:Click() end)
-								unitscan_scanlistGUIButton:Click()
+								LibCompat.After(0.5, function() unitscan_scanlistGUIButton:Click() end)
+								profileButton:UnregisterEvent("PLAYER_ENTERING_WORLD")
 							end
 						end)
 						profileButton:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -3179,7 +3196,7 @@
 					elseif title == "Scan List" then
 						expbtn[title]:SetScript("OnClick", function()
 							if scanListContains == true then 
-							scanlistpopulate()
+							unitscan_scanListUpdate()
 						end
 							sortspawns()
 							--unitscan_HideExistingScanButtons()
@@ -3258,6 +3275,10 @@
 
 					elseif title == "History" then
 						expbtn[title]:SetScript("OnClick", function()
+							if historyListContains == true then 
+							unitscan_historyListUpdate()
+							unitscan_sortHistory()
+						end
 							sortspawns()
 							if scanListContains == true then
 								unitscan_hideScanButtons()
@@ -3275,7 +3296,7 @@
 							visibleButtonsCount = 0 -- Reset visibleButtonsCount
 
 							-- Show all ignored rares
-							for _, rare in pairs(unitscan_removed) do
+							for _, rare in pairs(sortedHistory) do
 								print("history " .. rare)
 								local button = historyList.Buttons[visibleButtonsCount + 1]
 								if not button then
