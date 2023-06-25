@@ -2170,7 +2170,7 @@
 				--end
 
 				local sortedSpawns = {}
-				function sortspawns()
+				function unitscan_sortScanList()
 					sortedSpawns = {} -- Clear the table before sorting
 				for name in pairs(unitscan_targets) do
 				    table.insert(sortedSpawns, name)
@@ -2178,7 +2178,7 @@
 				end
 				table.sort(sortedSpawns)
 			end
-			sortspawns()
+			unitscan_sortScanList()
 
 				local index = 1
 				-- Check if sortedSpawns is empty
@@ -2195,13 +2195,13 @@
 
 				end
 					function unitscan_scanListUpdate()
-						print("called")
+						--print("called")
 						    for _, button in ipairs(scanList.Buttons) do
         button:Hide()
         index = 1
     end
 				for profile, mobs in pairs(sortedSpawns) do
-					print(profile .. mobs)
+					--print(profile .. mobs)
 					profileButtons[profile] = {}
 					--for _, name in ipairs(mobs) do
 						if index <= maxVisibleButtons then
@@ -2227,11 +2227,11 @@
 							button.Text:SetPoint("LEFT", 5, 0)
 
 							button:SetScript("OnClick", function(self)
-								unitscan_historyListUpdate()
-								if historyListContains == true then
-								unitscan_sortHistory()
-								print("sorting")
-							end
+
+								--if historyListContains == true then
+
+								--print("sorting")
+							--end
 
 								-- Get the unit name from the button's text
 								local key = strupper(self.Text:GetText())
@@ -2240,7 +2240,7 @@
 									-- Add unit to scan list
 									unitscan_targets[key] = true
 									unitscan.print(YELLOW .. "+ " .. key)
-									sortspawns()
+									unitscan_sortScanList()
 									self.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
 									texture:Show()
 
@@ -2248,24 +2248,26 @@
 									for i, value in ipairs(unitscan_removed) do
 										if value == key then
 											table.remove(unitscan_removed, i)
-											print("Removed from unitscan_removed:", key)
+											--print("Removed from unitscan_removed:", key)
 											break
 										end
 									end
+																	unitscan_historyListUpdate()
+								unitscan_sortHistory()
 
 								else
 									-- Remove unit from scan list
 									unitscan_targets[key] = nil
 									unitscan.print(RED .. "- " .. key)
 									found[key] = nil
-									sortspawns()
+									unitscan_sortScanList()
 									self.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
 									texture:Hide()
 
 									-- Check if the key is already in unitscan_removed table
 									local isDuplicate = false
 									for _, value in ipairs(unitscan_removed) do
-										print(value)
+										--print(value)
 										if value == key then
 											isDuplicate = true
 											break
@@ -2275,8 +2277,10 @@
 									-- Insert the key into unitscan_removed table if it's not a duplicate
 									if not isDuplicate then
 										table.insert(unitscan_removed, key)
-										print("Added to unitscan_removed:", key)
+										--print("Added to unitscan_removed:", key)
 									end
+																	unitscan_historyListUpdate()
+								unitscan_sortHistory()
 
 								end
 
@@ -2362,7 +2366,7 @@
 							table.insert(profileButtons[profile], button)
 						end
 						index = index + 1
-						print(index)
+						--print(index)
 					--end
 					end
 				end
@@ -2442,9 +2446,9 @@
 				function unitscan_sortHistory()
 					sortedHistory = {}
 				for _, name in pairs(unitscan_removed) do
-					print(name)
+					--print(name)
 					table.insert(sortedHistory, name)
-					print("inserted " .. name)
+					--print("inserted " .. name)
 				end
 				table.sort(sortedHistory)
 				end
@@ -2468,7 +2472,7 @@
         index = 1
     end
 					for _, name in ipairs(sortedHistory) do
-						print("check " .. name)
+						--print("check " .. name)
 						if index <= maxVisibleButtons then
 							local button = CreateFrame("Button", nil, historyList)
 							button:SetSize(historyList:GetWidth(), buttonHeight)
@@ -2497,7 +2501,7 @@
 															-- Add unit to scan list
 															unitscan_targets[key] = true
 															unitscan.print(YELLOW .. "+ " .. key)
-															sortspawns()
+															unitscan_sortScanList()
 															--self.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
 															--texture:Show()
 
@@ -2505,7 +2509,7 @@
 															for i, value in ipairs(unitscan_removed) do
 																if value == key then
 																	table.remove(unitscan_removed, i)
-																	print("Removed from unitscan_removed:", key)
+																	--print("Removed from unitscan_removed:", key)
 																	break
 																end
 															end
@@ -2515,7 +2519,7 @@
 															unitscan_targets[key] = nil
 															unitscan.print(RED .. "- " .. key)
 															found[key] = nil
-															sortspawns()
+															unitscan_sortScanList()
 															--self.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
 															--texture:Hide()
 
@@ -2531,7 +2535,7 @@
 															-- Insert the key into unitscan_removed table if it's not a duplicate
 															if not isDuplicate then
 																table.insert(unitscan_removed, key)
-																print("Added to unitscan_removed:", key)
+																--print("Added to unitscan_removed:", key)
 															end
 														end
 													end)
@@ -3198,7 +3202,7 @@
 							if scanListContains == true then 
 							unitscan_scanListUpdate()
 						end
-							sortspawns()
+							unitscan_sortScanList()
 							--unitscan_HideExistingScanButtons()
 							if historyListContains == true then
 							--unitscan_HideExistingHistoryButtons()
@@ -3275,11 +3279,11 @@
 
 					elseif title == "History" then
 						expbtn[title]:SetScript("OnClick", function()
-							if historyListContains == true then 
+							--if historyListContains == true then 
 							unitscan_historyListUpdate()
 							unitscan_sortHistory()
-						end
-							sortspawns()
+						--end
+							unitscan_sortScanList()
 							if scanListContains == true then
 								unitscan_hideScanButtons()
 							--unitscan_HideExistingScanButtons()
@@ -3297,13 +3301,11 @@
 
 							-- Show all ignored rares
 							for _, rare in pairs(sortedHistory) do
-								print("history " .. rare)
-								local button = historyList.Buttons[visibleButtonsCount + 1]
+								--print("history " .. rare)
+								local button = historyList.Buttons[visibleButtonsCount + 1] or CreateFrame("BUTTON")
 								if not button then
-									print("no button")
-									button = CreateFrame("Button", nil, historyList)
-									button:SetSize(historyList:GetWidth(), buttonHeight)
-									historyList.Buttons[visibleButtonsCount + 1] = button
+									unitscan_sortHistory()
+unitscan_historyListUpdate()
 								end
 
 								-- Set button text and position
@@ -5033,42 +5035,42 @@
 --------------------------------------------------------------------------------
 
 
-do
-    unitscan.last_check = GetTime()
-    function unitscan.UPDATE()
-        if is_resting then return end
-        if not InCombatLockdown() and unitscan.discovered_unit then
-            unitscan.button:set_target(unitscan.discovered_unit)
-            unitscan.discovered_unit = nil
-        end
-        if GetTime() - unitscan.last_check >= unitscan_defaults.CHECK_INTERVAL then
-            unitscan.last_check = GetTime()
-            for name in pairs(unitscan_targets) do
-                unitscan.target(name)
-            end
-            for _, target in ipairs(nearby_targets) do
-                local name, expansion = unpack(target)
-                if expansion == "CLASSIC" or expansion == "TBC" or expansion == "WOTLK" then
-                    unitscan.target(name)
-                end
-            end
-        end
-    end
-end
+	do
+	    unitscan.last_check = GetTime()
+	    function unitscan.UPDATE()
+	        if is_resting then return end
+	        if not InCombatLockdown() and unitscan.discovered_unit then
+	            unitscan.button:set_target(unitscan.discovered_unit)
+	            unitscan.discovered_unit = nil
+	        end
+	        if GetTime() - unitscan.last_check >= unitscan_defaults.CHECK_INTERVAL then
+	            unitscan.last_check = GetTime()
+	            for name in pairs(unitscan_targets) do
+	                unitscan.target(name)
+	            end
+	            for _, target in ipairs(nearby_targets) do
+	                local name, expansion = unpack(target)
+	                if expansion == "CLASSIC" or expansion == "TBC" or expansion == "WOTLK" then
+	                    unitscan.target(name)
+	                end
+	            end
+	        end
+	    end
+	end
 
 
 --------------------------------------------------------------------------------
 -- Escape colors
 --------------------------------------------------------------------------------
 
-local RED = "\124cffff0000"
-local YELLOW = "\124cffffff00"
-local GREEN = "\124cff00ff00"
-local WHITE = "\124cffffffff"
-local ORANGE = "\124cffffa500"
-local BLUE = "\124cff0000ff"
-local GREY = "\124cffb4b4b4"
-local LYELLOW = "\124cffffff9a"
+	local RED = "\124cffff0000"
+	local YELLOW = "\124cffffff00"
+	local GREEN = "\124cff00ff00"
+	local WHITE = "\124cffffffff"
+	local ORANGE = "\124cffffa500"
+	local BLUE = "\124cff0000ff"
+	local GREY = "\124cffb4b4b4"
+	local LYELLOW = "\124cffffff9a"
 
 
 --------------------------------------------------------------------------------
@@ -5119,21 +5121,54 @@ local LYELLOW = "\124cffffff9a"
 
 
 	function unitscan.toggle_target(name)
+
 		local key = strupper(name)
 		if unitscan_targets[key] then
 			unitscan_targets[key] = nil
 			found[key] = nil
 			unitscan.print(RED .. '- ' .. key)
+			-- Check if the key is already in unitscan_removed table
+			local isDuplicate = false
+			for _, value in ipairs(unitscan_removed) do
+				if value == key then
+					isDuplicate = true
+					break
+				end
+			end
+
+			-- Insert the key into unitscan_removed table if it's not a duplicate
+			if not isDuplicate then
+				table.insert(unitscan_removed, key)
+				--print("Added to unitscan_removed:", key)
+			end
+			unitscan_sortScanList()
+			unitscan_sortHistory()
+			unitscan_scanListUpdate()
+			unitscan_historyListUpdate()
+
+
 		elseif key ~= '' then
 			unitscan_targets[key] = true
 			unitscan.print(YELLOW .. '+ ' .. key)
+			-- Check if the key is in unitscan_removed table and remove it
+			for i, value in ipairs(unitscan_removed) do
+				if value == key then
+					table.remove(unitscan_removed, i)
+					--print("Removed from unitscan_removed:", key)
+					break
+				end
+			end
+			unitscan_sortScanList()
+			unitscan_sortHistory()
+			unitscan_scanListUpdate()
+			unitscan_historyListUpdate()
 		end
 	end
 
 
-	--------------------------------------------------------------------------------
-	-- Slash Commands /unitscan
-	--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+-- Slash Commands /unitscan
+--------------------------------------------------------------------------------
 
 	-- Slash command function
 	function unitscanLC:SlashFunc(parameter)
@@ -5147,10 +5182,45 @@ local LYELLOW = "\124cffffff9a"
 				if not unitscan_targets[key] then
 					unitscan_targets[key] = true
 					unitscan.print(YELLOW .. "+ " .. key)
+
+					-- Check if the key is in unitscan_removed table and remove it
+					for i, value in ipairs(unitscan_removed) do
+						if value == key then
+							table.remove(unitscan_removed, i)
+							--print("Removed from unitscan_removed:", key)
+							break
+						end
+					end
+					unitscan_sortScanList()
+					unitscan_scanListUpdate()
+
+					unitscan_sortHistory()
+					unitscan_historyListUpdate()
+
 				else
 					unitscan_targets[key] = nil
 					unitscan.print(RED .. "- " .. key)
 					found[key] = nil
+					-- Check if the key is already in unitscan_removed table
+					local isDuplicate = false
+					for _, value in ipairs(unitscan_removed) do
+						if value == key then
+							isDuplicate = true
+							break
+						end
+					end
+
+					-- Insert the key into unitscan_removed table if it's not a duplicate
+					if not isDuplicate then
+						table.insert(unitscan_removed, key)
+						--print("Added to unitscan_removed:", key)
+					end
+					unitscan_sortScanList()
+					unitscan_scanListUpdate()
+
+					unitscan_sortHistory()
+					unitscan_historyListUpdate()
+
 				end
 			else
 				unitscan.print("No target selected.")
@@ -5202,8 +5272,8 @@ local LYELLOW = "\124cffffff9a"
 				return
 			end
 
-		--===== Slash to avoid people confusion if they do /unitscan name =====--    
-		elseif command == "name" then
+			--===== Slash to avoid people confusion if they do /unitscan name =====--    
+			elseif command == "name" then
 			print(" ")
 			unitscan.print("replace " .. YELLOW .. "'name'" .. WHITE .. " with npc you want to scan.")
 			print(" - for example: " .. GREEN .. "/unitscan " .. YELLOW .. "Hogger")
@@ -5215,9 +5285,21 @@ local LYELLOW = "\124cffffff9a"
 					unitscan.print("Unit Scanner is currently empty.")
 				else
 					print(" " .. YELLOW .. "unitscan list" .. WHITE .. " currently contains:")
-					for k, v in pairs(unitscan_targets) do
-						unitscan.print(tostring(k))
+					local sortedKeys = {}
+
+					-- Step 1: Insert keys into the sortedKeys table
+					for k, _ in pairs(unitscan_targets) do
+						table.insert(sortedKeys, tostring(k))
 					end
+
+					-- Step 2: Sort the keys alphabetically
+					table.sort(sortedKeys)
+
+					-- Step 3: Print the sorted keys
+					for _, k in ipairs(sortedKeys) do
+						unitscan.print(k)
+					end
+
 				end
 			end
 
@@ -5304,6 +5386,11 @@ local LYELLOW = "\124cffffff9a"
 			--===== Slash without any arguments (/unitscan) prints currently tracked user-defined units and some basic available slash commands  =====--
 			--===== If an agrugment after /unitscan is given, it will add a unit to the scanning targets. =====--
 		elseif not command then
+			unitscan_sortScanList()
+			unitscan_scanListUpdate()
+
+			unitscan_sortHistory()
+			unitscan_historyListUpdate()
 
 			-- Prevent options panel from showing if a game options panel is showing
 			if InterfaceOptionsFrame:IsShown() or VideoOptionsFrame:IsShown() or ChatConfigFrame:IsShown() then return end
@@ -5320,6 +5407,10 @@ local LYELLOW = "\124cffffff9a"
 			unitscanLC["Page"..unitscanLC["LeaStartPage"]]:Show()
 		else
 			unitscan.toggle_target(parameter)
+			unitscan_sortScanList()
+			unitscan_sortHistory()
+			unitscan_scanListUpdate()
+			unitscan_historyListUpdate()
 		end
 	end
 
