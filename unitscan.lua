@@ -39,7 +39,7 @@
 ----------------------------------------------------------------------
 --	L00: unitscan
 ----------------------------------------------------------------------
-	-- inititialize vairables
+	-- initialize variables
 	unitscanLC["NumberOfPages"] = 9
 
 	-- Create event frame
@@ -187,7 +187,14 @@
 			eFrame.b:EnableKeyboard(true)
 			-- Editbox texture
 			eFrame.t = CreateFrame("FRAME", nil, eFrame.b)
-			eFrame.t:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tile = false, tileSize = 16, edgeSize = 16, insets = { left = 5, right = 5, top = 5, bottom = 5 }})
+			eFrame.t:SetBackdrop(
+					{bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+								  edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+								  tile = false,
+								  tileSize = 16,
+								  edgeSize = 16,
+								  insets = { left = 5, right = 5, top = 5, bottom = 5 }}
+			)
 			eFrame.t:SetPoint("LEFT", -6, 0)
 			eFrame.t:SetWidth(eFrame.b:GetWidth() + 6)
 			eFrame.t:SetHeight(eFrame.b:GetHeight())
@@ -240,7 +247,10 @@
 			unitscanLC.FactoryEditBox.b:HighlightText() 
 		end);
 
-		unitscanLC.FactoryEditBox.b:SetScript("OnKeyUp", function() unitscanLC.FactoryEditBox.b:SetFocus(true) unitscanLC.FactoryEditBox.b:SetText(word) unitscanLC.FactoryEditBox.b:HighlightText() end)
+		unitscanLC.FactoryEditBox.b:SetScript("OnKeyUp", function()
+			unitscanLC.FactoryEditBox.b:SetFocus(true)
+			unitscanLC.FactoryEditBox.b:SetText(word)
+			unitscanLC.FactoryEditBox.b:HighlightText() end)
 	end
 
 	-- Load a string variable or set it to default if it's not set to "On" or "Off"
@@ -2094,7 +2104,7 @@
 
 
 		----------------------------------------------------------------------
-		-- Custom Scan List
+		-- Custom Scan List function start
 		----------------------------------------------------------------------
 		
 		local selectedProfile = nil
@@ -2131,7 +2141,7 @@
 				end
 
 				--------------------------------------------------------------------------------
-				-- Create Frame for RARE MOB buttons
+				-- ScanList Frame
 				--------------------------------------------------------------------------------
 
 
@@ -2407,7 +2417,7 @@
 
 
 				--------------------------------------------------------------------------------
-				-- History Frame
+				-- ScanList History Frame
 				--------------------------------------------------------------------------------
 
 
@@ -2607,11 +2617,11 @@
 
 
 				--------------------------------------------------------------------------------
-				-- Create a separate frame for ZONE buttons
+				-- ScanList Profile frame
 				--------------------------------------------------------------------------------
 
 
-				local profileFrame = CreateFrame("Frame", nil, scanFrame)
+				local profileFrame = CreateFrame("Frame", nil, unitscanLC["Page2"])
 				profileFrame:SetSize(180, 280)
 				profileFrame:SetPoint("TOPRIGHT", scanFrame, "TOPLEFT", 0, 0)
 				profileFrame:SetBackdrop({
@@ -2621,7 +2631,7 @@
 					insets = {left = 8, right = 6, top = 8, bottom = 8},
 				})
 				profileFrame:SetBackdropBorderColor(1.0, 0.85, 0.0, 0.5)
-				profileFrame:SetScale(1)
+				profileFrame:SetScale(0.8)
 
 				profileFrame.scroll = CreateFrame("ScrollFrame", nil, profileFrame)
 				profileFrame.scroll:SetPoint("TOPLEFT", profileFrame, 12, -10)
@@ -2858,7 +2868,7 @@
 
 
 						--------------------------------------------------------------------------------
-						-- Function to toggle expansions
+						-- Function to toggle profiles
 						--------------------------------------------------------------------------------
 
 
@@ -3108,7 +3118,7 @@
 
 
 				--------------------------------------------------------------------------------
-				-- Create Buttons for Expansions
+				-- ScanList Menu Frame
 				--------------------------------------------------------------------------------
 
 
@@ -3243,13 +3253,30 @@
 
 
 
-								-- print(visibleButtonsCount)
-								if visibleButtonsCount <= 13 then
+								---- print(visibleButtonsCount)
+								--if visibleButtonsCount <= 13 then
+								--	scanFrame.scroll.ScrollBar:Hide()
+								--	scanFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
+								--else
+								--	scanFrame.scroll.ScrollBar:Show()
+								--	scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
+								--end
+								--print(visibleButtonsCount)
+								if visibleButtonsCount <= 13 or visibleButtonsCount == 0 then
 									scanFrame.scroll.ScrollBar:Hide()
 									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
-								else
+								elseif visibleButtonsCount >= 14 and visibleButtonsCount <= 26 then
 									scanFrame.scroll.ScrollBar:Show()
-									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
+									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 715))
+								elseif visibleButtonsCount >= 27 and visibleButtonsCount <= 39 then
+									scanFrame.scroll.ScrollBar:Show()
+									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 940))
+								elseif visibleButtonsCount >= 40 and visibleButtonsCount <= 52 then
+									scanFrame.scroll.ScrollBar:Show()
+									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 1160))
+								elseif visibleButtonsCount >= 53 and visibleButtonsCount <= 100 then
+									scanFrame.scroll.ScrollBar:Show()
+									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 2000))
 								end
 
 							end
@@ -3327,14 +3354,23 @@
 										visibleButtonsCount = visibleButtonsCount + 1
 
 									end
-
-
+									-- TODO: Add scrollbar expand button, for if user has more than 100 buttons.
+									--print(visibleButtonsCount)
 									if visibleButtonsCount <= 13 or visibleButtonsCount == 0 then
 										historyFrame.scroll.ScrollBar:Hide()
 										historyFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
-									else
+									elseif visibleButtonsCount >= 14 and visibleButtonsCount <= 26 then
 										historyFrame.scroll.ScrollBar:Show()
-										historyFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
+										historyFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 715))
+									elseif visibleButtonsCount >= 27 and visibleButtonsCount <= 39 then
+										historyFrame.scroll.ScrollBar:Show()
+										historyFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 940))
+									elseif visibleButtonsCount >= 40 and visibleButtonsCount <= 52 then
+										historyFrame.scroll.ScrollBar:Show()
+										historyFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 1160))
+									elseif visibleButtonsCount >= 53 and visibleButtonsCount <= 100 then
+										historyFrame.scroll.ScrollBar:Show()
+										historyFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 2000))
 									end
 
 								end
@@ -5090,7 +5126,7 @@
 
 
 --------------------------------------------------------------------------------
--- Function for sorting targets alphabetically. For user QOL.
+-- Function for sorting targets alphabetically. For user QOL. Not yet used.
 --------------------------------------------------------------------------------
 
 

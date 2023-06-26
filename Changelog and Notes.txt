@@ -49,7 +49,7 @@ Global -  rename rare_spawns table to something more unique
 -- User Interface To-Do list.
 --------------------------------------------------------------------------------
 
-
+Scrollframes - add expand lines button. In case user has too many buttons.
 
 --------------------------------------------------------------------------------
 -- Non-Sorted To-Do list.
