@@ -77,6 +77,10 @@
 	--===== DB Table for user-added targets via /unitscan "name" or /unitscan target =====--
 	unitscan_targets = {}
 
+	unitscan_scanlist = {}
+
+	unitscan_history = {}
+
 	--===== DB Table for user-added rare spawns to ignore from scanning =====--
 	unitscan_ignored = {}
 
@@ -2115,6 +2119,24 @@
 
 			do
 
+				-- Check if "profiles" table exists in unitscan_scanlist
+				if not unitscan_scanlist["profiles"] then
+					unitscan_scanlist["profiles"] = {}
+				end
+
+				-- Check if "default" table exists in unitscan_scanlist.profiles
+				if not unitscan_scanlist["profiles"]["default"] then
+					unitscan_scanlist["profiles"]["default"] = {}
+				end
+
+				-- Iterate over the keys in unitscan_targets table
+				for key, _ in pairs(unitscan_targets) do
+					-- Add the key to unitscan_scanlist.profiles.default table
+					unitscan_scanlist["profiles"]["default"][key] = true
+				end
+
+
+
 				--------------------------------------------------------------------------------
 				-- Escape colors
 				--------------------------------------------------------------------------------
@@ -2184,7 +2206,7 @@
 				local sortedSpawns = {}
 				function unitscan_sortScanList()
 					sortedSpawns = {} -- Clear the table before sorting
-				for name in pairs(unitscan_targets) do
+				for name in pairs(unitscan_scanlist["profiles"]["default"]) do
 				    table.insert(sortedSpawns, name)
 				    --print("Inserted name:", name)
 				end
@@ -2240,9 +2262,9 @@
 								-- Get the unit name from the button's text
 								local key = strupper(self.Text:GetText())
 
-								if not unitscan_targets[key] then
+								if not unitscan_scanlist["profiles"]["default"][key] then
 									-- Add unit to scan list
-									unitscan_targets[key] = true
+									unitscan_scanlist["profiles"]["default"][key] = true
 									unitscan.print(YELLOW .. "+ " .. key)
 									unitscan_sortScanList()
 									self.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
@@ -2261,7 +2283,7 @@
 
 								else
 									-- Remove unit from scan list
-									unitscan_targets[key] = nil
+									unitscan_scanlist["profiles"]["default"][key] = nil
 									unitscan.print(RED .. "- " .. key)
 									found[key] = nil
 									unitscan_sortScanList()
@@ -2459,9 +2481,9 @@
 				table.sort(sortedHistory)
 				end
 				unitscan_sortHistory()
-				--for name in pairs(unitscan_targets) do
-				--				-- Print the contents of unitscan_targets
-				--print("unitscan_targets:", name)
+				--for name in pairs(unitscan_scanlist["profiles"]["default"]) do
+				--				-- Print the contents of unitscan_scanlist["profiles"]["default"]
+				--print("unitscan_scanlist["profiles"]["default"]:", name)
 				--end
 
 				local index = 1
@@ -2504,9 +2526,9 @@
 								-- Get the unit name from the button's text
 								local key = strupper(button.Text:GetText())
 
-								if not unitscan_targets[key] then
+								if not unitscan_scanlist["profiles"]["default"][key] then
 									-- Add unit to scan list
-									unitscan_targets[key] = true
+									unitscan_scanlist["profiles"]["default"][key] = true
 									unitscan.print(YELLOW .. "+ " .. key)
 									unitscan_sortScanList()
 									button.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to default color
@@ -2523,7 +2545,7 @@
 
 								else
 									-- Remove unit from scan list
-									unitscan_targets[key] = nil
+									unitscan_scanlist["profiles"]["default"][key] = nil
 									unitscan.print(RED .. "- " .. key)
 									found[key] = nil
 									unitscan_sortScanList()
@@ -5070,7 +5092,7 @@
 	        end
 	        if GetTime() - unitscan.last_check >= unitscan_defaults.CHECK_INTERVAL then
 	            unitscan.last_check = GetTime()
-	            for name in pairs(unitscan_targets) do
+	            for name in pairs(unitscan_scanlist["profiles"]["default"]) do
 	                unitscan.target(name)
 	            end
 	            for _, target in ipairs(nearby_targets) do
@@ -5132,7 +5154,7 @@
 
 	function unitscan.sorted_targets()
 		local sorted_targets = {}
-		for key in pairs(unitscan_targets) do
+		for key in pairs(unitscan_scanlist["profiles"]["default"]) do
 			tinsert(sorted_targets, key)
 		end
 		sort(sorted_targets, function(key1, key2) return key1 < key2 end)
@@ -5148,8 +5170,8 @@
 	function unitscan.toggle_target(name)
 
 		local key = strupper(name)
-		if unitscan_targets[key] then
-			unitscan_targets[key] = nil
+		if unitscan_scanlist["profiles"]["default"][key] then
+			unitscan_scanlist["profiles"]["default"][key] = nil
 			found[key] = nil
 			unitscan.print(RED .. '- ' .. key)
 			-- Check if the key is already in unitscan_removed table
@@ -5173,7 +5195,7 @@
 
 
 		elseif key ~= '' then
-			unitscan_targets[key] = true
+			unitscan_scanlist["profiles"]["default"][key] = true
 			unitscan.print(YELLOW .. '+ ' .. key)
 			-- Check if the key is in unitscan_removed table and remove it
 			for i, value in ipairs(unitscan_removed) do
@@ -5204,8 +5226,8 @@
 			local targetName = UnitName("target")
 			if targetName then
 				local key = strupper(targetName)
-				if not unitscan_targets[key] then
-					unitscan_targets[key] = true
+				if not unitscan_scanlist["profiles"]["default"][key] then
+					unitscan_scanlist["profiles"]["default"][key] = true
 					unitscan.print(YELLOW .. "+ " .. key)
 
 					-- Check if the key is in unitscan_removed table and remove it
@@ -5223,7 +5245,7 @@
 					unitscan_historyListUpdate()
 
 				else
-					unitscan_targets[key] = nil
+					unitscan_scanlist["profiles"]["default"][key] = nil
 					unitscan.print(RED .. "- " .. key)
 					found[key] = nil
 					-- Check if the key is already in unitscan_removed table
@@ -5305,15 +5327,15 @@
 
 			--===== Slash to only print currently tracked non-rare targets. =====--
 		elseif command == "list" then
-			if unitscan_targets then
-				if next(unitscan_targets) == nil then
+			if unitscan_scanlist["profiles"]["default"] then
+				if next(unitscan_scanlist["profiles"]["default"]) == nil then
 					unitscan.print("Unit Scanner is currently empty.")
 				else
 					print(" " .. YELLOW .. "unitscan list" .. WHITE .. " currently contains:")
 					local sortedKeys = {}
 
 					-- Step 1: Insert keys into the sortedKeys table
-					for k, _ in pairs(unitscan_targets) do
+					for k, _ in pairs(unitscan_scanlist["profiles"]["default"]) do
 						table.insert(sortedKeys, tostring(k))
 					end
 
