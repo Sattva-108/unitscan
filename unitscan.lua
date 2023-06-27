@@ -2666,17 +2666,25 @@
 				profileList:SetSize(profileFrame:GetWidth() - 30, profileMaxVisibleButtons * buttonHeight)
 				profileList.Buttons = {}
 
+
+
+				local profiles = unitscan_scanlist.profiles
+
 				-- Sort the profile names alphabetically
 				local sortedProfiles = {}
-				for profile in pairs(sortedSpawns) do
+				for profile, _ in pairs(profiles) do
 					table.insert(sortedProfiles, profile)
+					--print("Profile:", profile)
 				end
 				table.sort(sortedProfiles)
+
 
 				-- Create profile buttons
 				local profileIndex = 1
 				for _, profile in ipairs(sortedProfiles) do
+					print("Sorted Profiles: " .. profile)
 					if profileIndex <= profileMaxVisibleButtons then
+						print("profileIndex <= profileMaxVisibleButtons ")
 						local profileButton = CreateFrame("Button", nil, profileList)
 						profileButton:SetSize(profileList:GetWidth(), buttonHeight)
 						profileButton:SetPoint("TOPLEFT", 0, -(profileIndex - 1) * buttonHeight)
@@ -2750,7 +2758,7 @@
 							local visibleButtonsCount = 0
 							-- Create rare mob buttons for the selected profile
 							local index = 1
-							for profile, mobs in pairs(sortedSpawns) do
+							for profile, mobs in pairs(sortedProfiles) do
 								if profile == selectedProfile then
 									--for _, data in ipairs(mobs) do
 										if index <= profileMaxVisibleButtons then
@@ -2815,39 +2823,6 @@
 
 
 
-
-
-
-						--------------------------------------------------------------------------------
-						-- WoWHead Link for profile
-						--------------------------------------------------------------------------------
-
-
-						profileButton:SetScript("OnMouseDown", function(self, button)
-							if button == "RightButton" then
-								local selectedProfile = self.Text:GetText()
-								local encodedProfile = urlencode(selectedProfile)
-								local wowheadLocale = ""
-								if GameLocale == "deDE" then wowheadLocale = "de/search?q="
-								elseif GameLocale == "esMX" then wowheadLocale = "es/search?q="
-								elseif GameLocale == "esES" then wowheadLocale = "es/search?q="
-								elseif GameLocale == "frFR" then wowheadLocale = "fr/search?q="
-								elseif GameLocale == "itIT" then wowheadLocale = "it/search?q="
-								elseif GameLocale == "ptBR" then wowheadLocale = "pt/search?q="
-								elseif GameLocale == "ruRU" then wowheadLocale = "ru/search?q="
-								elseif GameLocale == "koKR" then wowheadLocale = "ko/search?q="
-								elseif GameLocale == "zhCN" then wowheadLocale = "cn/search?q="
-								elseif GameLocale == "zhTW" then wowheadLocale = "cn/search?q="
-								else wowheadLocale = "search?q="
-								end
-								local profileLink = "https://www.wowhead.com/wotlk/" .. wowheadLocale .. encodedProfile .. "#profiles"
-								unitscanLC:ShowSystemEditBox(profileLink, false)
-								unitscan_searchbox:ClearFocus()
-							end
-						end)
-
-
-
 						--------------------------------------------------------------------------------
 						-- OnEvent Script
 						--------------------------------------------------------------------------------
@@ -2878,7 +2853,7 @@
 
 						--===== Show Profile Text on button and show button itself. =====--
 						profileButton.Text:SetText(profile)
-						profileButton:Hide()
+						profileButton:Show()
 
 						function unitscan_hideProfileButtons()
 							for _, profileButton in ipairs(profileList.Buttons) do
