@@ -5085,7 +5085,8 @@
 	do
 	    unitscan.last_check = GetTime()
 	    function unitscan.UPDATE()
-	        if is_resting then return end
+			-- disable isResting for now, for developing. TODO: enable this before push to main branch
+	        --if is_resting then return end
 	        if not InCombatLockdown() and unitscan.discovered_unit then
 	            unitscan.button:set_target(unitscan.discovered_unit)
 	            unitscan.discovered_unit = nil
