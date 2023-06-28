@@ -2,7 +2,7 @@
 --	Backport and modifications by Sattva
 --	Credit to simon_hirsig & tablegrapes
 --	Credit to Macumba for checking all rares in list and then adding frFR database!
---	Code from unitscan & unitscan-rares
+--	Code from unitscan & unitscan-rares & Leatrix Plus (GUI)
 --------------------------------------------------------------------------------------
 
 	LibCompat = LibStub:GetLibrary("LibCompat-1.0")
@@ -77,9 +77,8 @@
 	--===== DB Table for user-added targets via /unitscan "name" or /unitscan target =====--
 	unitscan_targets = {}
 
+	--===== DB Table to store all active and non-active scan units and profiles for them=====--
 	unitscan_scanlist = {}
-
-	unitscan_history = {}
 
 	--===== DB Table for user-added rare spawns to ignore from scanning =====--
 	unitscan_ignored = {}
@@ -89,6 +88,8 @@
 		CHECK_INTERVAL = .3,
 	}
 
+	--FIXME After ScanList is done: need to remove this table.
+	--===== Table that i used to contain non-active scans. =====--
 	unitscan_removed = {}
 
 	-- Get the active profile name
@@ -100,6 +101,7 @@
 	--===== Local table to prevent spamming the alert. =====--
 	local found = {}
 
+	--TODO Rename me before release of GUI
 	rare_spawns = {}
 
 ----------------------------------------------------------------------
@@ -2476,15 +2478,15 @@
 							end)
 
 							--------------------------------------------------------------------------------
-							-- WowHead Link OnMouseDown for rare mob
+							-- WowHead Link OnMouseDown for scan unit
 							--------------------------------------------------------------------------------
 
 
 							button:SetScript("OnMouseDown", function(self, button)
 								if button == "RightButton" then
-									local rare = self.Text:GetText()
-									local encodedRare = urlencode(rare)
-									encodedRare = string.gsub(encodedRare, " ", "+") -- Replace space with plus sign
+									local scan = self.Text:GetText()
+									local encodedScan = urlencode(scan)
+									encodedScan = string.gsub(encodedScan, " ", "+") -- Replace space with plus sign
 									local wowheadLocale = ""
 
 									if GameLocale == "deDE" then wowheadLocale = "de/search?q="
@@ -2499,8 +2501,8 @@
 									elseif GameLocale == "zhTW" then wowheadLocale = "cn/search?q="
 									else wowheadLocale = "search?q="
 									end
-									local rareLink = "https://www.wowhead.com/wotlk/" .. wowheadLocale .. encodedRare .. "#npcs"
-									unitscanLC:ShowSystemEditBox(rareLink, false)
+									local scanLink = "https://www.wowhead.com/wotlk/" .. wowheadLocale .. encodedScan .. "#npcs"
+									unitscanLC:ShowSystemEditBox(scanLink, false)
 									unitscan_searchbox:ClearFocus()
 								end
 							end)
@@ -2512,10 +2514,10 @@
 
 							-- Set button texture update function for OnShow event
 							button:SetScript("OnShow", function(self)
-								-- TODO: Rename rare to something
-								local rare = string.upper(button.Text:GetText())
+								-- DONE: Rename rare to something
+								local mob = string.upper(button.Text:GetText())
 
-								if unitscan_scanlist["profiles"][activeProfile]["history"][rare] then
+								if unitscan_scanlist["profiles"][activeProfile]["history"][mob] then
 									button.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
 								else
 									button.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
@@ -2759,9 +2761,9 @@
 							end)
 
 							button:SetScript("OnShow", function(self)
-								local rare = string.upper(button.Text:GetText())
+								local mob = string.upper(button.Text:GetText())
 
-								if unitscan_scanlist["profiles"][activeProfile]["history"][rare] then
+								if unitscan_scanlist["profiles"][activeProfile]["history"][mob] then
 									button.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6)
 								else
 									button.IgnoreTexture:SetTexture(nil)
@@ -2904,7 +2906,7 @@
 
 						
 						--------------------------------------------------------------------------------
-						-- Functions to hide all rare mob names and all profile names
+						-- Functions to hide all mob names and all profile names
 						--------------------------------------------------------------------------------
 
 
@@ -2945,7 +2947,7 @@
 							--unitscan_HideExistingScanButtons()
 
 							local visibleButtonsCount = 0
-							-- Create rare mob buttons for the selected profile
+							-- Create scan units buttons for the selected profile
 							local index = 1
 							for profile, mobs in pairs(sortedProfiles) do
 								if profile == selectedProfile then
@@ -2977,7 +2979,7 @@
 							-- Print the number of visible buttons
 							--print("Number of visible buttons: " .. visibleButtonsCount)
 
-							-- Hide scrollbar of rare mob list if 13 or more buttons visible.
+							-- Hide scrollbar of scan units list if 13 or more buttons visible.
 							if visibleButtonsCount <= 13 then
 								scanFrame.scroll.ScrollBar:Hide()
 								scanFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
@@ -3385,8 +3387,6 @@
 						expbtn[title].text:SetTextColor(1, 1, 1)
 						unitscan_myprofileGUIButton = expbtn[title]
 
-						-- Modify the OnClick script for the "Ignored Rares" button
-
 
 					--------------------------------------------------------------------------------
 					-- Scan List Button
@@ -3417,8 +3417,8 @@
 
 							visibleButtonsCount = 0 -- Reset visibleButtonsCount
 
-							-- Show all ignored rares
-							for _, rare in pairs(sortedSpawns) do
+							-- Show all scan units
+							for _, scan in pairs(sortedSpawns) do
 								local button = scanList.Buttons[visibleButtonsCount + 1]
 								if not button then
 									button = CreateFrame("Button", nil, scanList)
@@ -3428,7 +3428,7 @@
 
 								-- Set button text and position
 								if button.Text then
-									button.Text:SetText(rare)
+									button.Text:SetText(scan)
 								end
 
 								button:SetPoint("TOPLEFT", 0, -(visibleButtonsCount * buttonHeight))
@@ -3518,9 +3518,9 @@
 
 							else
 
-								-- Show all ignored rares
-								for _, rare in pairs(sortedHistory) do
-									--print("history " .. rare)
+								-- Show all ignored scans
+								for _, mob in pairs(sortedHistory) do
+									--print("history " .. mob)
 									local button = historyList.Buttons[visibleButtonsCount + 1] or CreateFrame("BUTTON")
 									if not button then
 										unitscan_sortHistory()
@@ -3530,7 +3530,7 @@
 
 									-- Set button text and position
 									if button.Text then
-										button.Text:SetText(rare)
+										button.Text:SetText(mob)
 
 										button:SetPoint("TOPLEFT", 0, -(visibleButtonsCount * buttonHeight))
 
@@ -5491,7 +5491,7 @@
 			unitscan.print("replace " .. YELLOW .. "'name'" .. WHITE .. " with npc you want to scan.")
 			print(" - for example: " .. GREEN .. "/unitscan " .. YELLOW .. "Hogger")
 
-			--===== Slash to only print currently tracked non-rare targets. =====--
+			--===== Slash to only print currently tracked non-rare scan units. =====--
 		elseif command == "list" then
 			if unitscan_scanlist["profiles"]["default"] then
 				if next(unitscan_scanlist["profiles"]["default"]) == nil then

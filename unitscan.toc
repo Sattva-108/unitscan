@@ -9,7 +9,7 @@
 ## Title: unitscan
 ## Version: 3.3.5
 ## Notes: Unit scanner with flashy alert 
-## SavedVariables: unitscanDB, unitscan_defaults, unitscan_targets, unitscan_scanlist, unitscan_history, unitscan_ignored, unitscan_removed
+## SavedVariables: unitscanDB, unitscan_defaults, unitscan_targets, unitscan_scanlist, unitscan_ignored, unitscan_removed
 
 
 libs\LibStub\LibStub.lua
