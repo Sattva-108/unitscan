@@ -2126,6 +2126,10 @@
 				-- Also i will include code that will be creating new profiles here.
 				--------------------------------------------------------------------------------
 
+				--------------------------------------------------------------------------------
+				-- Convert old tables and populate new ones.
+				--------------------------------------------------------------------------------
+
 
 				-- Check if "profiles" table exists in unitscan_scanlist
 				if not unitscan_scanlist["profiles"] then
@@ -2137,11 +2141,41 @@
 					unitscan_scanlist["profiles"]["default"] = {}
 				end
 
-				-- Iterate over the keys in unitscan_targets table
-				for key, _ in pairs(unitscan_targets) do
-					-- Add the key to unitscan_scanlist.profiles.default table
-					unitscan_scanlist["profiles"]["default"][key] = true
+				-- Check if "history" table exists in unitscan_scanlist.profiles.default
+				if not unitscan_scanlist["profiles"]["default"]["history"] then
+					unitscan_scanlist["profiles"]["default"]["history"] = {}
 				end
+
+				-- Check if "targets" table exists in unitscan_scanlist.profiles.default
+				if not unitscan_scanlist["profiles"]["default"]["targets"] then
+					unitscan_scanlist["profiles"]["default"]["targets"] = {}
+				end
+
+				-- Populate "history" table with values from unitscan_removed
+				for _, value in ipairs(unitscan_removed) do
+					local exists = false
+					for _, existingValue in ipairs(unitscan_scanlist["profiles"]["default"]["history"]) do
+						if existingValue == value then
+							exists = true
+							break
+						end
+					end
+					if not exists then
+						table.insert(unitscan_scanlist["profiles"]["default"]["history"], value)
+					end
+				end
+
+				-- Populate "targets" table with keys from unitscan_targets
+				for key, _ in pairs(unitscan_targets) do
+					unitscan_scanlist["profiles"]["default"]["targets"][key] = true
+				end
+
+
+
+				--------------------------------------------------------------------------------
+				-- CreateProfile
+				--------------------------------------------------------------------------------
+
 
 				-- Function to handle the slash command
 				local function CreateProfile(profileName)
@@ -2182,7 +2216,7 @@
 				SLASH_CREATEPROFILE1 = "/cp"
 
 				--------------------------------------------------------------------------------
-				--
+				-- Change Profile
 				--------------------------------------------------------------------------------
 
 
@@ -2224,6 +2258,10 @@
 
 				-- Register the slash command
 				SLASH_CHANGPROFILE1 = "/cpc"
+
+				--------------------------------------------------------------------------------
+				--End of Profiles setup
+				--------------------------------------------------------------------------------
 
 				--------------------------------------------------------------------------------
 				-- Escape colors
@@ -5173,6 +5211,7 @@
 	        end
 	        if GetTime() - unitscan.last_check >= unitscan_defaults.CHECK_INTERVAL then
 	            unitscan.last_check = GetTime()
+				-- TODO: Gives Lua errors if wiped whole scanList table. I guess it's fine. But needs some testing.
 	            for name in pairs(unitscan_scanlist["profiles"]["default"]) do
 	                unitscan.target(name)
 	            end
