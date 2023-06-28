@@ -2119,6 +2119,14 @@
 
 			do
 
+
+
+				--------------------------------------------------------------------------------
+				-- Convert old unitscan_targets table to new format and populate it
+				-- Also i will include code that will be creating new profiles here.
+				--------------------------------------------------------------------------------
+
+
 				-- Check if "profiles" table exists in unitscan_scanlist
 				if not unitscan_scanlist["profiles"] then
 					unitscan_scanlist["profiles"] = {}
@@ -2135,7 +2143,87 @@
 					unitscan_scanlist["profiles"]["default"][key] = true
 				end
 
+				-- Function to handle the slash command
+				local function CreateProfile(profileName)
+					-- Check if the "profiles" table exists in unitscan_scanlist
+					if not unitscan_scanlist["profiles"] then
+						unitscan_scanlist["profiles"] = {}
+					end
 
+					-- Check if the profile name table exists in unitscan_scanlist.profiles
+					if not unitscan_scanlist["profiles"][profileName] then
+						unitscan_scanlist["profiles"][profileName] = {}
+					else
+						-- Profile with the same name already exists
+						print("Profile '" .. profileName .. "' already exists.")
+						return
+					end
+
+					-- Success message
+					print("Created a new empty profile: " .. profileName)
+				end
+
+				-- Slash command handler
+				SlashCmdList["CREATEPROFILE"] = function(msg)
+					-- Trim leading and trailing whitespaces from the input
+					local profileName = strtrim(msg or "")
+
+					-- Check if the profile name is empty
+					if profileName == "" then
+						print("Please provide a profile name.")
+						return
+					end
+
+					-- Create the empty profile
+					CreateProfile(profileName)
+				end
+
+				-- Register the slash command
+				SLASH_CREATEPROFILE1 = "/cp"
+
+				--------------------------------------------------------------------------------
+				--
+				--------------------------------------------------------------------------------
+
+
+				-- Function to change the active profile
+				local function ChangeProfile(profileName)
+					-- Check if the "profiles" table exists in unitscan_scanlist
+					if not unitscan_scanlist["profiles"] then
+						unitscan_scanlist["profiles"] = {}
+					end
+
+					-- Check if the profile name exists in unitscan_scanlist.profiles
+					if unitscan_scanlist["profiles"][profileName] then
+						-- Set the active profile to the selected profile
+						unitscan_scanlist["activeProfile"] = profileName
+						print("Switched to profile: " .. profileName)
+					else
+						-- Profile does not exist
+						print("Profile '" .. profileName .. "' does not exist.")
+					end
+				end
+
+				-- Function to handle the slash command for changing profiles
+				local function ChangeProfileCommand(msg)
+					-- Trim leading and trailing whitespaces from the input
+					local profileName = strtrim(msg or "")
+
+					-- Check if the profile name is empty
+					if profileName == "" then
+						print("Please provide a profile name.")
+						return
+					end
+
+					-- Change the active profile
+					ChangeProfile(profileName)
+				end
+
+				-- Slash command handler for changing profiles
+				SlashCmdList["CHANGPROFILE"] = ChangeProfileCommand
+
+				-- Register the slash command
+				SLASH_CHANGPROFILE1 = "/cpc"
 
 				--------------------------------------------------------------------------------
 				-- Escape colors
@@ -2194,25 +2282,41 @@
 				scanList:SetSize(scanFrame:GetWidth() - 30, maxVisibleButtons * buttonHeight)
 				scanList.Buttons = {}
 
-				---- Sort rare spawns by profile and expansion
-				--local sortedSpawns = {}
-				--for expansion, spawns in pairs(rare_spawns) do
-				--	for name, profile in pairs(spawns) do
-				--		sortedSpawns[profile] = sortedSpawns[profile] or {}
-				--		table.insert(sortedSpawns[profile], {name = name, expansion = expansion})
-				--	end
-				--end
-
 				local sortedSpawns = {}
+				-- Function to sort the scan list based on the active profile
 				function unitscan_sortScanList()
-					sortedSpawns = {} -- Clear the table before sorting
-				for name in pairs(unitscan_scanlist["profiles"]["default"]) do
-				    table.insert(sortedSpawns, name)
-				    --print("Inserted name:", name)
+					-- Check if the "profiles" table exists in unitscan_scanlist
+					if not unitscan_scanlist["profiles"] then
+						unitscan_scanlist["profiles"] = {}
+					end
+
+					-- Get the active profile name
+					local activeProfile = unitscan_scanlist["activeProfile"] or "default"
+
+					-- Check if the active profile exists in unitscan_scanlist.profiles
+					if unitscan_scanlist["profiles"][activeProfile] then
+						-- Clear the sortedSpawns table before sorting
+						sortedSpawns = {}
+
+						-- Iterate over the keys in unitscan_scanlist.profiles[activeProfile]
+						for name in pairs(unitscan_scanlist["profiles"][activeProfile]) do
+							table.insert(sortedSpawns, name)
+						end
+
+						-- Sort the scan list
+						table.sort(sortedSpawns)
+
+						-- Print the sorted scan list
+						for i, name in ipairs(sortedSpawns) do
+							--print("Sorted spawn:", name)
+						end
+					else
+						-- Active profile does not exist
+						--print("Active profile '" .. activeProfile .. "' does not exist.")
+					end
 				end
-				table.sort(sortedSpawns)
-			end
-			unitscan_sortScanList()
+
+				unitscan_sortScanList()
 
 				local index = 1
 				-- Check if sortedSpawns is empty
@@ -2682,9 +2786,9 @@
 				-- Create profile buttons
 				local profileIndex = 1
 				for _, profile in ipairs(sortedProfiles) do
-					print("Sorted Profiles: " .. profile)
+					--print("Sorted Profiles: " .. profile)
 					if profileIndex <= profileMaxVisibleButtons then
-						print("profileIndex <= profileMaxVisibleButtons ")
+						--print("profileIndex <= profileMaxVisibleButtons ")
 						local profileButton = CreateFrame("Button", nil, profileList)
 						profileButton:SetSize(profileList:GetWidth(), buttonHeight)
 						profileButton:SetPoint("TOPLEFT", 0, -(profileIndex - 1) * buttonHeight)
@@ -2813,6 +2917,7 @@
 							-- Clear focus of search box
 							unitscan_searchbox:ClearFocus()
 
+							--TODO: Do i even need this part of code?
 							-- Hide unused buttons
 							for i = index, profileMaxVisibleButtons do
 								if scanList.Buttons[i] then
@@ -2828,13 +2933,13 @@
 						--------------------------------------------------------------------------------
 
 						
-						profileButton:SetScript("OnEvent", function()
-							if event == "PLAYER_ENTERING_WORLD" then
-								LibCompat.After(0.5, function() unitscan_scanlistGUIButton:Click() end)
-								profileButton:UnregisterEvent("PLAYER_ENTERING_WORLD")
-							end
-						end)
-						profileButton:RegisterEvent("PLAYER_ENTERING_WORLD")
+						--profileButton:SetScript("OnEvent", function()
+						--	if event == "PLAYER_ENTERING_WORLD" then
+						--		LibCompat.After(0.5, function() unitscan_scanlistGUIButton:Click() end)
+						--		profileButton:UnregisterEvent("PLAYER_ENTERING_WORLD")
+						--	end
+						--end)
+						--profileButton:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 						--------------------------------------------------------------------------------
 						-- Other Scripts
@@ -2861,7 +2966,7 @@
 							end  
 						end
 
-						unitscan_hideProfileButtons()
+						--unitscan_hideProfileButtons()
 
 
 						--------------------------------------------------------------------------------
