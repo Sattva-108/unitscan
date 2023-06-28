@@ -91,6 +91,9 @@
 
 	unitscan_removed = {}
 
+	-- Get the active profile name
+	local activeProfile = unitscan_scanlist["activeProfile"] or "default"
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
@@ -2151,24 +2154,34 @@
 					unitscan_scanlist["profiles"]["default"]["targets"] = {}
 				end
 
-				-- Populate "history" table with values from unitscan_removed
-				for _, value in ipairs(unitscan_removed) do
-					local exists = false
-					for _, existingValue in ipairs(unitscan_scanlist["profiles"]["default"]["history"]) do
-						if existingValue == value then
-							exists = true
-							break
+				-- Populate "history" table with values from unitscan_scanlist["profiles"][activeProfile]["history"]
+				if not unitscanDB["HistoryTablePopulated"] then
+					for _, value in ipairs(unitscan_removed) do
+						local exists = false
+						for _, existingValue in ipairs(unitscan_scanlist["profiles"]["default"]["history"]) do
+							if existingValue == value then
+								exists = true
+								unitscanDB["HistoryTablePopulated"] = true
+								break
+							end
 						end
-					end
-					if not exists then
-						table.insert(unitscan_scanlist["profiles"]["default"]["history"], value)
+						if not exists then
+							table.insert(unitscan_scanlist["profiles"]["default"]["history"], value)
+							--print("inserting", value)
+							unitscanDB["HistoryTablePopulated"] = true
+						end
 					end
 				end
 
 				-- Populate "targets" table with keys from unitscan_targets
-				for key, _ in pairs(unitscan_targets) do
-					unitscan_scanlist["profiles"]["default"]["targets"][key] = true
+				if not unitscanDB["TargetsTablePopulated"] then
+					for key, _ in pairs(unitscan_targets) do
+						unitscan_scanlist["profiles"]["default"]["targets"][key] = true
+						--print("setting true to", key)
+						unitscanDB["TargetsTablePopulated"] = true
+					end
 				end
+
 
 
 
@@ -2320,6 +2333,7 @@
 				scanList:SetSize(scanFrame:GetWidth() - 30, maxVisibleButtons * buttonHeight)
 				scanList.Buttons = {}
 
+				--TODO: Rename sortedSpawns to be exclusive name, to be different from rarespawns list table.
 				local sortedSpawns = {}
 				-- Function to sort the scan list based on the active profile
 				function unitscan_sortScanList()
@@ -2328,17 +2342,17 @@
 						unitscan_scanlist["profiles"] = {}
 					end
 
-					-- Get the active profile name
-					local activeProfile = unitscan_scanlist["activeProfile"] or "default"
 
 					-- Check if the active profile exists in unitscan_scanlist.profiles
-					if unitscan_scanlist["profiles"][activeProfile] then
+					if unitscan_scanlist["activeProfile"] then
 						-- Clear the sortedSpawns table before sorting
 						sortedSpawns = {}
 
 						-- Iterate over the keys in unitscan_scanlist.profiles[activeProfile]
-						for name in pairs(unitscan_scanlist["profiles"][activeProfile]) do
+						for name in pairs(unitscan_scanlist["profiles"][activeProfile]["targets"]) do
+							--print(activeProfile)
 							table.insert(sortedSpawns, name)
+							--print(name)
 						end
 
 						-- Sort the scan list
@@ -2348,9 +2362,14 @@
 						for i, name in ipairs(sortedSpawns) do
 							--print("Sorted spawn:", name)
 						end
+					elseif not unitscan_scanlist["activeProfile"] then
+
+						unitscan_scanlist["activeProfile"] = activeProfile or "default"
+						--print("return")
+						return
 					else
 						-- Active profile does not exist
-						--print("Active profile '" .. activeProfile .. "' does not exist.")
+						print("Active profile '" .. activeProfile .. "' does not exist or empty.")
 					end
 				end
 
@@ -2404,19 +2423,19 @@
 								-- Get the unit name from the button's text
 								local key = strupper(self.Text:GetText())
 
-								if not unitscan_scanlist["profiles"]["default"][key] then
+								if not unitscan_scanlist["profiles"][activeProfile]["targets"][key] then
 									-- Add unit to scan list
-									unitscan_scanlist["profiles"]["default"][key] = true
+									unitscan_scanlist["profiles"][activeProfile]["targets"][key] = true
 									unitscan.print(YELLOW .. "+ " .. key)
 									unitscan_sortScanList()
 									self.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
 									texture:Show()
 
-									-- Check if the key is in unitscan_removed table and remove it
-									for i, value in ipairs(unitscan_removed) do
+									-- Check if the key is in unitscan_scanlist["profiles"][activeProfile]["history"] table and remove it
+									for i, value in ipairs(unitscan_scanlist["profiles"][activeProfile]["history"]) do
 										if value == key then
-											table.remove(unitscan_removed, i)
-											--print("Removed from unitscan_removed:", key)
+											table.remove(unitscan_scanlist["profiles"][activeProfile]["history"], i)
+											--print("Removed from unitscan_scanlist["profiles"][activeProfile]["history"]:", key)
 											break
 										end
 									end
@@ -2425,16 +2444,16 @@
 
 								else
 									-- Remove unit from scan list
-									unitscan_scanlist["profiles"]["default"][key] = nil
+									unitscan_scanlist["profiles"][activeProfile]["targets"][key] = nil
 									unitscan.print(RED .. "- " .. key)
 									found[key] = nil
 									unitscan_sortScanList()
 									self.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
 									texture:Hide()
 
-									-- Check if the key is already in unitscan_removed table
+									-- Check if the key is already in unitscan_scanlist["profiles"][activeProfile]["history"] table
 									local isDuplicate = false
-									for _, value in ipairs(unitscan_removed) do
+									for _, value in ipairs(unitscan_scanlist["profiles"][activeProfile]["history"]) do
 										--print(value)
 										if value == key then
 											isDuplicate = true
@@ -2442,10 +2461,10 @@
 										end
 									end
 
-									-- Insert the key into unitscan_removed table if it's not a duplicate
+									-- Insert the key into unitscan_scanlist["profiles"][activeProfile]["history"] table if it's not a duplicate
 									if not isDuplicate then
-										table.insert(unitscan_removed, key)
-										--print("Added to unitscan_removed:", key)
+										table.insert(unitscan_scanlist["profiles"][activeProfile]["history"], key)
+										--print("Added to unitscan_scanlist["profiles"][activeProfile]["history"]:", key)
 									end
 																	unitscan_historyListUpdate()
 								unitscan_sortHistory()
@@ -2493,9 +2512,10 @@
 
 							-- Set button texture update function for OnShow event
 							button:SetScript("OnShow", function(self)
+								-- TODO: Rename rare to something
 								local rare = string.upper(button.Text:GetText())
 
-								if unitscan_removed[rare] then
+								if unitscan_scanlist["profiles"][activeProfile]["history"][rare] then
 									button.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
 								else
 									button.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
@@ -2613,20 +2633,47 @@
 				historyList.Buttons = {}
 
 				local sortedHistory = {}
+				-- Function to sort the scan list based on the active profile
 				function unitscan_sortHistory()
-					sortedHistory = {}
-				for _, name in pairs(unitscan_removed) do
-					--print(name)
-					table.insert(sortedHistory, name)
-					--print("inserted " .. name)
+					-- Check if the "profiles" table exists in unitscan_scanlist
+					if not unitscan_scanlist["profiles"] then
+						unitscan_scanlist["profiles"] = {}
+					end
+
+
+					-- Check if the active profile exists in unitscan_scanlist.profiles
+					if unitscan_scanlist["activeProfile"] then
+						-- Clear the sortedHistory table before sorting
+						sortedHistory = {}
+
+						-- Iterate over the keys in unitscan_scanlist.profiles[activeProfile]
+						for _, name in pairs(unitscan_scanlist["profiles"][activeProfile]["history"]) do
+							--print(activeProfile)
+							table.insert(sortedHistory, name)
+							--print(name)
+						end
+
+						-- Sort the scan list
+						table.sort(sortedHistory)
+
+						---- Print the sorted scan list
+						--for i, name in ipairs(sortedHistory) do
+						--	print("Sorted history spawn:", name)
+						--end
+					elseif not unitscan_scanlist["activeProfile"] then
+
+						unitscan_scanlist["activeProfile"] = activeProfile or "default"
+						--FIXME: do i need this code to return?
+						--print("return")
+						--return
+					else
+						-- Active profile does not exist
+						print("Active profile '" .. activeProfile .. "' does not exist or empty.")
+					end
 				end
-				table.sort(sortedHistory)
-				end
+
 				unitscan_sortHistory()
-				--for name in pairs(unitscan_scanlist["profiles"]["default"]) do
-				--				-- Print the contents of unitscan_scanlist["profiles"]["default"]
-				--print("unitscan_scanlist["profiles"]["default"]:", name)
-				--end
+
 
 				local index = 1
 				if #sortedHistory == 0 then
@@ -2668,45 +2715,45 @@
 								-- Get the unit name from the button's text
 								local key = strupper(button.Text:GetText())
 
-								if not unitscan_scanlist["profiles"]["default"][key] then
+								if not unitscan_scanlist["profiles"][activeProfile]["targets"][key] then
 									-- Add unit to scan list
-									unitscan_scanlist["profiles"]["default"][key] = true
+									unitscan_scanlist["profiles"][activeProfile]["targets"][key] = true
 									unitscan.print(YELLOW .. "+ " .. key)
 									unitscan_sortScanList()
 									button.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to default color
 									texture:Show()
 
-									-- Check if the key is in unitscan_removed table and remove it
-									for i, value in ipairs(unitscan_removed) do
+									-- Check if the key is in unitscan_scanlist["profiles"][activeProfile]["history"] table and remove it
+									for i, value in ipairs(unitscan_scanlist["profiles"][activeProfile]["history"]) do
 										if value == key then
-											table.remove(unitscan_removed, i)
-											--print("Removed from unitscan_removed:", key)
+											table.remove(unitscan_scanlist["profiles"][activeProfile]["history"], i)
+											--print("Removed from unitscan_scanlist["profiles"][activeProfile]["history"]:", key)
 											break
 										end
 									end
 
 								else
 									-- Remove unit from scan list
-									unitscan_scanlist["profiles"]["default"][key] = nil
+									unitscan_scanlist["profiles"][activeProfile]["targets"][key] = nil
 									unitscan.print(RED .. "- " .. key)
 									found[key] = nil
 									unitscan_sortScanList()
 									button.IgnoreTexture:SetTexture(nil) -- Set button texture to red color
 									texture:Hide()
 
-									-- Check if the key is already in unitscan_removed table
+									-- Check if the key is already in unitscan_scanlist["profiles"][activeProfile]["history"] table
 									local isDuplicate = false
-									for _, value in ipairs(unitscan_removed) do
+									for _, value in ipairs(unitscan_scanlist["profiles"][activeProfile]["history"]) do
 										if value == key then
 											isDuplicate = true
 											break
 										end
 									end
 
-									-- Insert the key into unitscan_removed table if it's not a duplicate
+									-- Insert the key into unitscan_scanlist["profiles"][activeProfile]["history"] table if it's not a duplicate
 									if not isDuplicate then
-										table.insert(unitscan_removed, key)
-										--print("Added to unitscan_removed:", key)
+										table.insert(unitscan_scanlist["profiles"][activeProfile]["history"], key)
+										--print("Added to unitscan_scanlist["profiles"][activeProfile]["history"]:", key)
 									end
 								end
 							end)
@@ -2714,7 +2761,7 @@
 							button:SetScript("OnShow", function(self)
 								local rare = string.upper(button.Text:GetText())
 
-								if unitscan_removed[rare] then
+								if unitscan_scanlist["profiles"][activeProfile]["history"][rare] then
 									button.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6)
 								else
 									button.IgnoreTexture:SetTexture(nil)
@@ -2971,13 +3018,15 @@
 						--------------------------------------------------------------------------------
 
 						
-						--profileButton:SetScript("OnEvent", function()
-						--	if event == "PLAYER_ENTERING_WORLD" then
-						--		LibCompat.After(0.5, function() unitscan_scanlistGUIButton:Click() end)
-						--		profileButton:UnregisterEvent("PLAYER_ENTERING_WORLD")
-						--	end
-						--end)
-						--profileButton:RegisterEvent("PLAYER_ENTERING_WORLD")
+						profileButton:SetScript("OnEvent", function()
+							if event == "PLAYER_ENTERING_WORLD" then
+								--===== Click twice to populate the list properly after converting from old table =====--
+								unitscan_scanlistGUIButton:Click()
+								LibCompat.After(0.5, function() unitscan_scanlistGUIButton:Click() end)
+								profileButton:UnregisterEvent("PLAYER_ENTERING_WORLD")
+							end
+						end)
+						profileButton:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 						--------------------------------------------------------------------------------
 						-- Other Scripts
@@ -3348,17 +3397,16 @@
 						expbtn[title]:SetScript("OnClick", function()
 							unitscan_scanFrame:Show()
 							unitscan_historyFrame:Hide()
-							if scanListContains == true then 
+
 							unitscan_scanListUpdate()
-						end
+							unitscan_sortHistory()
 							unitscan_sortScanList()
-							--unitscan_HideExistingScanButtons()
+
+
+							-- Hide History Buttons - to save memory.
 							if historyListContains == true then
-							--unitscan_HideExistingHistoryButtons()
-							unitscan_hideHistoryButtons()
-							--unitscan_hideProfileButtons()
-							--unitscan_HideExistingProfileButtons()
-						end
+								unitscan_hideHistoryButtons()
+							end
 							unitscan_profileScrollbar:SetMinMaxValues(1, 1)
 							unitscan_profileScrollbar:Hide()
 							scanFrame.scroll.ScrollBar:Hide()
@@ -3382,14 +3430,11 @@
 								if button.Text then
 									button.Text:SetText(rare)
 								end
-									--if visibleButtonsCount >= 1 then
-									--	button:SetPoint("TOPLEFT", 0.5, -(visibleButtonsCount * buttonHeight + 0.5)) -- Increase the vertical position by 1 to reduce overlap
-									--else
-										button:SetPoint("TOPLEFT", 0, -(visibleButtonsCount * buttonHeight))
-									--end
-									button:Show()
 
-									visibleButtonsCount = visibleButtonsCount + 1
+								button:SetPoint("TOPLEFT", 0, -(visibleButtonsCount * buttonHeight))
+								button:Show()
+
+								visibleButtonsCount = visibleButtonsCount + 1
 
 
 
@@ -5203,6 +5248,7 @@
 	do
 	    unitscan.last_check = GetTime()
 	    function unitscan.UPDATE()
+			if not unitscan_scanlist["profiles"] then return end
 			-- disable isResting for now, for developing. TODO: enable this before push to main branch
 	        --if is_resting then return end
 	        if not InCombatLockdown() and unitscan.discovered_unit then
@@ -5290,23 +5336,23 @@
 	function unitscan.toggle_target(name)
 
 		local key = strupper(name)
-		if unitscan_scanlist["profiles"]["default"][key] then
-			unitscan_scanlist["profiles"]["default"][key] = nil
+		if unitscan_scanlist["profiles"][activeProfile]["targets"][key] then
+			unitscan_scanlist["profiles"][activeProfile]["targets"][key] = nil
 			found[key] = nil
 			unitscan.print(RED .. '- ' .. key)
-			-- Check if the key is already in unitscan_removed table
+			-- Check if the key is already in unitscan_scanlist["profiles"][activeProfile]["history"] table
 			local isDuplicate = false
-			for _, value in ipairs(unitscan_removed) do
+			for _, value in ipairs(unitscan_scanlist["profiles"][activeProfile]["history"]) do
 				if value == key then
 					isDuplicate = true
 					break
 				end
 			end
 
-			-- Insert the key into unitscan_removed table if it's not a duplicate
+			-- Insert the key into unitscan_scanlist["profiles"][activeProfile]["history"] table if it's not a duplicate
 			if not isDuplicate then
-				table.insert(unitscan_removed, key)
-				--print("Added to unitscan_removed:", key)
+				table.insert(unitscan_scanlist["profiles"][activeProfile]["history"], key)
+				--print("Added to unitscan_scanlist["profiles"][activeProfile]["history"]:", key)
 			end
 			unitscan_sortScanList()
 			unitscan_sortHistory()
@@ -5315,13 +5361,13 @@
 
 
 		elseif key ~= '' then
-			unitscan_scanlist["profiles"]["default"][key] = true
+			unitscan_scanlist["profiles"][activeProfile]["targets"][key] = true
 			unitscan.print(YELLOW .. '+ ' .. key)
-			-- Check if the key is in unitscan_removed table and remove it
-			for i, value in ipairs(unitscan_removed) do
+			-- Check if the key is in unitscan_scanlist["profiles"][activeProfile]["history"] table and remove it
+			for i, value in ipairs(unitscan_scanlist["profiles"][activeProfile]["history"]) do
 				if value == key then
-					table.remove(unitscan_removed, i)
-					--print("Removed from unitscan_removed:", key)
+					table.remove(unitscan_scanlist["profiles"][activeProfile]["history"], i)
+					--print("Removed from unitscan_scanlist["profiles"][activeProfile]["history"]:", key)
 					break
 				end
 			end
@@ -5346,15 +5392,15 @@
 			local targetName = UnitName("target")
 			if targetName then
 				local key = strupper(targetName)
-				if not unitscan_scanlist["profiles"]["default"][key] then
-					unitscan_scanlist["profiles"]["default"][key] = true
+				if not unitscan_scanlist["profiles"][activeProfile]["targets"][key] then
+					unitscan_scanlist["profiles"][activeProfile]["targets"][key] = true
 					unitscan.print(YELLOW .. "+ " .. key)
 
-					-- Check if the key is in unitscan_removed table and remove it
-					for i, value in ipairs(unitscan_removed) do
+					-- Check if the key is in unitscan_scanlist["profiles"][activeProfile]["history"] table and remove it
+					for i, value in ipairs(unitscan_scanlist["profiles"][activeProfile]["history"]) do
 						if value == key then
-							table.remove(unitscan_removed, i)
-							--print("Removed from unitscan_removed:", key)
+							table.remove(unitscan_scanlist["profiles"][activeProfile]["history"], i)
+							--print("Removed from unitscan_scanlist["profiles"][activeProfile]["history"]:", key)
 							break
 						end
 					end
@@ -5365,22 +5411,22 @@
 					unitscan_historyListUpdate()
 
 				else
-					unitscan_scanlist["profiles"]["default"][key] = nil
+					unitscan_scanlist["profiles"][activeProfile]["targets"][key] = nil
 					unitscan.print(RED .. "- " .. key)
 					found[key] = nil
-					-- Check if the key is already in unitscan_removed table
+					-- Check if the key is already in unitscan_scanlist["profiles"][activeProfile]["history"] table
 					local isDuplicate = false
-					for _, value in ipairs(unitscan_removed) do
+					for _, value in ipairs(unitscan_scanlist["profiles"][activeProfile]["history"]) do
 						if value == key then
 							isDuplicate = true
 							break
 						end
 					end
 
-					-- Insert the key into unitscan_removed table if it's not a duplicate
+					-- Insert the key into unitscan_scanlist["profiles"][activeProfile]["history"] table if it's not a duplicate
 					if not isDuplicate then
-						table.insert(unitscan_removed, key)
-						--print("Added to unitscan_removed:", key)
+						table.insert(unitscan_scanlist["profiles"][activeProfile]["history"], key)
+						--print("Added to unitscan_scanlist["profiles"][activeProfile]["history"]:", key)
 					end
 					unitscan_sortScanList()
 					unitscan_scanListUpdate()

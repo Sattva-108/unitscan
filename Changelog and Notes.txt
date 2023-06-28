@@ -42,7 +42,7 @@ RareList - check for global variables may be conflicting with other addons. (Ren
 
 Global -  rename rare_spawns table to something more unique
 
-
+Profiles - think and check and test for if TargetsTablePopulated and HistoryTablePopulated can be in some way reset, risking to corrupt user data tables.
 
 
 --------------------------------------------------------------------------------
