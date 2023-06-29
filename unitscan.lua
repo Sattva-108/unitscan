@@ -92,8 +92,10 @@
 	--===== Table that i used to contain non-active scans. =====--
 	unitscan_removed = {}
 
-	-- Get the active profile name
-	local activeProfile = unitscan_scanlist["activeProfile"] or "default"
+	--===== Returns current set profile - activeProfile =====--
+	function unitscan_getActiveProfile()
+		return unitscan_scanlist["activeProfile"]
+	end
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -2120,6 +2122,8 @@
 
 		local profileButtons = {}
 
+		local activeProfile = unitscan_getActiveProfile()
+
 		function unitscanLC:scan_list()
 
 			do
@@ -2134,7 +2138,6 @@
 				--------------------------------------------------------------------------------
 				-- Convert old tables and populate new ones.
 				--------------------------------------------------------------------------------
-
 
 				-- Check if "profiles" table exists in unitscan_scanlist
 				if not unitscan_scanlist["profiles"] then
@@ -2154,6 +2157,31 @@
 				-- Check if "targets" table exists in unitscan_scanlist.profiles.default
 				if not unitscan_scanlist["profiles"]["default"]["targets"] then
 					unitscan_scanlist["profiles"]["default"]["targets"] = {}
+				end
+
+				if activeProfile ~= "default" then
+					print(activeProfile .. " check")
+
+					-- Check if "profiles" table exists in unitscan_scanlist
+					if not unitscan_scanlist["profiles"] then
+						unitscan_scanlist["profiles"] = {}
+					end
+
+					-- Check if activeProfile table exists in unitscan_scanlist.profiles
+					if not unitscan_scanlist["profiles"][activeProfile] then
+						unitscan_scanlist["profiles"][activeProfile] = {}
+					end
+
+					-- Check if "history" table exists in unitscan_scanlist.profiles.default
+					if not unitscan_scanlist["profiles"][activeProfile]["history"] then
+						unitscan_scanlist["profiles"][activeProfile]["history"] = {}
+					end
+
+					-- Check if "targets" table exists in unitscan_scanlist.profiles.default
+					if not unitscan_scanlist["profiles"][activeProfile]["targets"] then
+						unitscan_scanlist["profiles"][activeProfile]["targets"] = {}
+					end
+
 				end
 
 				-- Populate "history" table with values from unitscan_scanlist["profiles"][activeProfile]["history"]
@@ -2365,7 +2393,7 @@
 							--print("Sorted spawn:", name)
 						end
 					elseif not unitscan_scanlist["activeProfile"] then
-
+						--FIXME: is it really needed to declare "default" and can it somehow break our profiles swap?
 						unitscan_scanlist["activeProfile"] = activeProfile or "default"
 						--print("return")
 						return
@@ -2663,7 +2691,7 @@
 						--	print("Sorted history spawn:", name)
 						--end
 					elseif not unitscan_scanlist["activeProfile"] then
-
+						--FIXME: is it really needed to declare "default" and can it somehow break our profiles swap?
 						unitscan_scanlist["activeProfile"] = activeProfile or "default"
 						--FIXME: do i need this code to return?
 						--print("return")
@@ -5248,6 +5276,8 @@
 	do
 	    unitscan.last_check = GetTime()
 	    function unitscan.UPDATE()
+			local activeProfile = unitscan_getActiveProfile()
+			--print(activeProfile)
 			if not unitscan_scanlist["profiles"] then return end
 			-- disable isResting for now, for developing. TODO: enable this before push to main branch
 	        --if is_resting then return end
@@ -5258,7 +5288,7 @@
 	        if GetTime() - unitscan.last_check >= unitscan_defaults.CHECK_INTERVAL then
 	            unitscan.last_check = GetTime()
 				-- TODO: Gives Lua errors if wiped whole scanList table. I guess it's fine. But needs some testing.
-	            for name in pairs(unitscan_scanlist["profiles"]["default"]) do
+	            for name in pairs(unitscan_scanlist["profiles"][activeProfile]["targets"]) do
 	                unitscan.target(name)
 	            end
 	            for _, target in ipairs(nearby_targets) do
@@ -5319,8 +5349,9 @@
 
 
 	function unitscan.sorted_targets()
+		local activeProfile = unitscan_getActiveProfile()
 		local sorted_targets = {}
-		for key in pairs(unitscan_scanlist["profiles"]["default"]) do
+		for key in pairs(unitscan_scanlist["profiles"][activeProfile]["targets"]) do
 			tinsert(sorted_targets, key)
 		end
 		sort(sorted_targets, function(key1, key2) return key1 < key2 end)
@@ -5334,7 +5365,7 @@
 
 
 	function unitscan.toggle_target(name)
-
+		local activeProfile = unitscan_getActiveProfile()
 		local key = strupper(name)
 		if unitscan_scanlist["profiles"][activeProfile]["targets"][key] then
 			unitscan_scanlist["profiles"][activeProfile]["targets"][key] = nil
@@ -5386,6 +5417,7 @@
 	-- Slash command function
 	function unitscanLC:SlashFunc(parameter)
 		local _, _, command, args = string.find(parameter, '^(%S+)%s*(.*)$')
+		local activeProfile = unitscan_getActiveProfile()
 
 		--===== Slash to put current player target to the unit scanning list. =====--    
 		if command == "target" then
@@ -5493,15 +5525,15 @@
 
 			--===== Slash to only print currently tracked non-rare scan units. =====--
 		elseif command == "list" then
-			if unitscan_scanlist["profiles"]["default"] then
-				if next(unitscan_scanlist["profiles"]["default"]) == nil then
+			if unitscan_scanlist["profiles"][activeProfile]["targets"] then
+				if next(unitscan_scanlist["profiles"][activeProfile]["targets"]) == nil then
 					unitscan.print("Unit Scanner is currently empty.")
 				else
 					print(" " .. YELLOW .. "unitscan list" .. WHITE .. " currently contains:")
 					local sortedKeys = {}
 
 					-- Step 1: Insert keys into the sortedKeys table
-					for k, _ in pairs(unitscan_scanlist["profiles"]["default"]) do
+					for k, _ in pairs(unitscan_scanlist["profiles"][activeProfile]["targets"]) do
 						table.insert(sortedKeys, tostring(k))
 					end
 
