@@ -2275,6 +2275,13 @@
 						-- Set the active profile to the selected profile
 						unitscan_scanlist["activeProfile"] = profileName
 						print("Switched to profile: " .. profileName)
+
+						-- call these to update to new profile.
+						unitscan_sortScanList()
+						unitscan_sortHistory()
+						unitscan_scanListUpdate()
+						unitscan_historyListUpdate()
+
 					else
 						-- Profile does not exist
 						print("Profile '" .. profileName .. "' does not exist.")
@@ -2367,6 +2374,7 @@
 				local sortedSpawns = {}
 				-- Function to sort the scan list based on the active profile
 				function unitscan_sortScanList()
+					activeProfile = unitscan_getActiveProfile()
 					-- Check if the "profiles" table exists in unitscan_scanlist
 					if not unitscan_scanlist["profiles"] then
 						unitscan_scanlist["profiles"] = {}
@@ -2496,8 +2504,8 @@
 										table.insert(unitscan_scanlist["profiles"][activeProfile]["history"], key)
 										--print("Added to unitscan_scanlist["profiles"][activeProfile]["history"]:", key)
 									end
-																	unitscan_historyListUpdate()
-								unitscan_sortHistory()
+									unitscan_historyListUpdate()
+									unitscan_sortHistory()
 
 								end
 
@@ -2665,6 +2673,7 @@
 				local sortedHistory = {}
 				-- Function to sort the scan list based on the active profile
 				function unitscan_sortHistory()
+					activeProfile = unitscan_getActiveProfile()
 					-- Check if the "profiles" table exists in unitscan_scanlist
 					if not unitscan_scanlist["profiles"] then
 						unitscan_scanlist["profiles"] = {}
