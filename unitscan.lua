@@ -2120,6 +2120,8 @@
 		
 		local selectedProfile = nil
 
+		local menuSelectedButton = nil
+
 		local profileButtons = {}
 
 		local activeProfile = unitscan_getActiveProfile()
@@ -2344,15 +2346,15 @@
 
 
 				local scanFrame = CreateFrame("Frame", nil, unitscanLC["Page2"])
-				scanFrame:SetSize(220, 280)
-				scanFrame:SetPoint("TOPLEFT", 450	, -80)
+				scanFrame:SetSize(260, 280)
+				scanFrame:SetPoint("TOPLEFT", 420, -80)
 				scanFrame:SetBackdrop({
 					bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
 					edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight",
 					edgeSize = 16,
 					insets = {left = 8, right = 6, top = 8, bottom = 8},
 				})
-				scanFrame:SetBackdropBorderColor(1.0, 0.85, 0.0, 0.5)
+				scanFrame:SetBackdropBorderColor(0.0, 1.0, 0.0, 0.5)
 				scanFrame:SetScale(0.8)
 
 				unitscan_scanFrame = scanFrame
@@ -2646,15 +2648,15 @@
 
 				-- Create the first frame for history buttons
 				local historyFrame = CreateFrame("Frame", nil, unitscanLC["Page2"])
-				historyFrame:SetSize(220, 280)
-				historyFrame:SetPoint("TOPLEFT", 450, -80)
+				historyFrame:SetSize(260, 280)
+				historyFrame:SetPoint("TOPLEFT", 420, -80)
 				historyFrame:SetBackdrop({
 					bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
 					edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight",
 					edgeSize = 16,
 					insets = {left = 8, right = 6, top = 8, bottom = 8},
 				})
-				historyFrame:SetBackdropBorderColor(1.0, 0.85, 0.0, 0.5)
+				historyFrame:SetBackdropBorderColor(1.0, 0.0, 0.0, 0.5)
 				historyFrame:SetScale(0.8)
 
 				unitscan_historyFrame = historyFrame
@@ -2869,10 +2871,10 @@
 				--------------------------------------------------------------------------------
 				-- ScanList Profile frame
 				--------------------------------------------------------------------------------
-
+				--TODO: Profile Frame - add option to hide profile frame, and then ofc, make other frames bigger.
 
 				local profileFrame = CreateFrame("Frame", nil, unitscanLC["Page2"])
-				profileFrame:SetSize(180, 280)
+				profileFrame:SetSize(120, 280)
 				profileFrame:SetPoint("TOPRIGHT", scanFrame, "TOPLEFT", 0, 0)
 				profileFrame:SetBackdrop({
 					bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
@@ -2882,6 +2884,8 @@
 				})
 				profileFrame:SetBackdropBorderColor(1.0, 0.85, 0.0, 0.5)
 				profileFrame:SetScale(0.8)
+				-- make global
+				unitscan_profileFrame = profileFrame
 
 				profileFrame.scroll = CreateFrame("ScrollFrame", nil, profileFrame)
 				profileFrame.scroll:SetPoint("TOPLEFT", profileFrame, 12, -10)
@@ -2924,6 +2928,8 @@
 						profileTexture:SetTexture("Interface\\Buttons\\WHITE8X8")
 						profileTexture:SetVertexColor(0.0, 0.5, 1.0, 0.8)
 						profileTexture:Hide()
+						--make global
+						unitscan_profileTexture = profileTexture
 
 						--===== Texture for selected button =====--
 						profileButton.Texture = profileButton:CreateTexture(nil, "BACKGROUND")
@@ -2973,58 +2979,17 @@
 
 						-- Modify the existing OnClick function of profile buttons
 						profileButton:SetScript("OnClick", function(self)
-							selectedProfile = self.Text:GetText()
+							local profileName = self.Text:GetText()
 
-							-- Reset scroll position to the top
-							scanFrame.scroll:SetVerticalScroll(0)
-
-							-- Reset scrollbar value to the top
-							scrollbar:SetValue(1)
-
-							--unitscan_HideExistingScanButtons()
-
-							local visibleButtonsCount = 0
-							-- Create scan units buttons for the selected profile
-							local index = 1
-							for profile, mobs in pairs(sortedProfiles) do
-								if profile == selectedProfile then
-									--for _, data in ipairs(mobs) do
-										if index <= profileMaxVisibleButtons then
-											visibleButtonsCount = visibleButtonsCount + 1
-											local button = scanList.Buttons[index]
-											if not button then
-												button = CreateFrame("Button", nil, scanList)
-												button:SetSize(scanList:GetWidth(), buttonHeight)
-												scanList.Buttons[index] = button
-											end
-
-											-- Set button text and position
-											button.Text:SetText(data.name) -- Use the name from data
-											--if index >= 2 then
-											--	button:SetPoint("TOPLEFT", 0.5, -(index - 1) * buttonHeight - 0.5) -- Increase the vertical position by 1 to reduce overlap
-											--else
-												button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
-											--end
-											button:Show()
-
-											index = index + 1
-										end
-									--end
-								end
-							end
-
-							-- Print the number of visible buttons
-							--print("Number of visible buttons: " .. visibleButtonsCount)
-
-							-- Hide scrollbar of scan units list if 13 or more buttons visible.
-							if visibleButtonsCount <= 13 then
-								scanFrame.scroll.ScrollBar:Hide()
-								scanFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
+							ChangeProfile(profileName)
+							if menuSelectedButton == "ScanList" then
+								unitscan_scanlistGUIButton:Click()
+							elseif menuSelectedButton == "HistoryList" then
+								unitscan_historyGUIButton:Click()
 							else
-								scanFrame.scroll.ScrollBar:Show()
-								scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
+								--print("Click on left menu - Scan List or History to refresh mob list")
+								unitscan_scanlistGUIButton:Click()
 							end
-
 
 							--===== Texture for selected button =====--
 							for _, button in ipairs(profileList.Buttons) do
@@ -3040,14 +3005,6 @@
 
 							-- Clear focus of search box
 							unitscan_searchbox:ClearFocus()
-
-							--TODO: Do i even need this part of code?
-							-- Hide unused buttons
-							for i = index, profileMaxVisibleButtons do
-								if scanList.Buttons[i] then
-									scanList.Buttons[i]:Hide()
-								end
-							end
 						end)
 
 
@@ -3070,6 +3027,24 @@
 						--------------------------------------------------------------------------------
 						-- Other Scripts
 						--------------------------------------------------------------------------------
+
+						profileButton:SetScript("OnShow", function(self)
+							local currentProfileName = activeProfile
+
+							for _, button in ipairs(profileList.Buttons) do
+								local buttonName = button.Text:GetText()
+
+								if buttonName == currentProfileName then
+									-- Apply the clicked texture
+									button.Texture:SetTexture(0, 1.0, 0, 0.5)
+									profileTexture:Hide()
+									unitscan_profileButtonTexture = button.Texture
+								else
+									-- Remove texture from other buttons
+									button.Texture:SetTexture(nil)
+								end
+							end
+						end)
 
 
 						profileButton:SetScript("OnEnter", function(self)
@@ -3501,12 +3476,28 @@
 									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 2000))
 								end
 
+								if unitscan_profileButtonTexture then
+									if unitscan_scanFrame:IsShown() then
+										unitscan_profileFrame:SetBackdropBorderColor(0.0, 1.0, 0.0, 0.5) -- Set profileFrame border color to green
+										--unitscan_profileButtonTexture:SetTexture(0.0, 1.0, 0.0, 0.5)
+									elseif unitscan_historyFrame:IsShown() then
+										unitscan_profileFrame:SetBackdropBorderColor(1.0, 0.0, 0.0, 0.5) -- Set profileFrame border color to red
+										--unitscan_profileButtonTexture:SetTexture(1.0, 0.0, 0.0, 0.5)
+									else
+										-- Set a default border color if neither scanFrame nor historyFrame is shown
+										unitscan_profileFrame:SetBackdropBorderColor(0.0, 0.0, 0.0, 0.5) -- Set profileFrame border color to black
+										--unitscan_profileButtonTexture:SetTexture(0.0, 0.0, 0.0, 0.5)
+									end
+								end
+
 							end
 							-- Clear focus of search box
 							unitscan_searchbox:ClearFocus()
 
 							if selectedButton ~= expbtn[title] then
 								expbtn[title].expTexture:Show()
+								menuSelectedButton = "ScanList"
+								--print(menuSelectedButton)
 								if selectedButton then
 									selectedButton.expTexture:Hide()
 								end
@@ -3595,6 +3586,21 @@
 										historyFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 2000))
 									end
 
+									if unitscan_profileButtonTexture then
+										if unitscan_scanFrame:IsShown() then
+											unitscan_profileFrame:SetBackdropBorderColor(0.0, 1.0, 0.0, 0.5) -- Set profileFrame border color to green
+											--unitscan_profileButtonTexture:SetTexture(0.0, 1.0, 0.0, 0.5)
+										elseif unitscan_historyFrame:IsShown() then
+											unitscan_profileFrame:SetBackdropBorderColor(1.0, 0.0, 0.0, 0.5) -- Set profileFrame border color to red
+											--unitscan_profileButtonTexture:SetTexture(1.0, 0.0, 0.0, 0.5)
+										else
+											-- Set a default border color if neither scanFrame nor historyFrame is shown
+											unitscan_profileFrame:SetBackdropBorderColor(0.0, 0.0, 0.0, 0.5) -- Set profileFrame border color to black
+											--unitscan_profileButtonTexture:SetTexture(0.0, 0.0, 0.0, 0.5)
+										end
+									end
+
+
 								end
 							end
 
@@ -3603,6 +3609,9 @@
 								unitscan_searchbox:ClearFocus()
 
 								if selectedButton ~= expbtn[title] then
+									--if menuSelectedButton == "ScanList" then print("scanlist") else print("nope") end
+									menuSelectedButton = "HistoryList"
+									--print(menuSelectedButton)
 									expbtn[title].expTexture:Show()
 									if selectedButton then
 										selectedButton.expTexture:Hide()

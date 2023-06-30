@@ -51,6 +51,8 @@ Profiles - think and check and test for if TargetsTablePopulated and HistoryTabl
 
 Scrollframes - add expand lines button. In case user has too many buttons.
 
+ScanList - make units frames wider and profiles frames smaller
+
 --------------------------------------------------------------------------------
 -- Non-Sorted To-Do list.
 --------------------------------------------------------------------------------
