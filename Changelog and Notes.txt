@@ -53,6 +53,8 @@ Scrollframes - add expand lines button. In case user has too many buttons.
 
 ScanList - make units frames wider and profiles frames smaller
 
+ScanList - make check button to hide profile list.
+
 --------------------------------------------------------------------------------
 -- Non-Sorted To-Do list.
 --------------------------------------------------------------------------------

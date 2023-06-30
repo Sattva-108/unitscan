@@ -2141,78 +2141,74 @@
 				-- Convert old tables and populate new ones.
 				--------------------------------------------------------------------------------
 
-				-- Check if "profiles" table exists in unitscan_scanlist
-				if not unitscan_scanlist["profiles"] then
-					unitscan_scanlist["profiles"] = {}
-				end
+				-- populate
+				function unitscan_updateNewProfile()
+					if activeProfile ~= "default" then
+						print(activeProfile .. " check")
 
-				-- Check if "default" table exists in unitscan_scanlist.profiles
-				if not unitscan_scanlist["profiles"]["default"] then
-					unitscan_scanlist["profiles"]["default"] = {}
-				end
+						-- Check if "profiles" table exists in unitscan_scanlist
+						if not unitscan_scanlist["profiles"] then
+							unitscan_scanlist["profiles"] = {}
+						end
 
-				-- Check if "history" table exists in unitscan_scanlist.profiles.default
-				if not unitscan_scanlist["profiles"]["default"]["history"] then
-					unitscan_scanlist["profiles"]["default"]["history"] = {}
-				end
+						-- Check if activeProfile table exists in unitscan_scanlist.profiles
+						if not unitscan_scanlist["profiles"][activeProfile] then
+							unitscan_scanlist["profiles"][activeProfile] = {}
+						end
 
-				-- Check if "targets" table exists in unitscan_scanlist.profiles.default
-				if not unitscan_scanlist["profiles"]["default"]["targets"] then
-					unitscan_scanlist["profiles"]["default"]["targets"] = {}
-				end
+						-- Check if "history" table exists in unitscan_scanlist.profiles.default
+						if not unitscan_scanlist["profiles"][activeProfile]["history"] then
+							unitscan_scanlist["profiles"][activeProfile]["history"] = {}
+						end
 
-				if activeProfile ~= "default" then
-					print(activeProfile .. " check")
+						-- Check if "targets" table exists in unitscan_scanlist.profiles.default
+						if not unitscan_scanlist["profiles"][activeProfile]["targets"] then
+							unitscan_scanlist["profiles"][activeProfile]["targets"] = {}
+						end
 
-					-- Check if "profiles" table exists in unitscan_scanlist
-					if not unitscan_scanlist["profiles"] then
-						unitscan_scanlist["profiles"] = {}
 					end
-
-					-- Check if activeProfile table exists in unitscan_scanlist.profiles
-					if not unitscan_scanlist["profiles"][activeProfile] then
-						unitscan_scanlist["profiles"][activeProfile] = {}
-					end
-
-					-- Check if "history" table exists in unitscan_scanlist.profiles.default
-					if not unitscan_scanlist["profiles"][activeProfile]["history"] then
-						unitscan_scanlist["profiles"][activeProfile]["history"] = {}
-					end
-
-					-- Check if "targets" table exists in unitscan_scanlist.profiles.default
-					if not unitscan_scanlist["profiles"][activeProfile]["targets"] then
-						unitscan_scanlist["profiles"][activeProfile]["targets"] = {}
-					end
-
 				end
 
-				-- Populate "history" table with values from unitscan_scanlist["profiles"][activeProfile]["history"]
-				if not unitscanDB["HistoryTablePopulated"] then
-					for _, value in ipairs(unitscan_removed) do
-						local exists = false
-						for _, existingValue in ipairs(unitscan_scanlist["profiles"]["default"]["history"]) do
-							if existingValue == value then
-								exists = true
+				unitscan_updateNewProfile()
+
+				--convert
+				function unitscanLC:ConvertOldTables()
+					-- Populate "history" table with values from unitscan_scanlist["profiles"][activeProfile]["history"]
+					if not unitscanDB["HistoryTablePopulated"] then
+						for _, value in ipairs(unitscan_removed) do
+							local exists = false
+							for _, existingValue in ipairs(unitscan_scanlist["profiles"]["default"]["history"]) do
+								if existingValue == value then
+									exists = true
+									unitscanDB["HistoryTablePopulated"] = true
+									break
+								end
+							end
+							if not exists then
+								table.insert(unitscan_scanlist["profiles"]["default"]["history"], value)
+								--print("inserting", value)
 								unitscanDB["HistoryTablePopulated"] = true
-								break
 							end
 						end
-						if not exists then
-							table.insert(unitscan_scanlist["profiles"]["default"]["history"], value)
-							--print("inserting", value)
-							unitscanDB["HistoryTablePopulated"] = true
+					end
+
+					-- Populate "targets" table with keys from unitscan_targets
+					if not unitscanDB["TargetsTablePopulated"] then
+						for key, _ in pairs(unitscan_targets) do
+							unitscan_scanlist["profiles"]["default"]["targets"][key] = true
+							--print("setting true to", key)
+							unitscanDB["TargetsTablePopulated"] = true
 						end
 					end
 				end
 
-				-- Populate "targets" table with keys from unitscan_targets
-				if not unitscanDB["TargetsTablePopulated"] then
-					for key, _ in pairs(unitscan_targets) do
-						unitscan_scanlist["profiles"]["default"]["targets"][key] = true
-						--print("setting true to", key)
-						unitscanDB["TargetsTablePopulated"] = true
-					end
-				end
+
+				-- Run on startup
+				unitscanLC:ConvertOldTables()
+
+				-- Release memory
+				unitscanLC.ConvertOldTables = nil
+
 
 
 
@@ -2240,6 +2236,26 @@
 
 					-- Success message
 					print("Created a new empty profile: " .. profileName)
+
+					-- Check if "profiles" table exists in unitscan_scanlist
+					if not unitscan_scanlist["profiles"] then
+						unitscan_scanlist["profiles"] = {}
+					end
+
+					-- Check if profileName table exists in unitscan_scanlist.profiles
+					if not unitscan_scanlist["profiles"][profileName] then
+						unitscan_scanlist["profiles"][profileName] = {}
+					end
+
+					-- Check if "history" table exists in unitscan_scanlist.profiles.profileName
+					if not unitscan_scanlist["profiles"][profileName]["history"] then
+						unitscan_scanlist["profiles"][profileName]["history"] = {}
+					end
+
+					-- Check if "targets" table exists in unitscan_scanlist.profiles.profileName
+					if not unitscan_scanlist["profiles"][profileName]["targets"] then
+						unitscan_scanlist["profiles"][profileName]["targets"] = {}
+					end
 				end
 
 				-- Slash command handler
@@ -3401,7 +3417,7 @@
 
 
 					--------------------------------------------------------------------------------
-					-- Scan List Button
+					-- Menu Scan List Button
 					--------------------------------------------------------------------------------
 
 
@@ -3512,7 +3528,7 @@
 
 
 					--------------------------------------------------------------------------------
-					-- History Button
+					-- Menu History Button
 					--------------------------------------------------------------------------------
 
 
@@ -5649,12 +5665,12 @@
 			--===== Slash without any arguments (/unitscan) prints currently tracked user-defined units and some basic available slash commands  =====--
 			--===== If an agrugment after /unitscan is given, it will add a unit to the scanning targets. =====--
 		elseif not command then
-			unitscan_sortScanList()
-			unitscan_scanListUpdate()
-
-			unitscan_sortHistory()
-			unitscan_historyListUpdate()
-
+			--unitscan_sortScanList()
+			--unitscan_scanListUpdate()
+			--
+			--unitscan_sortHistory()
+			--unitscan_historyListUpdate()
+			--print("no command")
 			-- Prevent options panel from showing if a game options panel is showing
 			if InterfaceOptionsFrame:IsShown() or VideoOptionsFrame:IsShown() or ChatConfigFrame:IsShown() then return end
 			-- Prevent options panel from showing if Blizzard Store is showing
