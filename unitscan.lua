@@ -2888,7 +2888,7 @@
 				-- ScanList Profile frame
 				--------------------------------------------------------------------------------
 				--TODO: Profile Frame - add option to hide profile frame, and then ofc, make other frames bigger.
-
+				local visibleProfileButtonsCount = 0
 				local profileFrame = CreateFrame("Frame", nil, unitscanLC["Page2"])
 				profileFrame:SetSize(120, 280)
 				profileFrame:SetPoint("TOPRIGHT", scanFrame, "TOPLEFT", 0, 0)
@@ -2992,7 +2992,6 @@
 						-- OnClick script
 						--------------------------------------------------------------------------------
 
-
 						-- Modify the existing OnClick function of profile buttons
 						profileButton:SetScript("OnClick", function(self)
 							local profileName = self.Text:GetText()
@@ -3017,6 +3016,23 @@
 									-- Remove texture from other buttons
 									button.Texture:SetTexture(nil)
 								end
+							end
+
+							if visibleProfileButtonsCount <= 13 or visibleProfileButtonsCount == 0 then
+								profileFrame.scroll.ScrollBar:Hide()
+								profileFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
+							elseif visibleProfileButtonsCount >= 14 and visibleProfileButtonsCount <= 26 then
+								profileFrame.scroll.ScrollBar:Show()
+								profileFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleProfileButtonsCount + 715))
+							elseif visibleProfileButtonsCount >= 27 and visibleProfileButtonsCount <= 39 then
+								profileFrame.scroll.ScrollBar:Show()
+								profileFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleProfileButtonsCount + 940))
+							elseif visibleProfileButtonsCount >= 40 and visibleProfileButtonsCount <= 52 then
+								profileFrame.scroll.ScrollBar:Show()
+								profileFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleProfileButtonsCount + 1160))
+							elseif visibleProfileButtonsCount >= 53 and visibleProfileButtonsCount <= 100 then
+								profileFrame.scroll.ScrollBar:Show()
+								profileFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleProfileButtonsCount + 2000))
 							end
 
 							-- Clear focus of search box
@@ -3086,221 +3102,14 @@
 						--unitscan_hideProfileButtons()
 
 
-						--------------------------------------------------------------------------------
-						-- Function to toggle profiles
-						--------------------------------------------------------------------------------
-
-
-						--local hideProfileButton = false
-
-						--function unitscan_toggleCLASSIC()
-						--	unitscan_profileScrollbar:SetMinMaxValues(1, 930)
-						--	unitscan_profileScrollbar:Show()
-						--	scanFrame.scroll.ScrollBar:Hide()
-						--	-- call searchbox
-						--	unitscan_searchbox:ClearFocus()						
-
-
-						--	--unitscan_HideExistingScanButtons()
-						--	hideProfileButton = not hideProfileButton -- Toggle the variable
-
-						--	local visibleProfileButtons = {} -- Table to store visible profile buttons
-
-						--	for profileIndex, profileButton in ipairs(profileList.Buttons) do
-						--		profileButton.Texture:SetTexture(nil)
-						--		local profile = profileButton.Text:GetText()
-
-						--		-- Find the corresponding mobs for the profile
-						--		local mobs = sortedSpawns[profile]
-						--		if mobs then
-						--			local shouldHideButton = hideProfileButton
-						--			for _, data in ipairs(mobs) do
-						--				if string.find(data.expansion, "CLASSIC") then
-						--					shouldHideButton = false -- Show CLASSIC strings
-						--				elseif string.find(data.expansion, "TBC") or string.find(data.expansion, "WOTLK") then
-						--					shouldHideButton = true -- Hide TBC and WOTLK strings
-						--					break
-						--				end
-						--			end
-
-						--			if shouldHideButton then
-						--				profileButton:Hide()
-						--			else
-						--				profileButton:Show()
-						--				table.insert(visibleProfileButtons, profileButton) -- Add visible button to the table
-						--			end
-						--		end
-						--	end
-
-						--	-- Sort the visible profile buttons based on profile names
-						--	table.sort(visibleProfileButtons, function(a, b)
-						--		local profileA = a.Text:GetText()
-						--		local profileB = b.Text:GetText()
-						--		return profileA < profileB
-						--	end)
-
-						--	-- Update the button positions based on the sorted table
-						--	local profileIndex = 1
-						--	for _, profileButton in ipairs(visibleProfileButtons) do
-						--		profileButton:ClearAllPoints()
-						--		profileButton:SetPoint("TOPLEFT", 0, -(profileIndex - 1) * buttonHeight)
-						--		profileIndex = profileIndex + 1
-						--	end
-						--end
-
-
-						--function unitscan_toggleTBC()
-						--	unitscan_profileScrollbar:SetMinMaxValues(1, 1)
-						--	unitscan_profileScrollbar:Hide()
-						--	scanFrame.scroll.ScrollBar:Hide()
-						--	-- call searchbox
-						--	unitscan_searchbox:ClearFocus()						
-
-						--	--unitscan_HideExistingScanButtons()
-
-						--	hideProfileButton = not hideProfileButton
-
-						--	local visibleProfileButtons = {} -- Table to store visible profile buttons
-
-						--	for profileIndex, profileButton in ipairs(profileList.Buttons) do
-						--		profileButton.Texture:SetTexture(nil)
-						--		local profile = profileButton.Text:GetText()
-
-						--		-- Find the corresponding mobs for the profile
-						--		local mobs = sortedSpawns[profile]
-						--		if mobs then
-						--			local shouldHideButton = hideProfileButton
-						--			for _, data in ipairs(mobs) do
-						--				if string.find(data.expansion, "TBC") then
-						--					shouldHideButton = false -- Show TBC strings
-						--				elseif string.find(data.expansion, "CLASSIC") or string.find(data.expansion, "WOTLK") then
-						--					shouldHideButton = true -- Hide CLASSIC and WOTLK strings
-						--					break
-						--				end
-						--			end
-
-						--			if shouldHideButton then
-						--				profileButton:Hide()
-						--			else
-						--				profileButton:Show()
-						--				table.insert(visibleProfileButtons, profileButton) -- Add visible button to the table
-						--			end
-						--		end
-						--	end
-
-						--	-- Sort the visible profile buttons based on profile names
-						--	table.sort(visibleProfileButtons, function(a, b)
-						--		local profileA = a.Text:GetText()
-						--		local profileB = b.Text:GetText()
-						--		return profileA < profileB
-						--	end)
-
-						--	-- Update the button positions based on the sorted table
-						--	local profileIndex = 1
-						--	for _, profileButton in ipairs(visibleProfileButtons) do
-						--		profileButton:ClearAllPoints()
-						--		profileButton:SetPoint("TOPLEFT", 0, -(profileIndex - 1) * buttonHeight)
-						--		profileIndex = profileIndex + 1
-						--	end
-						--end
-
-
-						--function unitscan_toggleWOTLK()
-						--	unitscan_profileScrollbar:SetMinMaxValues(1, 1)
-						--	unitscan_profileScrollbar:Hide()
-						--	scanFrame.scroll.ScrollBar:Hide()
-						--	-- call searchbox
-						--	unitscan_searchbox:ClearFocus()
-
-						--	--unitscan_HideExistingScanButtons()
-
-						--	hideProfileButton = not hideProfileButton
-
-						--	local visibleProfileButtons = {} -- Table to store visible profile buttons
-
-						--	for profileIndex, profileButton in ipairs(profileList.Buttons) do
-						--		profileButton.Texture:SetTexture(nil)
-						--		local profile = profileButton.Text:GetText()
-
-						--		-- Find the corresponding mobs for the profile
-						--		local mobs = sortedSpawns[profile]
-						--		if mobs then
-						--			local shouldHideButton = hideProfileButton
-						--			for _, data in ipairs(mobs) do
-						--				if string.find(data.expansion, "WOTLK") then
-						--					shouldHideButton = false -- Show WOTLK strings
-						--				elseif string.find(data.expansion, "CLASSIC") or string.find(data.expansion, "TBC") then
-						--					shouldHideButton = true -- Hide CLASSIC and TBC strings
-						--					break
-						--				end
-						--			end
-
-						--			if shouldHideButton then
-						--				profileButton:Hide()
-						--			else
-						--				profileButton:Show()
-						--				table.insert(visibleProfileButtons, profileButton) -- Add visible button to the table
-						--			end
-						--		end
-						--	end
-
-						--	-- Sort the visible profile buttons based on profile names
-						--	table.sort(visibleProfileButtons, function(a, b)
-						--		local profileA = a.Text:GetText()
-						--		local profileB = b.Text:GetText()
-						--		return profileA < profileB
-						--	end)
-
-						--	-- Update the button positions based on the sorted table
-						--	local profileIndex = 1
-						--	for _, profileButton in ipairs(visibleProfileButtons) do
-						--		profileButton:ClearAllPoints()
-						--		profileButton:SetPoint("TOPLEFT", 0, -(profileIndex - 1) * buttonHeight)
-						--		profileIndex = profileIndex + 1
-						--	end
-						--end
-
-						--function unitscan_toggleMyProfile()
-						--	unitscan_profileScrollbar:SetMinMaxValues(1, 1)
-						--	unitscan_profileScrollbar:Hide()
-						--	scanFrame.scroll.ScrollBar:Hide()
-						--	-- call searchbox
-						--	unitscan_searchbox:ClearFocus()
-						--	-- Sort the visible profile buttons based on profile names
-						--	local visibleProfileButtons = {}
-						--	for _, button in ipairs(profileList.Buttons) do
-						--		if button:IsShown() then
-						--			table.insert(visibleProfileButtons, button)
-						--		end
-						--	end
-
-						--	table.sort(visibleProfileButtons, function(a, b)
-						--		local profileA = a.Text:GetText()
-						--		local profileB = b.Text:GetText()
-						--		return profileA < profileB
-						--	end)
-
-						--	-- Update the button positions based on the sorted table
-						--	local profileIndex = 1
-						--	for _, profileButton in ipairs(visibleProfileButtons) do
-						--		profileButton:ClearAllPoints()
-						--		profileButton:SetPoint("TOPLEFT", 0, -(profileIndex - 1) * buttonHeight)
-						--		profileIndex = profileIndex + 1
-						--	end
-						--end
-
-						--------------------------------------------------------------------------------
-						-- End of toggle Expansions functions.
-						--------------------------------------------------------------------------------
-						--------------------------------------------------------------------------------
-						-- Profile Button Code continues inside loop.
-						--------------------------------------------------------------------------------
-
 						profileList.Buttons.Texture = profileButton.Texture
 						profileList.Buttons[profileIndex] = profileButton
 
 					end
 					profileIndex = profileIndex + 1
+					--print(profileIndex)
+					visibleProfileButtonsCount = profileIndex
+					--print(visibleProfileButtonsCount)
 				end
 
 				profileFrame.scroll:SetScrollChild(profileList)
@@ -3435,8 +3244,8 @@
 							if historyListContains == true then
 								unitscan_hideHistoryButtons()
 							end
-							unitscan_profileScrollbar:SetMinMaxValues(1, 1)
-							unitscan_profileScrollbar:Hide()
+							--unitscan_profileScrollbar:SetMinMaxValues(1, 1)
+							--unitscan_profileScrollbar:Hide()
 							scanFrame.scroll.ScrollBar:Hide()
 							-- call searchbox
 							unitscan_searchbox:ClearFocus()
@@ -3507,8 +3316,6 @@
 								end
 
 							end
-							-- Clear focus of search box
-							unitscan_searchbox:ClearFocus()
 
 							if selectedButton ~= expbtn[title] then
 								expbtn[title].expTexture:Show()
@@ -3545,8 +3352,8 @@
 								unitscan_hideScanButtons()
 							end
 
-							unitscan_profileScrollbar:SetMinMaxValues(1, 1)
-							unitscan_profileScrollbar:Hide()
+							--unitscan_profileScrollbar:SetMinMaxValues(1, 1)
+							--unitscan_profileScrollbar:Hide()
 							scanFrame.scroll.ScrollBar:Hide()
 							-- call searchbox
 							unitscan_searchbox:ClearFocus()
@@ -3620,10 +3427,6 @@
 								end
 							end
 
-
-								-- Clear focus of search box
-								unitscan_searchbox:ClearFocus()
-
 								if selectedButton ~= expbtn[title] then
 									--if menuSelectedButton == "ScanList" then print("scanlist") else print("nope") end
 									menuSelectedButton = "HistoryList"
@@ -3637,36 +3440,48 @@
 
 							end)
 
-						--scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
 						expbtn[title].text:SetTextColor(1, 0, 0) -- Set text color for the new button
 						unitscan_historyGUIButton = expbtn[title]
 
-					--else
-					--	expbtn[title]:SetScript("OnClick", function()
-					--		if title == "CLASSIC" then
-						--			unitscan_toggleCLASSIC()
-						--		elseif title == "TBC" then
-							--			unitscan_toggleTBC()
-							--		elseif title == "WOTLK" then
-								--			unitscan_toggleWOTLK()
-								--		end
 
-								--		if selectedButton ~= expbtn[title] then
-									--			expbtn[title].expTexture:Show()
-									--			if selectedButton then
-										--				selectedButton.expTexture:Hide()
-										--			end
-										--			selectedButton = expbtn[title]
-										--		end
-										--	end)
 
-										--	if title == "CLASSIC" then
-											--		expbtn[title].text:SetTextColor(1, 1, 0)
-											--	elseif title == "TBC" then
-												--		expbtn[title].text:SetTextColor(0, 1, 0)
-												--	elseif title == "WOTLK" then
-													--		expbtn[title].text:SetTextColor(0.7, 0.85, 1)
-													--	end
+					--------------------------------------------------------------------------------
+					-- Menu History Button
+					--------------------------------------------------------------------------------
+
+
+					elseif title == "Profiles" then
+						expbtn[title]:SetScript("OnClick", function()
+							unitscan_scanFrame:Hide()
+							unitscan_historyFrame:Hide()
+
+							unitscan_historyListUpdate()
+							unitscan_sortHistory()
+							unitscan_sortScanList()
+
+							if scanListContains == true then
+								unitscan_hideScanButtons()
+							end
+
+
+							-- Clear focus of search box
+							unitscan_searchbox:ClearFocus()
+
+							if selectedButton ~= expbtn[title] then
+								--if menuSelectedButton == "ScanList" then print("scanlist") else print("nope") end
+								menuSelectedButton = "HistoryList"
+								--print(menuSelectedButton)
+								expbtn[title].expTexture:Show()
+								if selectedButton then
+									selectedButton.expTexture:Hide()
+								end
+								selectedButton = expbtn[title]
+							end
+
+						end)
+
+						expbtn[title].text:SetTextColor(1, 1, 0)
+						unitscan_profilesGUIButton = expbtn[title]
 					end
 
 					-- Function to hide the selectedButton.expTexture
@@ -3690,13 +3505,9 @@
 					end)
 				end
 
-				-- Call the MakeButtonNow function for each button
-				--MakeButtonNow("CLASSIC", "Zones")
-				--MakeButtonNow("TBC", "CLASSIC")
-				--MakeButtonNow("WOTLK", "TBC")
-				--MakeButtonNow("My Profile", "WOTLK")
 				MakeButtonNow("Scan List", "Zones")					
 				MakeButtonNow("History", "Scan List")
+				MakeButtonNow("Profiles", "History")
 			
 				
 
@@ -3809,15 +3620,15 @@
 						-- Set scrollbar minimum and maximum values   
 
 
-
+						-- TODO FIX this values
 						-- Hide scrollbar if less than 5 buttons visible
-						if visibleButtonCount <= 13 then
-							unitscan_profileScrollbar:SetMinMaxValues(1, 1)
-							unitscan_profileScrollbar:Hide()
-						else
-							unitscan_profileScrollbar:SetMinMaxValues(1, maxValue)
-							unitscan_profileScrollbar:Show()
-						end  
+						--if visibleButtonCount <= 13 then
+						--	unitscan_profileScrollbar:SetMinMaxValues(1, 1)
+						--	unitscan_profileScrollbar:Hide()
+						--else
+						--	unitscan_profileScrollbar:SetMinMaxValues(1, maxValue)
+						--	unitscan_profileScrollbar:Show()
+						--end
 
 					end
 
