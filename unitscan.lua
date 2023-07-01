@@ -6,7 +6,7 @@
 --------------------------------------------------------------------------------------
 
 	LibCompat = LibStub:GetLibrary("LibCompat-1.0")
-	
+
 	-- Create global table
 	_G.unitscanDB = _G.unitscanDB or {}
 
@@ -25,7 +25,7 @@
 	local void
 
 	-- Version
-	unitscanLC["AddonVer"] = "3.3.5"	
+	unitscanLC["AddonVer"] = "3.3.5"
 
 	--===== Check the current locale of the WoW client =====--
 	local currentLocale = GetLocale()
@@ -71,7 +71,7 @@
 
 
 --------------------------------------------------------------------------------
--- Creating SavedVariables DB tables here. 
+-- Creating SavedVariables DB tables here.
 --------------------------------------------------------------------------------
 
 	--===== DB Table for user-added targets via /unitscan "name" or /unitscan target =====--
@@ -229,13 +229,13 @@
 			-- eFrame.b:SetScript("OnEnterPressed", eFrame.b.HighlightText)
 			-- eFrame.b:SetScript("OnMouseDown", eFrame.b.ClearFocus)
 			-- eFrame.b:SetScript("OnMouseUp", eFrame.b.HighlightText)
-			eFrame.b:SetScript("OnChar", function(_, char) 
-				if char ~= 'W' and char ~= 'A' and char ~= 'S' and char ~= 'D' then 
+			eFrame.b:SetScript("OnChar", function(_, char)
+				if char ~= 'W' and char ~= 'A' and char ~= 'S' and char ~= 'D' then
 					eFrame.b:Hide()
 					eFrame.b:SetFocus(false)
-				end 
-				eFrame.b:SetText(word); 
-				eFrame.b:HighlightText(); 
+				end
+				eFrame.b:SetText(word);
+				eFrame.b:HighlightText();
 			end);
 
 			eFrame.b:SetScript("OnMouseUp", function() eFrame.b:HighlightText(); end);
@@ -248,14 +248,14 @@
 		unitscanLC.FactoryEditBox:Show()
 		unitscanLC.FactoryEditBox.b:SetText(word)
 		unitscanLC.FactoryEditBox.b:HighlightText()
-		unitscanLC.FactoryEditBox.b:SetScript("OnChar", function(_, char) 
-			if char ~= 'W' and char ~= 'A' and char ~= 'S' and char ~= 'D' then 
+		unitscanLC.FactoryEditBox.b:SetScript("OnChar", function(_, char)
+			if char ~= 'W' and char ~= 'A' and char ~= 'S' and char ~= 'D' then
 				unitscanLC.FactoryEditBox:Hide()
 				unitscanLC.FactoryEditBox.b:SetFocus(false)
-			end 
-			unitscanLC.FactoryEditBox.b:SetFocus(true) 
-			unitscanLC.FactoryEditBox.b:SetText(word) 
-			unitscanLC.FactoryEditBox.b:HighlightText() 
+			end
+			unitscanLC.FactoryEditBox.b:SetFocus(true)
+			unitscanLC.FactoryEditBox.b:SetText(word)
+			unitscanLC.FactoryEditBox.b:HighlightText()
 		end);
 
 		unitscanLC.FactoryEditBox.b:SetScript("OnKeyUp", function()
@@ -526,7 +526,7 @@
 				end
 			end
 		end
-	end	
+	end
 
 
 ---------------------------------------------------------------------------------------------------
@@ -713,7 +713,7 @@
 				end,
 				OnTooltipShow = function(tooltip)
 					if not tooltip or not tooltip.AddLine then return end
-					tooltip:AddLine("unitscan")	
+					tooltip:AddLine("unitscan")
 					tooltip:AddLine("\124cffeda55fClick \124cff99ff00to open unitscan options.")
                     tooltip:AddLine("\124cffeda55fRight-Click \124cff99ff00to reload the user interface.")
 				end,
@@ -920,7 +920,7 @@
 		----------------------------------------------------------------------
 		-- Rare Spawns List
 		----------------------------------------------------------------------
-		
+
 		local selectedZone = nil
 
 		local zoneButtons = {}
@@ -1273,7 +1273,7 @@
 						zoneButton.Text = zoneButton:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 						zoneButton.Text:SetPoint("LEFT", 5, 0)
 
-						
+
 						--------------------------------------------------------------------------------
 						-- Functions to hide all rare mob names and all zone names
 						--------------------------------------------------------------------------------
@@ -1413,7 +1413,7 @@
 						-- OnEvent Script
 						--------------------------------------------------------------------------------
 
-						
+
 						zoneButton:SetScript("OnEvent", function()
 							if event == "PLAYER_ENTERING_WORLD" then
 								LibCompat.After(1, function() unitscan_myzoneGUIButton:Click() end)
@@ -1454,7 +1454,7 @@
 							unitscan_zoneScrollbar:Show()
 							eb.scroll.ScrollBar:Hide()
 							-- call searchbox
-							unitscan_searchbox:ClearFocus()						
+							unitscan_searchbox:ClearFocus()
 
 
 							unitscan_HideExistingButtons()
@@ -1510,7 +1510,7 @@
 							unitscan_zoneScrollbar:Hide()
 							eb.scroll.ScrollBar:Hide()
 							-- call searchbox
-							unitscan_searchbox:ClearFocus()						
+							unitscan_searchbox:ClearFocus()
 
 							unitscan_HideExistingButtons()
 
@@ -1975,7 +1975,7 @@
 				local function SearchEditBox_OnTextChanged(editBox)
 					--scroll to top if text changed
 					unitscan_zoneScrollbar:SetValue(unitscan_zoneScrollbar:GetMinMaxValues())
-					
+
 					local text = editBox:GetText()
 					if not text or text:trim() == "" then
 						sBox.clearButton:Hide()
@@ -1992,10 +1992,10 @@
 					end
 
 
-					-- Multiply by button height to get scrollbar maximum   
-					local maxValue = visibleButtonCount * 20  
+					-- Multiply by button height to get scrollbar maximum
+					local maxValue = visibleButtonCount * 20
 					if visibleButtonCount >= 1 then
-						-- Set scrollbar minimum and maximum values   
+						-- Set scrollbar minimum and maximum values
 
 
 
@@ -2006,7 +2006,7 @@
 						else
 							unitscan_zoneScrollbar:SetMinMaxValues(1, maxValue)
 							unitscan_zoneScrollbar:Show()
-						end  
+						end
 
 					end
 
@@ -2107,7 +2107,7 @@
 
 		-- Release memory
 		unitscanLC.rare_spawns_list = nil
-	
+
 
 		--------------------------------------------------------------------------------
 		-- End of Rare Spawns buttons list module.
@@ -2117,7 +2117,7 @@
 		----------------------------------------------------------------------
 		-- Custom Scan List function start
 		----------------------------------------------------------------------
-		
+
 		local selectedProfile = nil
 
 		local menuSelectedButton = nil
@@ -2276,6 +2276,50 @@
 				-- Register the slash command
 				SLASH_CREATEPROFILE1 = "/cp"
 
+
+				--------------------------------------------------------------------------------
+				-- Delete Profile
+				--------------------------------------------------------------------------------
+
+				-- Function to handle deleting a profile and wiping its table
+				local function DeleteProfile(profileName)
+					-- Check if the "profiles" table exists in unitscan_scanlist
+					if not unitscan_scanlist["profiles"] then
+						print("No profiles found.")
+						return
+					end
+
+					-- Check if the profile name exists in unitscan_scanlist.profiles
+					if not unitscan_scanlist["profiles"][profileName] then
+						print("Profile '" .. profileName .. "' not found.")
+						return
+					end
+
+					-- Delete the profile table
+					unitscan_scanlist["profiles"][profileName] = nil
+
+					-- Success message
+					print("Deleted profile: " .. profileName)
+				end
+
+				-- Slash command handler for deleting a profile
+				SlashCmdList["DELETEPROFILE"] = function(msg)
+					-- Trim leading and trailing whitespaces from the input
+					local profileName = strtrim(msg or "")
+
+					-- Check if the profile name is empty
+					if profileName == "" then
+						print("Please provide a profile name.")
+						return
+					end
+
+					-- Delete the profile
+					DeleteProfile(profileName)
+				end
+
+				-- Register the slash command
+				SLASH_DELETEPROFILE1 = "/dp"
+
 				--------------------------------------------------------------------------------
 				-- Change Profile
 				--------------------------------------------------------------------------------
@@ -2342,7 +2386,7 @@
 				local ORANGE = "\124cffffa500"
 				local BLUE = "\124cff0000ff"
 				local GREY = "\124cffb4b4b4"
-				local LYELLOW = "\124cffffff9a"				
+				local LYELLOW = "\124cffffff9a"
 
 
 				--------------------------------------------------------------------------------
@@ -2576,6 +2620,7 @@
 								else
 									button.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
 								end
+								unitscan_ClickCurrentProfileButton()
 							end)
 
 
@@ -2594,8 +2639,8 @@
 
 							function unitscan_hideScanButtons()
 								for _, button in ipairs(scanList.Buttons) do
-									button:Hide()  
-								end  
+									button:Hide()
+								end
 							end
 
 							-- Initially hide buttons that don't belong to the selected profile
@@ -2616,7 +2661,7 @@
 				-- call above function
 				unitscan_scanListUpdate()
 
-			
+
 
 				scanFrame.scroll:SetScrollChild(scanList)
 
@@ -2840,8 +2885,8 @@
 
 							function unitscan_hideHistoryButtons()
 								for _, button in ipairs(historyList.Buttons) do
-									button:Hide()  
-								end  
+									button:Hide()
+								end
 							end
 
 							historyList.Buttons[index] = button
@@ -2914,6 +2959,8 @@
 				profileList:SetSize(profileFrame:GetWidth() - 30, profileMaxVisibleButtons * buttonHeight)
 				profileList.Buttons = {}
 
+				unitscan_profileList = profileList
+
 
 
 				local profiles = unitscan_scanlist.profiles
@@ -2925,192 +2972,246 @@
 					--print("Profile:", profile)
 				end
 				table.sort(sortedProfiles)
+				local ProfileDeleteBtn = unitscanLC:CreateButton("ProfileDeleteBtn", unitscan_profileFrame, "Delete Profile", "TOPRIGHT", 100, -6, 100, 30, true, "", false)
+				local ProfileCopyBtn = unitscanLC:CreateButton("ProfileCopyBtn", unitscan_profileFrame, "Copy Profile", "TOPRIGHT", 100, -40, 101, 30, true, "", false)
+				function unitscan_ProfileManageButtons_Hide()
+					unitscanCB["ProfileDeleteBtn"]:Hide()
+					unitscanCB["ProfileCopyBtn"]:Hide()
+				end
 
+				function unitscan_ProfileManageButtons_Show()
+					unitscanCB["ProfileDeleteBtn"]:Show()
+					unitscanCB["ProfileCopyBtn"]:Show()
+				end
 
 				-- Create profile buttons
 				local profileIndex = 1
-				for _, profile in ipairs(sortedProfiles) do
-					--print("Sorted Profiles: " .. profile)
-					if profileIndex <= profileMaxVisibleButtons then
-						--print("profileIndex <= profileMaxVisibleButtons ")
-						local profileButton = CreateFrame("Button", nil, profileList)
-						profileButton:SetSize(profileList:GetWidth(), buttonHeight)
-						profileButton:SetPoint("TOPLEFT", 0, -(profileIndex - 1) * buttonHeight)
+				function unitscan_profileListUpdate()
+					for _, button in ipairs(profileList.Buttons) do
+						button:Hide()
+						--index = 1
+					end
+					for _, profile in ipairs(sortedProfiles) do
+						--print("Sorted Profiles: " .. profile)
+						if profileIndex <= profileMaxVisibleButtons then
+							--print("profileIndex <= profileMaxVisibleButtons ")
+							local profileButton = CreateFrame("Button", nil, profileList)
+							profileButton:SetSize(profileList:GetWidth(), buttonHeight)
+							profileButton:SetPoint("TOPLEFT", 0, -(profileIndex - 1) * buttonHeight)
 
 
-						--===== Texture for Mouseover =====--
-						local profileTexture = profileButton:CreateTexture(nil, "BACKGROUND")
-						profileTexture:SetAllPoints(true)
-						profileTexture:SetTexture("Interface\\Buttons\\WHITE8X8")
-						profileTexture:SetVertexColor(0.0, 0.5, 1.0, 0.8)
-						profileTexture:Hide()
-						--make global
-						unitscan_profileTexture = profileTexture
-
-						--===== Texture for selected button =====--
-						profileButton.Texture = profileButton:CreateTexture(nil, "BACKGROUND")
-						profileButton.Texture:SetAllPoints(true)
-						profileButton.Texture:SetTexture(nil)
-
-
-						---- DEBUG START
-						---- Create a separate font string for numeration
-						--local numerationText = profileButton:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-						--numerationText:SetPoint("LEFT", 90, 0)
-						--numerationText:SetText(profileIndex .. ".")
-						---- DEBUG END
-
-						profileButton.Text = profileButton:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-						profileButton.Text:SetPoint("LEFT", 5, 0)
-
-						
-						--------------------------------------------------------------------------------
-						-- Functions to hide all mob names and all profile names
-						--------------------------------------------------------------------------------
-
-
-						function unitscan_HideExistingScanButtons()
-							for _, button in ipairs(scanList.Buttons) do
-								button:Hide()
-							end
-						end
-
-
-						function unitscan_HideExistingHistoryButtons()
-							for _, button in ipairs(historyList.Buttons) do
-								button:Hide()
-							end
-						end						
-
-						function unitscan_HideExistingProfileButtons()
-							for _, button in ipairs(profileList.Buttons) do
-								button:Hide()
-							end
-						end
-
-						--------------------------------------------------------------------------------
-						-- OnClick script
-						--------------------------------------------------------------------------------
-
-						-- Modify the existing OnClick function of profile buttons
-						profileButton:SetScript("OnClick", function(self)
-							local profileName = self.Text:GetText()
-
-							ChangeProfile(profileName)
-							if menuSelectedButton == "ScanList" then
-								unitscan_scanlistGUIButton:Click()
-							elseif menuSelectedButton == "HistoryList" then
-								unitscan_historyGUIButton:Click()
-							else
-								--print("Click on left menu - Scan List or History to refresh mob list")
-								unitscan_scanlistGUIButton:Click()
-							end
+							--===== Texture for Mouseover =====--
+							local profileTexture = profileButton:CreateTexture(nil, "BACKGROUND")
+							profileTexture:SetAllPoints(true)
+							profileTexture:SetTexture("Interface\\Buttons\\WHITE8X8")
+							profileTexture:SetVertexColor(0.0, 0.5, 1.0, 0.8)
+							profileTexture:Hide()
+							--make global
+							unitscan_profileTexture = profileTexture
 
 							--===== Texture for selected button =====--
-							for _, button in ipairs(profileList.Buttons) do
-								if button == self then
-									-- Apply the clicked texture
-									button.Texture:SetTexture(0, 1.0, 0, 0.5)
-									profileTexture:Hide()
-								else
-									-- Remove texture from other buttons
-									button.Texture:SetTexture(nil)
+							profileButton.Texture = profileButton:CreateTexture(nil, "BACKGROUND")
+							profileButton.Texture:SetAllPoints(true)
+							profileButton.Texture:SetTexture(nil)
+
+
+							---- DEBUG START
+							---- Create a separate font string for numeration
+							--local numerationText = profileButton:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+							--numerationText:SetPoint("LEFT", 90, 0)
+							--numerationText:SetText(profileIndex .. ".")
+							---- DEBUG END
+
+							profileButton.Text = profileButton:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+							profileButton.Text:SetPoint("LEFT", 5, 0)
+
+
+							--------------------------------------------------------------------------------
+							-- Functions to hide all mob names and all profile names
+							--------------------------------------------------------------------------------
+
+
+							function unitscan_HideExistingScanButtons()
+								for _, button in ipairs(scanList.Buttons) do
+									button:Hide()
 								end
 							end
 
-							if visibleProfileButtonsCount <= 13 or visibleProfileButtonsCount == 0 then
-								profileFrame.scroll.ScrollBar:Hide()
-								profileFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
-							elseif visibleProfileButtonsCount >= 14 and visibleProfileButtonsCount <= 26 then
-								profileFrame.scroll.ScrollBar:Show()
-								profileFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleProfileButtonsCount + 715))
-							elseif visibleProfileButtonsCount >= 27 and visibleProfileButtonsCount <= 39 then
-								profileFrame.scroll.ScrollBar:Show()
-								profileFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleProfileButtonsCount + 940))
-							elseif visibleProfileButtonsCount >= 40 and visibleProfileButtonsCount <= 52 then
-								profileFrame.scroll.ScrollBar:Show()
-								profileFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleProfileButtonsCount + 1160))
-							elseif visibleProfileButtonsCount >= 53 and visibleProfileButtonsCount <= 100 then
-								profileFrame.scroll.ScrollBar:Show()
-								profileFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleProfileButtonsCount + 2000))
-							end
 
-							-- Clear focus of search box
-							unitscan_searchbox:ClearFocus()
-						end)
-
-
-
-						--------------------------------------------------------------------------------
-						-- OnEvent Script
-						--------------------------------------------------------------------------------
-
-						
-						profileButton:SetScript("OnEvent", function()
-							if event == "PLAYER_ENTERING_WORLD" then
-								--===== Click twice to populate the list properly after converting from old table =====--
-								unitscan_scanlistGUIButton:Click()
-								LibCompat.After(0.5, function() unitscan_scanlistGUIButton:Click() end)
-								profileButton:UnregisterEvent("PLAYER_ENTERING_WORLD")
-							end
-						end)
-						profileButton:RegisterEvent("PLAYER_ENTERING_WORLD")
-
-						--------------------------------------------------------------------------------
-						-- Other Scripts
-						--------------------------------------------------------------------------------
-
-						profileButton:SetScript("OnShow", function(self)
-							local currentProfileName = activeProfile
-
-							for _, button in ipairs(profileList.Buttons) do
-								local buttonName = button.Text:GetText()
-
-								if buttonName == currentProfileName then
-									-- Apply the clicked texture
-									button.Texture:SetTexture(0, 1.0, 0, 0.5)
-									profileTexture:Hide()
-									unitscan_profileButtonTexture = button.Texture
-								else
-									-- Remove texture from other buttons
-									button.Texture:SetTexture(nil)
+							function unitscan_HideExistingHistoryButtons()
+								for _, button in ipairs(historyList.Buttons) do
+									button:Hide()
 								end
 							end
-						end)
+
+							function unitscan_HideExistingProfileButtons()
+								for _, button in ipairs(profileList.Buttons) do
+									button:Hide()
+								end
+							end
 
 
-						profileButton:SetScript("OnEnter", function(self)
-							-- Handle profile button mouse enter event here
-							profileTexture:Show()
-						end)
+							--------------------------------------------------------------------------------
+							-- OnClick script
+							--------------------------------------------------------------------------------
+							function unitscan_profileButton_OnClick()
+								-- Modify the existing OnClick function of profile buttons
+								profileButton:SetScript("OnClick", function(self)
+									local profileName = self.Text:GetText()
 
-						profileButton:SetScript("OnLeave", function(self)
-							-- Handle profile button mouse leave event here
-							profileTexture:Hide()
-						end)
+									if not menuSelectedButton == "ProfileList" then
+										ChangeProfile(profileName)
+									elseif menuSelectedButton == "ScanList" or menuSelectedButton == "HistoryList" then
+										ChangeProfile(profileName)
+									end
 
-						--===== Show Profile Text on button and show button itself. =====--
-						profileButton.Text:SetText(profile)
-						profileButton:Show()
+									if menuSelectedButton == "ScanList" then
+										unitscan_scanlistGUIButton:Click()
+									elseif menuSelectedButton == "HistoryList" then
+										unitscan_historyGUIButton:Click()
+									elseif menuSelectedButton == "ProfileList" then
+										unitscan_profilesGUIButton:Click()
+									else
+										--print("Click on left menu - Scan List or History to refresh mob list")
+										unitscan_scanlistGUIButton:Click()
+									end
 
-						function unitscan_hideProfileButtons()
-							for _, profileButton in ipairs(profileList.Buttons) do
-								profileButton:Hide()  
-							end  
+									--===== Texture for selected button =====--
+									for _, button in ipairs(profileList.Buttons) do
+										if button == self then
+											-- Apply the clicked texture
+											button.Texture:SetTexture(0, 1.0, 0, 0.5)
+											profileTexture:Hide()
+											unitscanCB["ProfileDeleteBtn"]:SetScript("OnClick", function()
+												--print("DELETE: " .. profileName)
+												DeleteProfile(profileName)
+											end)
+											unitscanCB["ProfileCopyBtn"]:SetScript("OnClick", function()
+												--print("COPY: " .. profileName)
+												--DeleteProfile(profileName)
+											end)
+										else
+											-- Remove texture from other buttons
+											button.Texture:SetTexture(nil)
+										end
+									end
+
+									if visibleProfileButtonsCount <= 13 or visibleProfileButtonsCount == 0 then
+										profileFrame.scroll.ScrollBar:Hide()
+										profileFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
+									elseif visibleProfileButtonsCount >= 14 and visibleProfileButtonsCount <= 26 then
+										profileFrame.scroll.ScrollBar:Show()
+										profileFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleProfileButtonsCount + 715))
+									elseif visibleProfileButtonsCount >= 27 and visibleProfileButtonsCount <= 39 then
+										profileFrame.scroll.ScrollBar:Show()
+										profileFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleProfileButtonsCount + 940))
+									elseif visibleProfileButtonsCount >= 40 and visibleProfileButtonsCount <= 52 then
+										profileFrame.scroll.ScrollBar:Show()
+										profileFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleProfileButtonsCount + 1160))
+									elseif visibleProfileButtonsCount >= 53 and visibleProfileButtonsCount <= 100 then
+										profileFrame.scroll.ScrollBar:Show()
+										profileFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleProfileButtonsCount + 2000))
+									end
+
+									-- Clear focus of search box
+									unitscan_searchbox:ClearFocus()
+								end)
+
+							end
+							unitscan_profileButton_OnClick()
+
+							--------------------------------------------------------------------------------
+							--Click Current Profile
+							--------------------------------------------------------------------------------
+
+							-- Why is it so much better than OnEvent PLAYER_ENTERING_WORLD? That one is iterating multiple times.. This just once.
+							function unitscan_ClickCurrentProfileButton()
+								for _, button in ipairs(profileList.Buttons) do
+									local profileName = button.Text:GetText()
+									if profileName == activeProfile then
+										button:Click()
+										--print("SWITCH to: " .. profileName)
+									end
+								end
+							end
+
+							--------------------------------------------------------------------------------
+							-- LOGIN OnEvent Script
+							--------------------------------------------------------------------------------
+
+							profileButton:SetScript("OnEvent", function()
+								if event == "PLAYER_ENTERING_WORLD" then
+									--===== Click twice to populate the list properly after converting from old table =====--
+
+									--unitscan_profilesGUIButton:Click()
+									--LibCompat.After(1, function() unitscan_profilesGUIButton:Click() end)
+
+									unitscan_scanlistGUIButton:Click()
+									LibCompat.After(1, function()
+										unitscan_scanlistGUIButton:Click()
+										profileButton:UnregisterEvent("PLAYER_ENTERING_WORLD")
+									end)
+								end
+							end)
+							profileButton:RegisterEvent("PLAYER_ENTERING_WORLD")
+
+							--------------------------------------------------------------------------------
+							-- Other Scripts
+							--------------------------------------------------------------------------------
+
+							profileButton:SetScript("OnShow", function(self)
+								local currentProfileName = activeProfile
+
+								for _, button in ipairs(profileList.Buttons) do
+									local buttonName = button.Text:GetText()
+
+									if buttonName == currentProfileName then
+										-- Apply the clicked texture
+										button.Texture:SetTexture(0, 1.0, 0, 0.5)
+										profileTexture:Hide()
+										unitscan_profileButtonTexture = button.Texture
+									else
+										-- Remove texture from other buttons
+										button.Texture:SetTexture(nil)
+									end
+								end
+							end)
+
+
+							profileButton:SetScript("OnEnter", function(self)
+								-- Handle profile button mouse enter event here
+								profileTexture:Show()
+							end)
+
+							profileButton:SetScript("OnLeave", function(self)
+								-- Handle profile button mouse leave event here
+								profileTexture:Hide()
+							end)
+
+							--===== Show Profile Text on button and show button itself. =====--
+							profileButton.Text:SetText(profile)
+							profileButton:Show()
+
+							function unitscan_hideProfileButtons()
+								for _, profileButton in ipairs(profileList.Buttons) do
+									profileButton:Hide()
+								end
+							end
+
+							--unitscan_hideProfileButtons()
+
+
+							profileList.Buttons.Texture = profileButton.Texture
+							profileList.Buttons[profileIndex] = profileButton
+
 						end
-
-						--unitscan_hideProfileButtons()
-
-
-						profileList.Buttons.Texture = profileButton.Texture
-						profileList.Buttons[profileIndex] = profileButton
-
+						profileIndex = profileIndex + 1
+						--print(profileIndex)
+						visibleProfileButtonsCount = profileIndex
+						--print(visibleProfileButtonsCount)
 					end
-					profileIndex = profileIndex + 1
-					--print(profileIndex)
-					visibleProfileButtonsCount = profileIndex
-					--print(visibleProfileButtonsCount)
 				end
+				unitscan_profileListUpdate()
 
 				profileFrame.scroll:SetScrollChild(profileList)
 
@@ -3234,10 +3335,11 @@
 						expbtn[title]:SetScript("OnClick", function()
 							unitscan_scanFrame:Show()
 							unitscan_historyFrame:Hide()
-
+							--unitscan_profileButton_OnClick()
 							unitscan_scanListUpdate()
 							unitscan_sortHistory()
 							unitscan_sortScanList()
+							unitscan_ProfileManageButtons_Hide()
 
 
 							-- Hide History Buttons - to save memory.
@@ -3343,10 +3445,13 @@
 						expbtn[title]:SetScript("OnClick", function()
 							unitscan_scanFrame:Hide()
 							unitscan_historyFrame:Show()
-
+							--TODO do i need to call it?
+							--unitscan_profileButton_OnClick()
+							--
 							unitscan_historyListUpdate()
 							unitscan_sortHistory()
 							unitscan_sortScanList()
+							unitscan_ProfileManageButtons_Hide()
 
 							if scanListContains == true then
 								unitscan_hideScanButtons()
@@ -3376,7 +3481,7 @@
 									if not button then
 										unitscan_sortHistory()
 										unitscan_historyListUpdate()
-										print("no button")
+										print("no history button")
 									end
 
 									-- Set button text and position
@@ -3408,7 +3513,7 @@
 										historyFrame.scroll.ScrollBar:Show()
 										historyFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 2000))
 									end
-
+									--FIXME clicking empty profile doesnt set color correctly.
 									if unitscan_profileButtonTexture then
 										if unitscan_scanFrame:IsShown() then
 											unitscan_profileFrame:SetBackdropBorderColor(0.0, 1.0, 0.0, 0.5) -- Set profileFrame border color to green
@@ -3446,30 +3551,65 @@
 
 
 					--------------------------------------------------------------------------------
-					-- Menu History Button
+					-- Menu Profiles Button
 					--------------------------------------------------------------------------------
 
 
 					elseif title == "Profiles" then
 						expbtn[title]:SetScript("OnClick", function()
+							visibleButtonsCount = 0
+							--unitscan_profileListUpdate()
 							unitscan_scanFrame:Hide()
 							unitscan_historyFrame:Hide()
 
 							unitscan_historyListUpdate()
 							unitscan_sortHistory()
 							unitscan_sortScanList()
+							unitscan_ProfileManageButtons_Show()
 
 							if scanListContains == true then
 								unitscan_hideScanButtons()
 							end
 
 
+							for _, profile in pairs(sortedProfiles) do
+								local button = profileList.Buttons[visibleButtonsCount + 1] or CreateFrame("BUTTON")
+
+								if not button then
+									unitscan_sortHistory()
+									unitscan_historyListUpdate()
+									unitscan_profileListUpdate()
+									print("no profile button")
+								end
+
+								-- Set button text and position
+								if button.Text then
+									button.Text:SetText(profile)
+									--local selectedProfileText = button.Text:GetText()
+
+									button:SetPoint("TOPLEFT", 0, -(visibleButtonsCount * buttonHeight))
+
+									button:Show()
+
+									visibleButtonsCount = visibleButtonsCount + 1
+									--local profileName = button.Text:GetText()
+									--if profileName == activeProfile then
+									--	button:Click()
+									--	print(profileName)
+									--end
+
+
+								end
+
+
+
+							end
 							-- Clear focus of search box
 							unitscan_searchbox:ClearFocus()
 
 							if selectedButton ~= expbtn[title] then
 								--if menuSelectedButton == "ScanList" then print("scanlist") else print("nope") end
-								menuSelectedButton = "HistoryList"
+								menuSelectedButton = "ProfileList"
 								--print(menuSelectedButton)
 								expbtn[title].expTexture:Show()
 								if selectedButton then
@@ -3505,11 +3645,11 @@
 					end)
 				end
 
-				MakeButtonNow("Scan List", "Zones")					
+				MakeButtonNow("Scan List", "Zones")
 				MakeButtonNow("History", "Scan List")
 				MakeButtonNow("Profiles", "History")
-			
-				
+
+
 
 
 
@@ -3597,7 +3737,7 @@
 				local function SearchEditBox_OnTextChanged(editBox)
 					--scroll to top if text changed
 					unitscan_profileScrollbar:SetValue(unitscan_profileScrollbar:GetMinMaxValues())
-					
+
 					local text = editBox:GetText()
 					if not text or text:trim() == "" then
 						sBox.clearButton:Hide()
@@ -3614,10 +3754,10 @@
 					end
 
 
-					-- Multiply by button height to get scrollbar maximum   
-					local maxValue = visibleButtonCount * 20  
+					-- Multiply by button height to get scrollbar maximum
+					local maxValue = visibleButtonCount * 20
 					if visibleButtonCount >= 1 then
-						-- Set scrollbar minimum and maximum values   
+						-- Set scrollbar minimum and maximum values
 
 
 						-- TODO FIX this values
@@ -3730,7 +3870,7 @@
 
 		-- Release memory
 		unitscanLC.scan_list = nil
-	
+
 
 		--------------------------------------------------------------------------------
 		-- End of Custom Scan List module.
@@ -4417,18 +4557,11 @@
 
 			-- Set skinned button textures
 			if not naked then
-				mbtn:SetNormalTexture("Interface\\AddOns\\Leatrix_Plus\\Leatrix_Plus.blp")
+				mbtn:SetNormalTexture("Interface\\AddOns\\unitscan\\unitscan.blp")
 				mbtn:GetNormalTexture():SetTexCoord(0.125, 0.25, 0.4375, 0.5)
 			end
-			mbtn:SetHighlightTexture("Interface\\AddOns\\Leatrix_Plus\\Leatrix_Plus.blp")
+			mbtn:SetHighlightTexture("Interface\\AddOns\\unitscan\\unitscan.blp")
 			mbtn:GetHighlightTexture():SetTexCoord(0, 0.125, 0.4375, 0.5)
-
-			-- Hide the default textures
-			-- mbtn:HookScript("OnShow", function() mbtn.Left:Hide(); mbtn.Middle:Hide(); mbtn.Right:Hide() end)
-			-- mbtn:HookScript("OnEnable", function() mbtn.Left:Hide(); mbtn.Middle:Hide(); mbtn.Right:Hide() end)
-			-- mbtn:HookScript("OnDisable", function() mbtn.Left:Hide(); mbtn.Middle:Hide(); mbtn.Right:Hide() end)
-			-- mbtn:HookScript("OnMouseDown", function() mbtn:GetPushedTexture():Hide() end)
-			-- mbtn:HookScript("OnMouseUp", function() mbtn.Left:Hide(); mbtn.Middle:Hide(); mbtn.Right:Hide() end)
 
 
 			--===== 3.3.5 texture disables =====--
@@ -4831,7 +4964,7 @@
 
 	do
 		local last_played
-		
+
 		function unitscan.play_sound()
 			if not last_played or GetTime() - last_played > 3 then
 				--PlaySoundFile([[Interface\AddOns\unitscan\assets\Event_wardrum_ogre.ogg]], 'Sound')
@@ -4886,7 +5019,7 @@
 			flash:SetAlpha(0)
 			flash:SetFrameStrata'LOW'
 			SetCVar("Sound_EnableErrorSpeech", 0)
-			
+
 			local texture = flash:CreateTexture()
 			texture:SetBlendMode'ADD'
 			texture:SetAllPoints()
@@ -4923,7 +5056,7 @@
 				self:Show()
 			end
 		end
-		
+
 		local button = CreateFrame('Button', 'unitscan_button', UIParent, 'SecureActionButtonTemplate')
 		-- first code to set left and right click of button
 		button:SetAttribute("type1", "macro")
@@ -4949,11 +5082,11 @@
 		button:SetScript('OnMouseUp', function(self)
 		    self:StopMovingOrSizing()
 		    self:RegisterForClicks("AnyDown", "AnyUp")
-		end) 
+		end)
 
 		button:SetFrameStrata'LOW'
 		button:SetNormalTexture[[Interface\AddOns\unitscan\assets\UI-Achievement-Parchment-Horizontal]]
-		
+
 		if isWOTLK or isTBC then
 			button:SetBackdrop{
 				tile = true,
@@ -4980,7 +5113,7 @@
 			self.glow.animation:Play()
 			self.shine.animation:Play()
 		end
-		
+
 		do
 			local background = button:GetNormalTexture()
 			background:SetDrawLayer'BACKGROUND'
@@ -4989,7 +5122,7 @@
 			background:SetPoint('TOPRIGHT', -3, -3)
 			background:SetTexCoord(0, 1, 0, .25)
 		end
-		
+
 		do
 			local title_background = button:CreateTexture(nil, 'BORDER')
 			title_background:SetTexture[[Interface\AddOns\unitscan\assets\UI-Achievement-Title]]
@@ -5008,7 +5141,7 @@
 			--===== Fix for UNIT name in Chinese, should i add zhTW? =====--
 			-- if currentLocale == "zhCN" and isWOTLK then
 			-- 	title:SetFont([[Fonts\ZYHei.ttf]], 14)
-			-- else	
+			-- else
 			-- 	title:SetFont([[Fonts\FRIZQT__.TTF]], 14)
 			-- end
 
@@ -5024,7 +5157,7 @@
 			subtitle:SetPoint('RIGHT', title)
 			subtitle:SetText'Unit Found!'
 		end
-		
+
 		do
 			local model = CreateFrame('PlayerModel', nil, button)
 			button.model = model
@@ -5032,7 +5165,7 @@
 			model:SetPoint('RIGHT', 0, 0)
 			model:SetHeight(button:GetWidth() * .6)
 		end
-		
+
 		do
 			local close = CreateFrame('Button', "unitscan_close", button, 'UIPanelCloseButton')
 			close:SetPoint('BOTTOMRIGHT', 5, -5)
@@ -5041,7 +5174,7 @@
 			close:SetScale(.8)
 			close:SetHitRectInsets(8, 8, 8, 8)
 		end
-		
+
 		do
 			local glow = button.model:CreateTexture(nil, 'OVERLAY')
 			button.glow = glow
@@ -5082,7 +5215,7 @@
 			shine:SetBlendMode'ADD'
 			shine:SetTexCoord(.78125, .912109375, 0, .28125)
 			shine:SetAlpha(0)
-			
+
 			shine.animation = CreateFrame'Frame'
 			shine.animation:Hide()
 			shine.animation:SetScript('OnUpdate', function(self)
@@ -5114,7 +5247,7 @@
 
 
 --------------------------------------------------------------------------------
--- Function to scan for units with conditions. 
+-- Function to scan for units with conditions.
 --------------------------------------------------------------------------------
 
 
@@ -5264,7 +5397,7 @@
 		local _, _, command, args = string.find(parameter, '^(%S+)%s*(.*)$')
 		local activeProfile = unitscan_getActiveProfile()
 
-		--===== Slash to put current player target to the unit scanning list. =====--    
+		--===== Slash to put current player target to the unit scanning list. =====--
 		if command == "target" then
 			local targetName = UnitName("target")
 			if targetName then
@@ -5316,7 +5449,7 @@
 				unitscan.print("No target selected.")
 			end
 
-			--===== Slash to change unit scanning interval. Default is 0.3 =====--    
+			--===== Slash to change unit scanning interval. Default is 0.3 =====--
 		elseif command == "interval" then
 			local newInterval = tonumber(args)
 			if newInterval then
@@ -5362,7 +5495,7 @@
 				return
 			end
 
-			--===== Slash to avoid people confusion if they do /unitscan name =====--    
+			--===== Slash to avoid people confusion if they do /unitscan name =====--
 			elseif command == "name" then
 			print(" ")
 			unitscan.print("replace " .. YELLOW .. "'name'" .. WHITE .. " with npc you want to scan.")
@@ -5393,7 +5526,7 @@
 				end
 			end
 
-			--===== Slash to show rare spawns that are currently being scanned. =====--    
+			--===== Slash to show rare spawns that are currently being scanned. =====--
 		elseif command == "nearby" then
 			unitscan.print("Is someone missing?")
 			unitscan.print(" - Add it to your list with " .. GREEN .. "/unitscan name")
@@ -5408,7 +5541,7 @@
 				end
 			end
 
-			--===== Slash to show all avaliable commands =====--    
+			--===== Slash to show all avaliable commands =====--
 		elseif command == 'help' then
 			-- Prevent options panel from showing if a game options panel is showing
 			--if InterfaceOptionsFrame:IsShown() or VideoOptionsFrame:IsShown() or ChatConfigFrame:IsShown() then return end
@@ -5425,7 +5558,7 @@
 			if not unitscanLC.HelpFrame then
 				local frame = CreateFrame("FRAME", nil, UIParent)
 				frame:SetSize(570, 340); frame:SetFrameStrata("FULLSCREEN_DIALOG"); frame:SetFrameLevel(100)
-				frame.tex = frame:CreateTexture(nil, "BACKGROUND"); frame.tex:SetAllPoints(); 
+				frame.tex = frame:CreateTexture(nil, "BACKGROUND"); frame.tex:SetAllPoints();
 				frame.tex:SetVertexColor(0.05, 0.05, 0.05, 0.9)
 				frame.close = CreateFrame("Button", nil, frame, "UIPanelCloseButton"); frame.close:SetSize(30, 30); frame.close:SetPoint("TOPRIGHT", 0, 0); frame.close:SetScript("OnClick", function() frame:Hide() end)
 				frame:ClearAllPoints(); frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)

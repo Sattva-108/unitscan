@@ -44,6 +44,8 @@ Global -  rename rare_spawns table to something more unique
 
 Profiles - think and check and test for if TargetsTablePopulated and HistoryTablePopulated can be in some way reset, risking to corrupt user data tables.
 
+Profiles - test for scrollbar, if many profiles, will it expand?
+
 
 --------------------------------------------------------------------------------
 -- User Interface To-Do list.
