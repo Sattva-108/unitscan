@@ -2431,6 +2431,7 @@
 
 				local buttonHeight = 20
 				local maxVisibleButtons = 450
+				-- FIXME: im not using these two locals, but may keep them for now
 				local scanListContains = false
 				local historyListContains = false
 
@@ -2643,11 +2644,7 @@
 							button.Text:SetText(mobs)
 							scanListContains = true
 
-							function unitscan_hideScanButtons()
-								for _, button in ipairs(scanList.Buttons) do
-									button:Hide()
-								end
-							end
+
 
 							-- Initially hide buttons that don't belong to the selected profile
 							--if profile == selectedProfile then
@@ -2667,6 +2664,12 @@
 				-- call above function
 				unitscan_scanListUpdate()
 
+				function unitscan_hideScanButtons()
+					--scanList.Buttons = {}
+					for _, button in ipairs(scanList.Buttons) do
+						button:Hide()
+					end
+				end
 
 
 				scanFrame.scroll:SetScrollChild(scanList)
@@ -2817,9 +2820,7 @@
 							button:SetScript("OnClick", function()
 
 								unitscan_scanListUpdate()
-								if scanListContains == true then
-									unitscan_hideScanButtons()
-								end
+								unitscan_hideScanButtons()
 								-- Get the unit name from the button's text
 								local key = strupper(button.Text:GetText())
 
@@ -2890,11 +2891,6 @@
 
 							button:Hide()
 
-							function unitscan_hideHistoryButtons()
-								for _, button in ipairs(historyList.Buttons) do
-									button:Hide()
-								end
-							end
 
 							historyList.Buttons[index] = button
 						end
@@ -2902,6 +2898,12 @@
 					end
 				end
 				unitscan_historyListUpdate()
+
+				function unitscan_hideHistoryButtons()
+					for _, button in ipairs(historyList.Buttons) do
+						button:Hide()
+					end
+				end
 
 				historyFrame.scroll:SetScrollChild(historyList)
 
@@ -3075,9 +3077,122 @@
 							profileButton.Text:SetPoint("LEFT", 5, 0)
 
 
+
+							--------------------------------------------------------------------------------
+							-- OnClick Profile buttons script
+							--------------------------------------------------------------------------------
+							function unitscan_profileButton_OnClick()
+								-- Modify the existing OnClick function of profile buttons
+								profileButton:SetScript("OnClick", function(self)
+									local profileName = self.Text:GetText()
+
+									if not menuSelectedButton == "ProfileList" then
+										ChangeProfile(profileName)
+									elseif menuSelectedButton == "ScanList" or menuSelectedButton == "HistoryList" then
+										ChangeProfile(profileName)
+									end
+
+									if menuSelectedButton == "ScanList" then
+										unitscan_scanlistGUIButton:Click()
+									elseif menuSelectedButton == "HistoryList" then
+										unitscan_historyGUIButton:Click()
+									elseif menuSelectedButton == "ProfileList" then
+										unitscan_profilesGUIButton:Click()
+									else
+										--print("Click on left menu - Scan List or History to refresh mob list")
+										unitscan_scanlistGUIButton:Click()
+									end
+
+									function unitscan_ProfileButtons_UpdateChildren()
+										--===== Texture for selected button =====--
+										for _, button in ipairs(profileList.Buttons) do
+											if button == self then
+												-- Apply the clicked texture
+												button.Texture:SetTexture(0, 1.0, 0, 0.5)
+												profileTexture:Hide()
+
+												--------------------------------------------------------------------------------
+												--Set Scripts for Profile Configuration Buttons here
+												--------------------------------------------------------------------------------
+
+												unitscanCB["ProfileDeleteBtn"]:SetScript("OnClick", function()
+													--print("DELETE: " .. profileName)
+													if profileName ~= activeProfile then
+														DeleteProfile(profileName)
+													else
+														print("Cannot Delete Your Active Profile: " .. profileName)
+													end
+												end)
+												unitscanCB["ProfileCopyBtn"]:SetScript("OnClick", function()
+													--print("COPY: " .. profileName)
+													--DeleteProfile(profileName)
+												end)
+												unitscanCB["ProfileCreateBtn"]:SetScript("OnClick", function()
+													ShowProfilePopup()
+												end)
+												unitscanCB["ProfileChooseBtn"]:SetScript("OnClick", function()
+													ChangeProfile(profileName)
+												end)
+
+											else
+												-- Remove texture from other buttons
+												button.Texture:SetTexture(nil)
+											end
+										end
+									end
+									unitscan_ProfileButtons_UpdateChildren()
+
+
+									function unitscan_profileButtons_ScrollBar_Update()
+										if visibleProfileButtonsCount <= 13 or visibleProfileButtonsCount == 0 then
+											profileFrame.scroll.ScrollBar:Hide()
+											profileFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
+										elseif visibleProfileButtonsCount >= 14 and visibleProfileButtonsCount <= 26 then
+											profileFrame.scroll.ScrollBar:Show()
+											profileFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleProfileButtonsCount + 715))
+										elseif visibleProfileButtonsCount >= 27 and visibleProfileButtonsCount <= 39 then
+											profileFrame.scroll.ScrollBar:Show()
+											profileFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleProfileButtonsCount + 940))
+										elseif visibleProfileButtonsCount >= 40 and visibleProfileButtonsCount <= 52 then
+											profileFrame.scroll.ScrollBar:Show()
+											profileFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleProfileButtonsCount + 1160))
+										elseif visibleProfileButtonsCount >= 53 and visibleProfileButtonsCount <= 100 then
+											profileFrame.scroll.ScrollBar:Show()
+											profileFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleProfileButtonsCount + 2000))
+										end
+									end
+									unitscan_profileButtons_ScrollBar_Update()
+
+
+									-- Clear focus of search box
+									unitscan_searchbox:ClearFocus()
+								end)
+
+							end
+							-- DONE remove these usages as we now have unitscan_profileButtons_ScrollBar_Update()
+							unitscan_profileButton_OnClick()
+
 							--------------------------------------------------------------------------------
 							-- Functions to hide all mob names and all profile names
 							--------------------------------------------------------------------------------
+
+							function unitscan_ProfileButtons_TextureUpdate()
+								--===== Texture for selected button =====--
+								for _, button in ipairs(profileList.Buttons) do
+									local activeProfileButtonText = button.Text:GetText()
+
+									if activeProfileButtonText == activeProfile then
+										button.Texture:SetTexture(0, 1.0, 0, 0.5)
+										profileTexture:Hide()
+										--print("set")
+									else
+										-- Remove texture from other buttons
+										button.Texture:SetTexture(nil)
+									end
+								end
+								
+							end
+
 
 
 							function unitscan_HideExistingScanButtons()
@@ -3108,96 +3223,6 @@
 								unitscan_WipeExistingProfileButtons()
 								unitscan_profileListUpdate()
 							end
-
-
-							--------------------------------------------------------------------------------
-							-- OnClick Profile buttons script
-							--------------------------------------------------------------------------------
-							function unitscan_profileButton_OnClick()
-								-- Modify the existing OnClick function of profile buttons
-								profileButton:SetScript("OnClick", function(self)
-									local profileName = self.Text:GetText()
-
-									if not menuSelectedButton == "ProfileList" then
-										ChangeProfile(profileName)
-									elseif menuSelectedButton == "ScanList" or menuSelectedButton == "HistoryList" then
-										ChangeProfile(profileName)
-									end
-
-									if menuSelectedButton == "ScanList" then
-										unitscan_scanlistGUIButton:Click()
-									elseif menuSelectedButton == "HistoryList" then
-										unitscan_historyGUIButton:Click()
-									elseif menuSelectedButton == "ProfileList" then
-										unitscan_profilesGUIButton:Click()
-									else
-										--print("Click on left menu - Scan List or History to refresh mob list")
-										unitscan_scanlistGUIButton:Click()
-									end
-
-									--===== Texture for selected button =====--
-									for _, button in ipairs(profileList.Buttons) do
-										if button == self then
-											-- Apply the clicked texture
-											button.Texture:SetTexture(0, 1.0, 0, 0.5)
-											profileTexture:Hide()
-
-											--------------------------------------------------------------------------------
-											--Set Scripts for Profile Configuration Buttons here
-											--------------------------------------------------------------------------------
-
-											unitscanCB["ProfileDeleteBtn"]:SetScript("OnClick", function()
-												--print("DELETE: " .. profileName)
-												if profileName ~= activeProfile then
-													DeleteProfile(profileName)
-												else
-													print("Cannot Delete Your Active Profile: " .. profileName)
-												end
-											end)
-											unitscanCB["ProfileCopyBtn"]:SetScript("OnClick", function()
-												--print("COPY: " .. profileName)
-												--DeleteProfile(profileName)
-											end)
-											unitscanCB["ProfileCreateBtn"]:SetScript("OnClick", function()
-												ShowProfilePopup()
-											end)
-											unitscanCB["ProfileChooseBtn"]:SetScript("OnClick", function()
-												ChangeProfile(profileName)
-											end)
-
-										else
-											-- Remove texture from other buttons
-											button.Texture:SetTexture(nil)
-										end
-									end
-									function unitscan_profileButtons_ScrollBar_Update()
-										if visibleProfileButtonsCount <= 13 or visibleProfileButtonsCount == 0 then
-											profileFrame.scroll.ScrollBar:Hide()
-											profileFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
-										elseif visibleProfileButtonsCount >= 14 and visibleProfileButtonsCount <= 26 then
-											profileFrame.scroll.ScrollBar:Show()
-											profileFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleProfileButtonsCount + 715))
-										elseif visibleProfileButtonsCount >= 27 and visibleProfileButtonsCount <= 39 then
-											profileFrame.scroll.ScrollBar:Show()
-											profileFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleProfileButtonsCount + 940))
-										elseif visibleProfileButtonsCount >= 40 and visibleProfileButtonsCount <= 52 then
-											profileFrame.scroll.ScrollBar:Show()
-											profileFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleProfileButtonsCount + 1160))
-										elseif visibleProfileButtonsCount >= 53 and visibleProfileButtonsCount <= 100 then
-											profileFrame.scroll.ScrollBar:Show()
-											profileFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleProfileButtonsCount + 2000))
-										end
-									end
-									unitscan_profileButtons_ScrollBar_Update()
-
-
-									-- Clear focus of search box
-									unitscan_searchbox:ClearFocus()
-								end)
-
-							end
-							-- TODO remove these usages as we now have unitscan_profileButtons_ScrollBar_Update()
-							unitscan_profileButton_OnClick()
 
 							--------------------------------------------------------------------------------
 							--Click Current Profile
@@ -3418,6 +3443,7 @@
 
 					elseif title == "Scan List" then
 						expbtn[title]:SetScript("OnClick", function()
+							unitscan_ProfileButtons_TextureUpdate()
 							-- hide
 							unitscan_scanFrame:Show()
 							unitscan_historyFrame:Hide()
@@ -3427,11 +3453,16 @@
 							unitscan_sortScanList()
 							unitscan_ProfileManageButtons_Hide()
 
+							menuSelectedButton = "ScanList"
+
+							unitscan_profileFrame:SetBackdropBorderColor(0.0, 1.0, 0.0, 0.5) -- Set profileFrame border color to green
+
+
 
 							-- Hide History Buttons - to save memory.
-							if historyListContains == true then
+							--if historyListContains == true then
 								unitscan_hideHistoryButtons()
-							end
+							--end
 							--unitscan_profileScrollbar:SetMinMaxValues(1, 1)
 							--unitscan_profileScrollbar:Hide()
 							scanFrame.scroll.ScrollBar:Hide()
@@ -3462,16 +3493,6 @@
 								visibleButtonsCount = visibleButtonsCount + 1
 
 
-
-								---- print(visibleButtonsCount)
-								--if visibleButtonsCount <= 13 then
-								--	scanFrame.scroll.ScrollBar:Hide()
-								--	scanFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
-								--else
-								--	scanFrame.scroll.ScrollBar:Show()
-								--	scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
-								--end
-								--print(visibleButtonsCount)
 								if visibleButtonsCount <= 13 or visibleButtonsCount == 0 then
 									scanFrame.scroll.ScrollBar:Hide()
 									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
@@ -3489,25 +3510,10 @@
 									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 2000))
 								end
 
-								if unitscan_profileButtonTexture then
-									if unitscan_scanFrame:IsShown() then
-										unitscan_profileFrame:SetBackdropBorderColor(0.0, 1.0, 0.0, 0.5) -- Set profileFrame border color to green
-										--unitscan_profileButtonTexture:SetTexture(0.0, 1.0, 0.0, 0.5)
-									elseif unitscan_historyFrame:IsShown() then
-										unitscan_profileFrame:SetBackdropBorderColor(1.0, 0.0, 0.0, 0.5) -- Set profileFrame border color to red
-										--unitscan_profileButtonTexture:SetTexture(1.0, 0.0, 0.0, 0.5)
-									else
-										-- Set a default border color if neither scanFrame nor historyFrame is shown
-										unitscan_profileFrame:SetBackdropBorderColor(0.0, 0.0, 0.0, 0.5) -- Set profileFrame border color to black
-										--unitscan_profileButtonTexture:SetTexture(0.0, 0.0, 0.0, 0.5)
-									end
-								end
-
 							end
 
 							if selectedButton ~= expbtn[title] then
 								expbtn[title].expTexture:Show()
-								menuSelectedButton = "ScanList"
 								--print(menuSelectedButton)
 								if selectedButton then
 									selectedButton.expTexture:Hide()
@@ -3529,19 +3535,25 @@
 
 					elseif title == "History" then
 						expbtn[title]:SetScript("OnClick", function()
+							unitscan_ProfileButtons_TextureUpdate()
+							-- hide
 							unitscan_scanFrame:Hide()
 							unitscan_historyFrame:Show()
-							--TODO do i need to call it?
-							--unitscan_profileButton_OnClick()
-							--
+							-- show
 							unitscan_historyListUpdate()
 							unitscan_sortHistory()
-							unitscan_sortScanList()
+							--unitscan_sortScanList()
 							unitscan_ProfileManageButtons_Hide()
 
-							if scanListContains == true then
-								unitscan_hideScanButtons()
-							end
+							unitscan_hideScanButtons()
+
+
+							menuSelectedButton = "HistoryList"
+
+
+							unitscan_profileFrame:SetBackdropBorderColor(1.0, 0.0, 0.0, 0.5) -- Set profileFrame border color to red
+
+
 
 							--unitscan_profileScrollbar:SetMinMaxValues(1, 1)
 							--unitscan_profileScrollbar:Hide()
@@ -3599,22 +3611,6 @@
 										historyFrame.scroll.ScrollBar:Show()
 										historyFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 2000))
 									end
-									--FIXME clicking empty profile doesnt set color correctly.
-									if unitscan_profileButtonTexture then
-										if unitscan_scanFrame:IsShown() then
-											unitscan_profileFrame:SetBackdropBorderColor(0.0, 1.0, 0.0, 0.5) -- Set profileFrame border color to green
-											--unitscan_profileButtonTexture:SetTexture(0.0, 1.0, 0.0, 0.5)
-										elseif unitscan_historyFrame:IsShown() then
-											unitscan_profileFrame:SetBackdropBorderColor(1.0, 0.0, 0.0, 0.5) -- Set profileFrame border color to red
-											--unitscan_profileButtonTexture:SetTexture(1.0, 0.0, 0.0, 0.5)
-										else
-											-- Set a default border color if neither scanFrame nor historyFrame is shown
-											unitscan_profileFrame:SetBackdropBorderColor(0.0, 0.0, 0.0, 0.5) -- Set profileFrame border color to black
-											--unitscan_profileButtonTexture:SetTexture(0.0, 0.0, 0.0, 0.5)
-										end
-									end
-
-
 								end
 							end
 
@@ -3653,9 +3649,10 @@
 							unitscan_sortScanList()
 							unitscan_ProfileManageButtons_Show()
 
-							if scanListContains == true then
-								unitscan_hideScanButtons()
-							end
+							unitscan_profileFrame:SetBackdropBorderColor(1, 1, 0.0, 0.5)
+
+							unitscan_hideScanButtons()
+
 
 
 							for _, profile in pairs(sortedProfiles) do
@@ -3846,7 +3843,7 @@
 						-- Set scrollbar minimum and maximum values
 
 
-						-- TODO FIX this values
+						-- TODO FIX this values, do i even need this ?
 						-- Hide scrollbar if less than 5 buttons visible
 						--if visibleButtonCount <= 13 then
 						--	unitscan_profileScrollbar:SetMinMaxValues(1, 1)
