@@ -2868,6 +2868,7 @@
 								else
 									button.IgnoreTexture:SetTexture(nil)
 								end
+								unitscan_ClickCurrentProfileButton()
 							end)
 
 							button:SetScript("OnEnter", function(self)
@@ -2961,7 +2962,9 @@
 
 				unitscan_profileList = profileList
 
-
+				--------------------------------------------------------------------------------
+				--Sort Profiles Aplhabetically
+				--------------------------------------------------------------------------------
 
 				local profiles = unitscan_scanlist.profiles
 
@@ -2972,19 +2975,60 @@
 					--print("Profile:", profile)
 				end
 				table.sort(sortedProfiles)
+
+				--------------------------------------------------------------------------------
+				--Create Delete,Copy,New Profile, ... configuration buttons
+				--------------------------------------------------------------------------------
+
 				local ProfileDeleteBtn = unitscanLC:CreateButton("ProfileDeleteBtn", unitscan_profileFrame, "Delete Profile", "TOPRIGHT", 100, -6, 100, 30, true, "", false)
 				local ProfileCopyBtn = unitscanLC:CreateButton("ProfileCopyBtn", unitscan_profileFrame, "Copy Profile", "TOPRIGHT", 100, -40, 101, 30, true, "", false)
+				local ProfileCreateBtn = unitscanLC:CreateButton("ProfileCreateBtn", unitscan_profileFrame, "New Profile", "TOPRIGHT", 100, -74, 101, 30, true, "", false)
 				function unitscan_ProfileManageButtons_Hide()
 					unitscanCB["ProfileDeleteBtn"]:Hide()
 					unitscanCB["ProfileCopyBtn"]:Hide()
+					unitscanCB["ProfileCreateBtn"]:Hide()
 				end
 
 				function unitscan_ProfileManageButtons_Show()
 					unitscanCB["ProfileDeleteBtn"]:Show()
 					unitscanCB["ProfileCopyBtn"]:Show()
+					unitscanCB["ProfileCreateBtn"]:Show()
 				end
 
+				local function ShowProfilePopup()
+					StaticPopupDialogs["PROFILE_POPUP"] = {
+						text = "Enter name for new profile:",
+						button1 = "Yes",
+						button2 = "Cancel",
+						hasEditBox = true,
+						editBoxWidth = 250,
+						OnShow = function(self)
+							self.editBox:SetFocus(true);
+						end,
+						OnAccept = function(self)
+							local name = self.editBox:GetText()
+							-- Create profile with name here
+							CreateProfile(name)
+						end,
+						EditBoxOnEnterPressed = function(self)
+							local parent = self:GetParent();
+							CreateProfile(parent.editBox:GetText());
+							parent:Hide();
+						end,
+						EditBoxOnEscapePressed = function(self)
+							self:GetParent():Hide();
+						end,
+						timeout = 0,
+						whileDead = true,
+						hideOnEscape = true
+					}
+					StaticPopup_Show ("PROFILE_POPUP")
+				end
+				--------------------------------------------------------------------------------
 				-- Create profile buttons
+				--------------------------------------------------------------------------------
+
+
 				local profileIndex = 1
 				function unitscan_profileListUpdate()
 					for _, button in ipairs(profileList.Buttons) do
@@ -3082,6 +3126,11 @@
 											-- Apply the clicked texture
 											button.Texture:SetTexture(0, 1.0, 0, 0.5)
 											profileTexture:Hide()
+
+											--------------------------------------------------------------------------------
+											--Set Scripts for Profile Configuration Buttons here
+											--------------------------------------------------------------------------------
+
 											unitscanCB["ProfileDeleteBtn"]:SetScript("OnClick", function()
 												--print("DELETE: " .. profileName)
 												DeleteProfile(profileName)
@@ -3090,6 +3139,10 @@
 												--print("COPY: " .. profileName)
 												--DeleteProfile(profileName)
 											end)
+											unitscanCB["ProfileCreateBtn"]:SetScript("OnClick", function()
+												ShowProfilePopup()
+											end)
+
 										else
 											-- Remove texture from other buttons
 											button.Texture:SetTexture(nil)
@@ -3175,6 +3228,7 @@
 										button.Texture:SetTexture(nil)
 									end
 								end
+								unitscan_ClickCurrentProfileButton()
 							end)
 
 
@@ -4557,10 +4611,10 @@
 
 			-- Set skinned button textures
 			if not naked then
-				mbtn:SetNormalTexture("Interface\\AddOns\\unitscan\\unitscan.blp")
+				mbtn:SetNormalTexture("Interface\\AddOns\\unitscan\\Leatrix_Plus.blp")
 				mbtn:GetNormalTexture():SetTexCoord(0.125, 0.25, 0.4375, 0.5)
 			end
-			mbtn:SetHighlightTexture("Interface\\AddOns\\unitscan\\unitscan.blp")
+			mbtn:SetHighlightTexture("Interface\\AddOns\\unitscan\\Leatrix_Plus.blp")
 			mbtn:GetHighlightTexture():SetTexCoord(0, 0.125, 0.4375, 0.5)
 
 
