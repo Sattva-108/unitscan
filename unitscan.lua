@@ -2432,6 +2432,147 @@
 				end
 
 
+				-- Function to export the current profile to a string
+				function ExportProfile(profileName)
+					print(unitscan_scanlist["profiles"][profileName])
+					-- Check if the profile exists
+					if not unitscan_scanlist["profiles"][profileName] then
+						print("Profile '" .. profileName .. "' does not exist.")
+						return
+					end
+
+					-- Function to convert a table to a string
+					local function tableToString(tbl)
+						local result = "{"
+						for key, value in pairs(tbl) do
+							result = result .. "[" .. key .. "]="
+							if type(value) == "table" then
+								result = result .. tableToString(value)
+							else
+								result = result .. tostring(value)
+							end
+							result = result .. ","
+						end
+						result = result .. "}"
+						return result
+					end
+
+					-- Convert the profile table to a string
+					local profileString = tableToString(unitscan_scanlist["profiles"][profileName])
+
+					-- Print the profile string
+					--print("Exported profile '" .. profileName .. "':\n" .. profileString)
+
+					-- You can return the profile string if you want to use it elsewhere in your code
+					return profileString
+				end
+
+
+
+
+				-- Function to import a profile from a serialized string
+				local function ImportProfile(profileName, profileString)
+					-- Check if the profile name is already in use
+					if unitscan_scanlist["profiles"][profileName] then
+						print("Profile '" .. profileName .. "' already exists.")
+						return
+					end
+
+					-- Function to recursively convert a string key-value pair into a table
+					local function convertToTable(str)
+						local tbl = {}
+						local key, value = str:match("%[\"(.-)\"%] = (.-)$")
+
+						if key and value then
+							key = tonumber(key) or key
+
+							if value:sub(1, 1) == "{" and value:sub(-1) == "}" then
+								value = convertToTable(value:sub(2, -2))
+							elseif value == "true" then
+								value = true
+							elseif value == "false" then
+								value = false
+							elseif tonumber(value) then
+								value = tonumber(value)
+							else
+								value = value:sub(2, -2)
+							end
+
+							tbl[key] = value
+						end
+
+						return tbl
+					end
+
+					-- Convert the profile string to a table
+					local profileTable = {}
+					for str in profileString:gmatch("{.-}") do
+						local tbl = convertToTable(str)
+						for key, value in pairs(tbl) do
+							profileTable[key] = value
+						end
+					end
+
+					-- Update the unitscan_scanlist table with the imported profile
+					unitscan_scanlist["profiles"][profileName] = profileTable
+
+					-- Print success message
+					print("Imported profile '" .. profileName .. "'.")
+
+					-- Perform any additional actions or UI updates here
+					-- call these to update to the imported profile.
+					unitscan_sortScanList()
+					unitscan_sortHistory()
+					unitscan_scanListUpdate()
+					unitscan_historyListUpdate()
+					unitscan_profileButtons_FullUpdate()
+				end
+
+
+
+
+				-- Create the frame and edit box for the UI
+				local frame = CreateFrame("Frame", "ProfileUIFrame", UIParent)
+				frame:SetSize(400, 300)
+				frame:SetPoint("CENTER")
+				frame:Hide()
+
+				local editBox = CreateFrame("EditBox", "ProfileEditBox", frame, "InputBoxTemplate")
+				editBox:SetSize(350, 200)
+				editBox:SetPoint("TOP", frame, "TOP", 0, -40)
+				editBox:SetMultiLine(true)
+				editBox:SetAutoFocus(false)
+				editBox:SetFontObject(GameFontNormal)
+				editBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
+
+				-- Create the import button
+				local importButton = CreateFrame("Button", "ImportButton", frame, "UIPanelButtonTemplate")
+				importButton:SetText("Import")
+				importButton:SetSize(100, 30)
+				importButton:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 30, 20)
+				importButton:SetScript("OnClick", function()
+					local profileString = editBox:GetText()
+					ImportProfile("NewProfile", profileString)
+					frame:Hide()
+				end)
+
+				-- Create the export button
+				local exportButton = CreateFrame("Button", "ExportButton", frame, "UIPanelButtonTemplate")
+				exportButton:SetText("Export")
+				exportButton:SetSize(100, 30)
+				exportButton:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -30, 20)
+				exportButton:SetScript("OnClick", function()
+					local profileString = ExportProfile("Higi")
+					editBox:SetText(profileString)
+					editBox:HighlightText()
+					editBox:SetFocus()
+				end)
+
+				-- Show the UI frame when a specific command is entered in chat
+				SLASH_PROFILEUI1 = "/profileui"
+				SlashCmdList["PROFILEUI"] = function()
+					frame:Show()
+				end
 
 
 
