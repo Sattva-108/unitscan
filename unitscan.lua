@@ -2115,7 +2115,7 @@
 
 
 		----------------------------------------------------------------------
-		-- Custom Scan List function start
+		---- Custom Scan List function start
 		----------------------------------------------------------------------
 
 		local selectedProfile = nil
@@ -2135,12 +2135,12 @@
 
 
 				--------------------------------------------------------------------------------
-				-- Convert old unitscan_targets table to new format and populate it
+				---- Convert old unitscan_targets table to new format and populate it
 				-- Also i will include code that will be creating new profiles here.
 				--------------------------------------------------------------------------------
 
 				--------------------------------------------------------------------------------
-				-- Convert old tables and populate new ones.
+				---- Convert old tables and populate new ones.
 				--------------------------------------------------------------------------------
 
 				-- populate
@@ -2216,7 +2216,7 @@
 
 
 				--------------------------------------------------------------------------------
-				-- CreateProfile
+				---- CreateProfile
 				--------------------------------------------------------------------------------
 
 
@@ -2282,7 +2282,7 @@
 
 
 				--------------------------------------------------------------------------------
-				-- Delete Profile
+				---- Delete Profile
 				--------------------------------------------------------------------------------
 
 				-- Function to handle deleting a profile and wiping its table
@@ -2327,7 +2327,7 @@
 				SLASH_DELETEPROFILE1 = "/dp"
 
 				--------------------------------------------------------------------------------
-				-- Change Profile
+				---- Change Profile
 				--------------------------------------------------------------------------------
 
 
@@ -2340,15 +2340,18 @@
 
 					-- Check if the profile name exists in unitscan_scanlist.profiles
 					if unitscan_scanlist["profiles"][profileName] then
-						-- Set the active profile to the selected profile
-						unitscan_scanlist["activeProfile"] = profileName
-						print("Switched to profile: " .. profileName)
+						--print(profileName .. " " .. activeProfile)
+						if profileName ~= activeProfile then
+							-- Set the active profile to the selected profile
+							unitscan_scanlist["activeProfile"] = profileName
+							print("Switched to profile: " .. profileName)
 
-						-- call these to update to new profile.
-						unitscan_sortScanList()
-						unitscan_sortHistory()
-						unitscan_scanListUpdate()
-						unitscan_historyListUpdate()
+							-- call these to update to new profile.
+							unitscan_sortScanList()
+							unitscan_sortHistory()
+							unitscan_scanListUpdate()
+							unitscan_historyListUpdate()
+						end
 
 					else
 						-- Profile does not exist
@@ -2377,8 +2380,63 @@
 				-- Register the slash command
 				SLASH_CHANGPROFILE1 = "/cpc"
 
+
+
 				--------------------------------------------------------------------------------
-				--End of Profiles setup
+				---- Copy Profile
+				--------------------------------------------------------------------------------
+
+
+				-- Function to copy an existing profile
+				local function CopyProfile(sourceProfile, newProfile)
+					-- Check if the source profile exists
+					if not unitscan_scanlist["profiles"][sourceProfile] then
+						print("Source profile '" .. sourceProfile .. "' does not exist.")
+						return
+					end
+
+					-- Check if the new profile already exists
+					if unitscan_scanlist["profiles"][newProfile] then
+						print("Profile '" .. newProfile .. "' already exists.")
+						return
+					end
+
+					-- Create the new profile table
+					unitscan_scanlist["profiles"][newProfile] = {}
+
+					-- Copy the 'history' table
+					if unitscan_scanlist["profiles"][sourceProfile]["history"] then
+						unitscan_scanlist["profiles"][newProfile]["history"] = {}
+						for _, value in ipairs(unitscan_scanlist["profiles"][sourceProfile]["history"]) do
+							table.insert(unitscan_scanlist["profiles"][newProfile]["history"], value)
+						end
+					end
+
+					-- Copy the 'targets' table
+					if unitscan_scanlist["profiles"][sourceProfile]["targets"] then
+						unitscan_scanlist["profiles"][newProfile]["targets"] = {}
+						for key, _ in pairs(unitscan_scanlist["profiles"][sourceProfile]["targets"]) do
+							unitscan_scanlist["profiles"][newProfile]["targets"][key] = true
+						end
+					end
+
+					-- Print success message
+					print("Copied profile '" .. sourceProfile .. "' to '" .. newProfile .. "'.")
+					-- Perform any additional actions or UI updates here
+					-- call these to update to new profile.
+					unitscan_sortScanList()
+					unitscan_sortHistory()
+					unitscan_scanListUpdate()
+					unitscan_historyListUpdate()
+					unitscan_profileButtons_FullUpdate()
+				end
+
+
+
+
+
+				--------------------------------------------------------------------------------
+				-- End of Profiles setup
 				--------------------------------------------------------------------------------
 
 				--------------------------------------------------------------------------------
@@ -2396,7 +2454,7 @@
 
 
 				--------------------------------------------------------------------------------
-				-- Define urlencode function for Lua 5.3
+				---- Define urlencode function for Lua 5.3
 				--------------------------------------------------------------------------------
 
 
@@ -2407,7 +2465,7 @@
 				end
 
 				--------------------------------------------------------------------------------
-				-- ScanList Frame
+				---- ScanList Frame
 				--------------------------------------------------------------------------------
 
 
@@ -2657,7 +2715,8 @@
 							table.insert(profileButtons[profile], button)
 						end
 						index = index + 1
-						--print(index)
+						-- prints how many buttons we have
+						--print(index - 1)
 						--end
 					end
 				end
@@ -2711,7 +2770,7 @@
 
 
 				--------------------------------------------------------------------------------
-				-- History Frame
+				---- History Frame
 				--------------------------------------------------------------------------------
 
 
@@ -2939,7 +2998,7 @@
 
 
 				--------------------------------------------------------------------------------
-				-- Profile frame
+				----  Profile frame
 				--------------------------------------------------------------------------------
 				--TODO: Profile Frame - add option to hide profile frame, and then ofc, make other frames bigger.
 				local visibleProfileButtonsCount = 0
@@ -2971,7 +3030,8 @@
 				unitscan_profileList = profileList
 
 				--------------------------------------------------------------------------------
-				--Sort Profiles Aplhabetically
+				---- Sort Profiles Aplhabetically
+				--FIXME: Are they sorted Alphabetically? :)
 				--------------------------------------------------------------------------------
 
 				local profiles = unitscan_scanlist.profiles
@@ -2987,11 +3047,11 @@
 				unitscan_sortProfileList()
 
 				--------------------------------------------------------------------------------
-				--Create Delete,Copy,New Profile, ... configuration buttons
+				---- Profile configuration buttons: Delete,Copy,New Profile, ...
 				--------------------------------------------------------------------------------
 
 				local ProfileDeleteBtn = unitscanLC:CreateButton("ProfileDeleteBtn", unitscan_profileFrame, "Delete Profile", "TOPRIGHT", 100, -6, 100, 30, true, "", false)
-				local ProfileCopyBtn = unitscanLC:CreateButton("ProfileCopyBtn", unitscan_profileFrame, "Copy Profile", "TOPRIGHT", 100, -40, 101, 30, true, "", false)
+				local ProfileCopyBtn = unitscanLC:CreateButton("ProfileCopyBtn", unitscan_profileFrame, "Copy My Profile", "TOPRIGHT", 100, -40, 101, 30, true, "", false)
 				local ProfileCreateBtn = unitscanLC:CreateButton("ProfileCreateBtn", unitscan_profileFrame, "New Profile", "TOPRIGHT", 100, -74, 101, 30, true, "", false)
 				local ProfileChooseBtn = unitscanLC:CreateButton("ProfileChooseBtn", unitscan_profileFrame, "Change Profile", "TOPRIGHT", 100, -108, 101, 30, true, "", false)
 
@@ -3009,7 +3069,34 @@
 					unitscanCB["ProfileChooseBtn"]:Show()
 				end
 
-				local function ShowProfilePopup()
+				--------------------------------------------------------------------------------
+				---- Delete Popup
+				--------------------------------------------------------------------------------
+
+
+				-- Function to show a confirmation dialog for profile deletion
+				local function ShowDeleteProfileConfirmation(profileName)
+					StaticPopupDialogs["DELETE_PROFILE_CONFIRMATION"] = {
+						text = "Are you sure you want to delete the profile: " .. YELLOW .. profileName .. WHITE .. "?",
+						button1 = "Yes",
+						button2 = "Cancel",
+						OnAccept = function()
+							DeleteProfile(profileName)
+						end,
+						timeout = 0,
+						whileDead = true,
+						hideOnEscape = true,
+					}
+
+					StaticPopup_Show("DELETE_PROFILE_CONFIRMATION")
+				end
+
+				--------------------------------------------------------------------------------
+				---- New Profile Popup
+				--------------------------------------------------------------------------------
+
+
+				local function ShowNewProfilePopup()
 					StaticPopupDialogs["NEW_PROFILE_POPUP"] = {
 						text = "Enter name for new profile:",
 						button1 = "Yes",
@@ -3038,8 +3125,46 @@
 					}
 					StaticPopup_Show("NEW_PROFILE_POPUP")
 				end
+
+
 				--------------------------------------------------------------------------------
-				-- Create profile buttons
+				---- Copy Profile Popup
+				--------------------------------------------------------------------------------
+
+				local function ShowCopyProfilePopup()
+					StaticPopupDialogs["COPY_PROFILE_POPUP"] = {
+						text = "Enter name for the new profile:" .. "\nProfile " .. YELLOW .. activeProfile .. WHITE .. " will be copied.",
+						button1 = "Create",
+						button2 = "Cancel",
+						hasEditBox = true,
+						editBoxWidth = 250,
+						OnShow = function(self)
+							self.editBox:SetFocus(true);
+						end,
+						OnAccept = function(self)
+							local name = self.editBox:GetText()
+							-- Create a copy of the active profile with the entered name
+							CopyProfile(unitscan_getActiveProfile(), name)
+							unitscan_ProfileButtons_TextureUpdate()
+						end,
+						EditBoxOnEnterPressed = function(self)
+							local parent = self:GetParent();
+							CopyProfile(unitscan_getActiveProfile(), parent.editBox:GetText())
+							parent:Hide();
+							unitscan_ProfileButtons_TextureUpdate()
+						end,
+						EditBoxOnEscapePressed = function(self)
+							self:GetParent():Hide();
+						end,
+						timeout = 0,
+						whileDead = true,
+						hideOnEscape = true
+					}
+					StaticPopup_Show("COPY_PROFILE_POPUP")
+				end
+
+				--------------------------------------------------------------------------------
+				---- Create profile buttons
 				--------------------------------------------------------------------------------
 
 
@@ -3079,7 +3204,7 @@
 
 
 							--------------------------------------------------------------------------------
-							-- OnClick Profile buttons script
+							---- OnClick Profile buttons script
 							--------------------------------------------------------------------------------
 							function unitscan_profileButton_OnClick()
 								-- Modify the existing OnClick function of profile buttons
@@ -3112,23 +3237,23 @@
 												profileTexture:Hide()
 
 												--------------------------------------------------------------------------------
-												--Set Scripts for Profile Configuration Buttons here
+												---- Profile Configuration Buttons OnClick scripts
 												--------------------------------------------------------------------------------
 
 												unitscanCB["ProfileDeleteBtn"]:SetScript("OnClick", function()
 													--print("DELETE: " .. profileName)
 													if profileName ~= activeProfile then
-														DeleteProfile(profileName)
+														ShowDeleteProfileConfirmation(profileName)
 													else
 														print("Cannot Delete Your Active Profile: " .. profileName)
 													end
 												end)
 												unitscanCB["ProfileCopyBtn"]:SetScript("OnClick", function()
-													--print("COPY: " .. profileName)
-													--DeleteProfile(profileName)
+													unitscan_ClickCurrentProfileButton()
+													ShowCopyProfilePopup()
 												end)
 												unitscanCB["ProfileCreateBtn"]:SetScript("OnClick", function()
-													ShowProfilePopup()
+													ShowNewProfilePopup()
 												end)
 												unitscanCB["ProfileChooseBtn"]:SetScript("OnClick", function()
 													ChangeProfile(profileName)
@@ -3173,7 +3298,11 @@
 							unitscan_profileButton_OnClick()
 
 							--------------------------------------------------------------------------------
-							-- Functions to hide all mob names and all profile names
+							---- Useful Functions
+							--------------------------------------------------------------------------------
+
+							--------------------------------------------------------------------------------
+							---- Function to highlight current profile button.
 							--------------------------------------------------------------------------------
 
 							function unitscan_ProfileButtons_TextureUpdate()
@@ -3190,10 +3319,12 @@
 										button.Texture:SetTexture(nil)
 									end
 								end
-								
 							end
 
 
+							--------------------------------------------------------------------------------
+							---- Functions to hide all mob names and all profile names
+							--------------------------------------------------------------------------------
 
 							function unitscan_HideExistingScanButtons()
 								for _, button in ipairs(scanList.Buttons) do
@@ -3225,7 +3356,7 @@
 							end
 
 							--------------------------------------------------------------------------------
-							--Click Current Profile
+							---- Click Current Profile
 							--------------------------------------------------------------------------------
 
 							-- Why is it so much better than OnEvent PLAYER_ENTERING_WORLD? That one is iterating multiple times.. This just once.
@@ -3240,7 +3371,7 @@
 							end
 
 							--------------------------------------------------------------------------------
-							-- LOGIN OnEvent Script
+							---- LOGIN OnEvent Script
 							--------------------------------------------------------------------------------
 
 							profileButton:SetScript("OnEvent", function()
@@ -3260,7 +3391,7 @@
 							profileButton:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 							--------------------------------------------------------------------------------
-							-- Other Scripts
+							---- Other Scripts
 							--------------------------------------------------------------------------------
 
 							profileButton:SetScript("OnShow", function(self)
@@ -3357,7 +3488,7 @@
 
 
 				--------------------------------------------------------------------------------
-				-- ScanList Menu Frame
+				---- Menu Frame
 				--------------------------------------------------------------------------------
 
 
@@ -3437,7 +3568,7 @@
 
 
 					--------------------------------------------------------------------------------
-					-- Menu Scan List Button
+					---- Menu Scan List Button
 					--------------------------------------------------------------------------------
 
 
@@ -3459,14 +3590,10 @@
 
 
 
-							-- Hide History Buttons - to save memory.
-							--if historyListContains == true then
-								unitscan_hideHistoryButtons()
-							--end
-							--unitscan_profileScrollbar:SetMinMaxValues(1, 1)
-							--unitscan_profileScrollbar:Hide()
+							---- Hide History Buttons - to save memory.
+							unitscan_hideHistoryButtons()
 							scanFrame.scroll.ScrollBar:Hide()
-							-- call searchbox
+							---- call searchbox
 							unitscan_searchbox:ClearFocus()
 
 
@@ -3498,17 +3625,19 @@
 									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
 								elseif visibleButtonsCount >= 14 and visibleButtonsCount <= 26 then
 									scanFrame.scroll.ScrollBar:Show()
-									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 715))
+									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleButtonsCount + 715))
 								elseif visibleButtonsCount >= 27 and visibleButtonsCount <= 39 then
 									scanFrame.scroll.ScrollBar:Show()
-									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 940))
-								elseif visibleButtonsCount >= 40 and visibleButtonsCount <= 52 then
+									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleButtonsCount + 940))
+								elseif visibleButtonsCount >= 40 and visibleButtonsCount <= 49 then
 									scanFrame.scroll.ScrollBar:Show()
-									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 1160))
-								elseif visibleButtonsCount >= 53 and visibleButtonsCount <= 100 then
+									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleButtonsCount + 1160))
+								elseif visibleButtonsCount >= 50 and visibleButtonsCount <= 100 then
 									scanFrame.scroll.ScrollBar:Show()
-									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 2000))
+									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleButtonsCount + 2000))
 								end
+								--print(visibleButtonsCount)
+								--print(actualMaxVisibleButtons)
 
 							end
 
@@ -3529,7 +3658,7 @@
 
 
 					--------------------------------------------------------------------------------
-					-- Menu History Button
+					---- Menu History Button
 					--------------------------------------------------------------------------------
 
 
@@ -3600,16 +3729,16 @@
 										historyFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
 									elseif visibleButtonsCount >= 14 and visibleButtonsCount <= 26 then
 										historyFrame.scroll.ScrollBar:Show()
-										historyFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 715))
+										historyFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleButtonsCount + 715))
 									elseif visibleButtonsCount >= 27 and visibleButtonsCount <= 39 then
 										historyFrame.scroll.ScrollBar:Show()
-										historyFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 940))
-									elseif visibleButtonsCount >= 40 and visibleButtonsCount <= 52 then
+										historyFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleButtonsCount + 940))
+									elseif visibleButtonsCount >= 40 and visibleButtonsCount <= 49 then
 										historyFrame.scroll.ScrollBar:Show()
-										historyFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 1160))
-									elseif visibleButtonsCount >= 53 and visibleButtonsCount <= 100 then
+										historyFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleButtonsCount + 1160))
+									elseif visibleButtonsCount >= 50 and visibleButtonsCount <= 100 then
 										historyFrame.scroll.ScrollBar:Show()
-										historyFrame.scroll.ScrollBar:SetMinMaxValues(1, (actualMaxVisibleButtons + 2000))
+										historyFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleButtonsCount + 2000))
 									end
 								end
 							end
@@ -3633,7 +3762,7 @@
 
 
 					--------------------------------------------------------------------------------
-					-- Menu Profiles Button
+					---- Menu Profiles Button
 					--------------------------------------------------------------------------------
 
 
@@ -3739,7 +3868,7 @@
 
 
 				--------------------------------------------------------------------------------
-				-- Create Search Box
+				---- Create Search Box
 				--------------------------------------------------------------------------------
 
 
@@ -3748,7 +3877,7 @@
 
 
 				--------------------------------------------------------------------------------
-				-- Main Searching Logic Functions
+				---- Main Searching Logic Functions
 				--------------------------------------------------------------------------------
 
 				local function Sanitize(text)
@@ -3813,7 +3942,7 @@
 				end
 
 				--------------------------------------------------------------------------------
-				-- Functions for editbox scripts - OnTextChanged, OnEnterPressed, etc...
+				---- Functions for editbox scripts - OnTextChanged, OnEnterPressed, etc...
 				--------------------------------------------------------------------------------
 
 
@@ -3912,7 +4041,7 @@
 
 
 				--------------------------------------------------------------------------------
-				-- Create Search & Close Button, source code from ElvUI - Enhanced.
+				---- Create Search & Close Button, source code from ElvUI - Enhanced.
 				--------------------------------------------------------------------------------
 
 				--===== Search Button =====--
