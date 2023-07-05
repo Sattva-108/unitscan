@@ -2431,101 +2431,83 @@
 					unitscan_profileButtons_FullUpdate()
 				end
 
-
-				-- Function to export the current profile to a string
-				function ExportProfile(profileName)
-					print(unitscan_scanlist["profiles"][profileName])
-					-- Check if the profile exists
-					if not unitscan_scanlist["profiles"][profileName] then
-						print("Profile '" .. profileName .. "' does not exist.")
+				function PrintProfileContents(profileName)
+					local profile = unitscan_scanlist.profiles[profileName]
+					if not profile then
+						print("Profile not found.")
 						return
 					end
 
-					-- Function to convert a table to a string
-					local function tableToString(tbl)
-						local result = "{"
-						for key, value in pairs(tbl) do
-							result = result .. "[" .. key .. "]="
-							if type(value) == "table" then
-								result = result .. tableToString(value)
-							else
-								result = result .. tostring(value)
-							end
-							result = result .. ","
-						end
-						result = result .. "}"
-						return result
+					print("Targets " .. profileName .. ":")
+					for target, _ in pairs(profile.targets) do
+						print("- " .. target)
 					end
 
-					-- Convert the profile table to a string
-					local profileString = tableToString(unitscan_scanlist["profiles"][profileName])
+					print("History " .. profileName .. ":")
+					for i, entry in ipairs(profile.history) do
+						print(i .. ". " .. entry)
+					end
+				end
 
-					-- Print the profile string
-					--print("Exported profile '" .. profileName .. "':\n" .. profileString)
-
-					-- You can return the profile string if you want to use it elsewhere in your code
-					return profileString
+				-- Slash command handler
+				SLASH_PRINTPROFILECONTENTS1 = "/printprofile"
+				SlashCmdList["PRINTPROFILECONTENTS"] = function(profileName)
+					PrintProfileContents(profileName)
 				end
 
 
 
 
-				-- Function to import a profile from a serialized string
-				local function ImportProfile(profileName, profileString)
-					-- Check if the profile name is already in use
-					if unitscan_scanlist["profiles"][profileName] then
-						print("Profile '" .. profileName .. "' already exists.")
-						return
-					end
 
-					-- Function to recursively convert a string key-value pair into a table
-					local function convertToTable(str)
-						local tbl = {}
-						local key, value = str:match("%[\"(.-)\"%] = (.-)$")
 
-						if key and value then
-							key = tonumber(key) or key
 
-							if value:sub(1, 1) == "{" and value:sub(-1) == "}" then
-								value = convertToTable(value:sub(2, -2))
-							elseif value == "true" then
-								value = true
-							elseif value == "false" then
-								value = false
-							elseif tonumber(value) then
-								value = tonumber(value)
-							else
-								value = value:sub(2, -2)
-							end
 
-							tbl[key] = value
+
+
+				-- Function to serialize a table to a string
+				local function SerializeTable(tbl)
+					local str = "{"
+
+					for key, value in pairs(tbl) do
+						if type(key) == "number" then
+							str = str .. "[" .. key .. "]"
+						else
+							str = str .. '["' .. key .. '"]'
 						end
 
-						return tbl
-					end
-
-					-- Convert the profile string to a table
-					local profileTable = {}
-					for str in profileString:gmatch("{.-}") do
-						local tbl = convertToTable(str)
-						for key, value in pairs(tbl) do
-							profileTable[key] = value
+						if type(value) == "table" then
+							str = str .. " = " .. SerializeTable(value) .. ","
+						elseif type(value) == "string" then
+							str = str .. ' = "' .. value .. '",'
+						elseif type(value) == "boolean" then
+							str = str .. ' = ' .. tostring(value) .. ','
+						else
+							str = str .. " = " .. value .. ","
 						end
 					end
 
-					-- Update the unitscan_scanlist table with the imported profile
-					unitscan_scanlist["profiles"][profileName] = profileTable
+					str = str .. "}"
 
-					-- Print success message
-					print("Imported profile '" .. profileName .. "'.")
+					return str
+				end
 
-					-- Perform any additional actions or UI updates here
-					-- call these to update to the imported profile.
-					unitscan_sortScanList()
-					unitscan_sortHistory()
-					unitscan_scanListUpdate()
-					unitscan_historyListUpdate()
-					unitscan_profileButtons_FullUpdate()
+
+
+
+
+				-- Function to generate a random profile name
+				local function GenerateRandomProfileName()
+					local chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+					local length = 8 -- You can adjust the length of the generated profile name here
+					local name = ""
+
+					for i = 1, length do
+						local randomIndex = math.random(1, #chars)
+						local randomChar = string.sub(chars, randomIndex, randomIndex)
+						name = name .. randomChar
+					end
+
+					return name
 				end
 
 
@@ -2552,7 +2534,49 @@
 				importButton:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 30, 20)
 				importButton:SetScript("OnClick", function()
 					local profileString = editBox:GetText()
-					ImportProfile("NewProfile", profileString)
+					local profileData = loadstring("return " .. profileString)() -- Convert the profile string back to a table
+
+					if type(profileData) == "table" then
+						local newProfile = GenerateRandomProfileName()
+
+						-- Check if the new profile already exists
+						if unitscan_scanlist.profiles[newProfile] then
+							print("Profile '" .. newProfile .. "' already exists.")
+							return
+						end
+
+						-- Create the new profile table
+						unitscan_scanlist.profiles[newProfile] = {}
+
+						-- Copy the 'history' table
+						if profileData.history then
+							unitscan_scanlist.profiles[newProfile].history = {}
+							for _, value in ipairs(profileData.history) do
+								table.insert(unitscan_scanlist.profiles[newProfile].history, value)
+							end
+						end
+
+						-- Copy the 'targets' table
+						if profileData.targets then
+							unitscan_scanlist.profiles[newProfile].targets = {}
+							for key, _ in pairs(profileData.targets) do
+								unitscan_scanlist.profiles[newProfile].targets[key] = true
+							end
+						end
+
+						-- Print success message
+						print("Imported profile to '" .. newProfile .. "'.")
+						-- Perform any additional actions or UI updates here
+						-- call these to update to new profile.
+						unitscan_sortScanList()
+						unitscan_sortHistory()
+						unitscan_scanListUpdate()
+						unitscan_historyListUpdate()
+						unitscan_profileButtons_FullUpdate()
+					else
+						print("Invalid profile data.")
+					end
+
 					frame:Hide()
 				end)
 
@@ -2562,10 +2586,21 @@
 				exportButton:SetSize(100, 30)
 				exportButton:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -30, 20)
 				exportButton:SetScript("OnClick", function()
-					local profileString = ExportProfile("Higi")
+					local profileName = "Higi" -- Change this to the profile name you want to export
+
+					-- Check if the profile exists
+					if not unitscan_scanlist.profiles[profileName] then
+						print("Profile '" .. profileName .. "' does not exist.")
+						return
+					end
+
+					local profileData = unitscan_scanlist.profiles[profileName] -- Get the profile table
+					local profileString = SerializeTable(profileData) -- Serialize the profile table to a string
+
 					editBox:SetText(profileString)
 					editBox:HighlightText()
-					editBox:SetFocus()
+					editBox:SetAutoFocus(true)
+
 				end)
 
 				-- Show the UI frame when a specific command is entered in chat
@@ -2573,8 +2608,6 @@
 				SlashCmdList["PROFILEUI"] = function()
 					frame:Show()
 				end
-
-
 
 				--------------------------------------------------------------------------------
 				-- End of Profiles setup
