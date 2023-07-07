@@ -66,8 +66,21 @@
 --------------------------------------------------------------------------------
 
 	--===== Some Colors for borders of button =====--
-	local BROWN = {.7, .15, .05}
-	local YELLOW = {1, 1, .15}
+	local RGBBROWN = {.7, .15, .05}
+	local RGBYELLOW = {1, 1, .15}
+
+--------------------------------------------------------------------------------
+-- Escape colors
+--------------------------------------------------------------------------------
+
+local RED = "\124cffff0000"
+local YELLOW = "\124cffffff00"
+local GREEN = "\124cff00ff00"
+local WHITE = "\124cffffffff"
+local ORANGE = "\124cffffa500"
+local BLUE = "\124cff0000ff"
+local GREY = "\124cffb4b4b4"
+local LYELLOW = "\124cffffff9a"
 
 
 --------------------------------------------------------------------------------
@@ -94,7 +107,7 @@
 
 	--===== Returns current set profile - activeProfile =====--
 	function unitscan_getActiveProfile()
-		return unitscan_scanlist["activeProfile"]
+		return unitscan_scanlist["activeProfile"] or "default"
 	end
 
 --------------------------------------------------------------------------------
@@ -263,6 +276,361 @@
 			unitscanLC.FactoryEditBox.b:SetText(word)
 			unitscanLC.FactoryEditBox.b:HighlightText() end)
 	end
+
+	-- Show a single line prefilled editbox with copy functionality
+	function unitscanLC:ShowImportEditBox(word, focuschat, showImportButton)
+		if not unitscanLC.FactoryImportEditBox then
+			-- Create frame for first time
+			local eFrame = CreateFrame("FRAME", nil, unitscanLC["Page2"])
+			unitscanLC.FactoryImportEditBox = eFrame
+			eFrame:SetSize(712, 110)
+			eFrame:SetScale(0.8)
+			eFrame:SetPoint("BOTTOM", unitscanLC["Page2"], "TOP", 0, 5)
+			eFrame:SetClampedToScreen(true)
+			eFrame:SetFrameStrata("FULLSCREEN_DIALOG")
+			-- eFrame:SetFrameLevel(5000)
+			eFrame:EnableMouse(true)
+			eFrame:EnableKeyboard()
+			eFrame:SetScript("OnMouseDown", function(self, btn)
+				if btn == "RightButton" then
+					eFrame:Hide()
+				end
+			end)
+			-- Add background color
+			eFrame.t = eFrame:CreateTexture(nil, "BACKGROUND")
+			eFrame.t:SetAllPoints()
+			eFrame.t:SetTexture(0.05, 0.05, 0.05, 0.9)
+			-- Add copy title
+			eFrame.f = eFrame:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
+			eFrame.f:SetPoint("TOPLEFT", x, y)
+			eFrame.f:SetPoint("TOPLEFT", eFrame, "TOPLEFT", 12, -52)
+			eFrame.f:SetWidth(676)
+			eFrame.f:SetJustifyH("LEFT")
+			eFrame.f:SetWordWrap(false)
+			-- Add copy label
+			eFrame.c = eFrame:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
+			eFrame.c:SetPoint("TOPLEFT", x, y)
+			eFrame.c:SetText(L["Press CTRL/C to copy"])
+			eFrame.c:SetPoint("TOPLEFT", eFrame, "TOPLEFT", 12, -82)
+			-- Add feedback label
+			eFrame.x = eFrame:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
+			eFrame.x:SetPoint("TOPRIGHT", x, y)
+			eFrame.x:SetText("\124cff00ff00" .. "Feedback Discord:" .. "\124cffffff00" .. " sattva108")
+
+			eFrame.x:SetPoint("TOPRIGHT", eFrame, "TOPRIGHT", -12, -52)
+			hooksecurefunc(eFrame.f, "SetText", function()
+				eFrame.f:SetWidth(676 - eFrame.x:GetStringWidth() - 26)
+			end)
+			-- Add cancel label
+			eFrame.x = eFrame:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
+			eFrame.x:SetPoint("TOPRIGHT", x, y)
+			eFrame.x:SetText(L["Right-click to close"])
+			eFrame.x:SetPoint("TOPRIGHT", eFrame, "TOPRIGHT", -12, -82)
+			-- Create editbox
+			eFrame.b = CreateFrame("EditBox", nil, eFrame, "InputBoxTemplate")
+			eFrame.b:ClearAllPoints()
+			eFrame.b:SetPoint("TOPLEFT", eFrame, "TOPLEFT", 16, -12)
+			eFrame.b:SetSize(672, 24)
+			eFrame.b:SetFontObject("GameFontNormalLarge")
+			eFrame.b:SetTextColor(1.0, 1.0, 1.0, 1)
+			eFrame.b:DisableDrawLayer("BACKGROUND")
+			-- eFrame.b:SetBlinkSpeed(0)
+			eFrame.b:SetHitRectInsets(99, 99, 99, 99)
+			eFrame.b:SetAutoFocus(true)
+			eFrame.b:SetAltArrowKeyMode(true)
+			eFrame.b:EnableMouse(true)
+			eFrame.b:EnableKeyboard(true)
+			-- Editbox texture
+			eFrame.t = CreateFrame("FRAME", nil, eFrame.b)
+			eFrame.t:SetBackdrop(
+					{bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+					 edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+					 tile = false,
+					 tileSize = 16,
+					 edgeSize = 16,
+					 insets = { left = 5, right = 5, top = 5, bottom = 5 }}
+			)
+			eFrame.t:SetPoint("LEFT", -6, 0)
+			eFrame.t:SetWidth(eFrame.b:GetWidth() + 6)
+			eFrame.t:SetHeight(eFrame.b:GetHeight())
+			eFrame.t:SetBackdropColor(1.0, 1.0, 1.0, 0.3)
+			-- Handler
+			-- it doesnt work in 3.3.5
+			--eFrame.b:SetScript("OnKeyDown", function(void, key)
+			--	if key == "c" and IsControlKeyDown() then
+			--		LibCompat.After(0.1, function()
+			--			eFrame:Hide()
+			--			ActionStatus_DisplayMessage(L["Copied to clipboard."], true)
+			--			if unitscanLC.FactoryImportEditBoxFocusChat then
+			--				local eBox = ChatEdit_ChooseBoxForSend()
+			--				ChatEdit_ActivateChat(eBox)
+			--			end
+			--		end)
+			--	end
+			--end)
+			--eFrame.b:SetScript("OnChar", function(_, char)
+			--	if char ~= 'W' and char ~= 'A' and char ~= 'S' and char ~= 'D' then
+			--		eFrame.b:Hide()
+			--		eFrame.b:SetFocus(false)
+			--	end
+			--	eFrame.b:SetText(word);
+			--	eFrame.b:HighlightText();
+			--end);
+
+			eFrame.b:SetScript("OnMouseUp", function() eFrame.b:HighlightText(); end);
+			eFrame.b:SetScript("OnEscapePressed", function() eFrame:Hide() end)
+			eFrame.b:SetFocus(true)
+			eFrame.b:HighlightText()
+			eFrame:Show()
+
+			if showImportButton then
+				-- Create the import button
+				local ProfileImportBtn = unitscanLC:CreateButton("ProfileImportBtn", eFrame, "Import My Profile", "CENTER", 0, -18, 130, 40, true, "", false, true)
+				ProfileImportBtn:SetScript("OnClick",
+						function()
+							local profileString = eFrame.b:GetText()
+							local profileData = loadstring("return " .. profileString)() -- Convert the profile string back to a table
+
+							if type(profileData) == "table" then
+								local newProfile = unitscan_GenerateRandomProfileName()
+
+								-- Check if the new profile already exists
+								if unitscan_scanlist.profiles[newProfile] then
+									print("Profile '" .. newProfile .. "' already exists.")
+									return
+								end
+
+								-- Create the new profile table
+								unitscan_scanlist.profiles[newProfile] = {}
+
+								-- Copy the 'history' table
+								if profileData.history then
+									unitscan_scanlist.profiles[newProfile].history = {}
+									for _, value in ipairs(profileData.history) do
+										table.insert(unitscan_scanlist.profiles[newProfile].history, value)
+									end
+								end
+
+								-- Copy the 'targets' table
+								if profileData.targets then
+									unitscan_scanlist.profiles[newProfile].targets = {}
+									for key, _ in pairs(profileData.targets) do
+										unitscan_scanlist.profiles[newProfile].targets[key] = true
+									end
+								end
+
+								-- Print success message
+								print("Imported profile to '" .. newProfile .. "'.")
+								-- Perform any additional actions or UI updates here
+								-- call these to update to new profile.
+								unitscan_sortScanList()
+								unitscan_sortHistory()
+								unitscan_scanListUpdate()
+								unitscan_historyListUpdate()
+								unitscan_profileButtons_FullUpdate()
+							else
+								print("Invalid profile data.")
+							end
+
+							eFrame:Hide()
+						end)
+			end
+
+		end
+		if focuschat then unitscanLC.FactoryImportEditBoxFocusChat = true else unitscanLC.FactoryImportEditBoxFocusChat = nil end
+		unitscanLC.FactoryImportEditBox:Show()
+		--unitscanLC.FactoryImportEditBox.b:SetText(word)
+		unitscanLC.FactoryImportEditBox.b:HighlightText()
+		--unitscanLC.FactoryImportEditBox.b:SetScript("OnChar", function(_, char)
+		--	if char ~= 'W' and char ~= 'A' and char ~= 'S' and char ~= 'D' then
+		--		unitscanLC.FactoryImportEditBox:Hide()
+		--		unitscanLC.FactoryImportEditBox.b:SetFocus(false)
+		--	end
+		--	unitscanLC.FactoryImportEditBox.b:SetFocus(true)
+		--	unitscanLC.FactoryImportEditBox.b:SetText(word)
+		--	unitscanLC.FactoryImportEditBox.b:HighlightText()
+		--end);
+
+		--unitscanLC.FactoryImportEditBox.b:SetScript("OnKeyUp", function()
+		--	unitscanLC.FactoryImportEditBox.b:SetFocus(true)
+		--	unitscanLC.FactoryImportEditBox.b:SetText(word)
+		--	unitscanLC.FactoryImportEditBox.b:HighlightText()
+		--end)
+	end
+
+
+
+	-- Show a single line prefilled editbox with copy functionality
+	function unitscanLC:ShowExportEditBox(word, focuschat, showExportButton)
+		local userGuideText = "Click Export Profile to get a string for: "..YELLOW..unitscan_currentProfileBtnText..WHITE.." profile."
+		if not unitscanLC.FactoryExportEditBox then
+			-- Create frame for first time
+			local eFrame = CreateFrame("FRAME", nil, unitscanLC["Page2"])
+			unitscanLC.FactoryExportEditBox = eFrame
+			eFrame:SetSize(712, 110)
+			eFrame:SetScale(0.8)
+			eFrame:SetPoint("BOTTOM", unitscanLC["Page2"], "TOP", 0, 5)
+			eFrame:SetClampedToScreen(true)
+			eFrame:SetFrameStrata("FULLSCREEN_DIALOG")
+			-- eFrame:SetFrameLevel(5000)
+			eFrame:EnableMouse(true)
+			eFrame:EnableKeyboard()
+			eFrame:SetScript("OnMouseDown", function(self, btn)
+				if btn == "RightButton" then
+					unitscanLC.FactoryExportEditBox:Hide()
+					eFrame:Hide()
+				end
+			end)
+			-- Add background color
+			eFrame.t = eFrame:CreateTexture(nil, "BACKGROUND")
+			eFrame.t:SetAllPoints()
+			eFrame.t:SetTexture(0.05, 0.05, 0.05, 0.9)
+			-- Add copy title
+			eFrame.f = eFrame:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
+			eFrame.f:SetPoint("TOPLEFT", x, y)
+			eFrame.f:SetPoint("TOPLEFT", eFrame, "TOPLEFT", 12, -52)
+			eFrame.f:SetWidth(676)
+			eFrame.f:SetJustifyH("LEFT")
+			eFrame.f:SetWordWrap(false)
+			-- Add copy label
+			eFrame.c = eFrame:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
+			eFrame.c:SetPoint("TOPLEFT", x, y)
+			eFrame.c:SetText(L["Press CTRL/C to copy"])
+			eFrame.c:SetPoint("TOPLEFT", eFrame, "TOPLEFT", 12, -82)
+			-- Add feedback label
+			eFrame.x = eFrame:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
+			eFrame.x:SetPoint("TOPRIGHT", x, y)
+			eFrame.x:SetText("\124cff00ff00" .. "Feedback Discord:" .. "\124cffffff00" .. " sattva108")
+
+			eFrame.x:SetPoint("TOPRIGHT", eFrame, "TOPRIGHT", -12, -52)
+			hooksecurefunc(eFrame.f, "SetText", function()
+				eFrame.f:SetWidth(676 - eFrame.x:GetStringWidth() - 26)
+			end)
+			-- Add cancel label
+			eFrame.x = eFrame:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
+			eFrame.x:SetPoint("TOPRIGHT", x, y)
+			eFrame.x:SetText(L["Right-click to close"])
+			eFrame.x:SetPoint("TOPRIGHT", eFrame, "TOPRIGHT", -12, -82)
+			-- Create editbox
+			eFrame.b = CreateFrame("EditBox", nil, eFrame, "InputBoxTemplate")
+			eFrame.b:ClearAllPoints()
+			eFrame.b:SetPoint("TOPLEFT", eFrame, "TOPLEFT", 16, -12)
+			eFrame.b:SetSize(672, 24)
+			eFrame.b:SetFontObject("GameFontNormalLarge")
+			eFrame.b:SetTextColor(1.0, 1.0, 1.0, 1)
+			eFrame.b:DisableDrawLayer("BACKGROUND")
+			-- eFrame.b:SetBlinkSpeed(0)
+			eFrame.b:SetHitRectInsets(99, 99, 99, 99)
+			--eFrame.b:SetAutoFocus(true)
+			eFrame.b:SetAltArrowKeyMode(true)
+			eFrame.b:EnableMouse(true)
+			eFrame.b:EnableKeyboard(true)
+			eFrame.b:SetText("Click Export Profile to get a string for: "..unitscan_currentProfileBtnText.." profile.")
+			-- Editbox texture
+			eFrame.t = CreateFrame("FRAME", nil, eFrame.b)
+			eFrame.t:SetBackdrop(
+					{bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+					 edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+					 tile = false,
+					 tileSize = 16,
+					 edgeSize = 16,
+					 insets = { left = 5, right = 5, top = 5, bottom = 5 }}
+			)
+			eFrame.t:SetPoint("LEFT", -6, 0)
+			eFrame.t:SetWidth(eFrame.b:GetWidth() + 6)
+			eFrame.t:SetHeight(eFrame.b:GetHeight())
+			eFrame.t:SetBackdropColor(1.0, 1.0, 1.0, 0.3)
+			eFrame.b:SetScript("OnChar", function(_, char)
+				--if char ~= 'W' and char ~= 'A' and char ~= 'S' and char ~= 'D' then
+				--	eFrame.b:Hide()
+				--	eFrame.b:SetFocus(false)
+				--end
+				if unitscan_currentProfileBtnText then
+					eFrame.b:SetText(unitscan_currentProfileBtnText);
+				end
+				eFrame.b:HighlightText();
+			end);
+
+			eFrame.b:SetScript("OnMouseUp", function() eFrame.b:HighlightText(); end);
+			eFrame.b:SetScript("OnEscapePressed", function() eFrame:Hide() end)
+			eFrame.b:SetAutoFocus(false)
+			--eFrame.b:HighlightText()
+			eFrame:Show()
+
+			if showExportButton then
+				-- Create the import button
+				unitscan_ProfileExportBtn = unitscanLC:CreateButton("ProfileExportBtn", eFrame, "Export Profile", "CENTER", 0, -18, 130, 40, true, "", false, true)
+				unitscan_ProfileExportBtn:SetScript("OnClick",
+						function()
+							unitscan_profileExportString = nil
+							local profileName = unitscan_currentProfileBtnText -- Change this to the profile name you want to export
+							--print(profileName)
+
+							-- Check if the profile exists
+							if not unitscan_scanlist.profiles[profileName] then
+								print("Profile '" .. profileName .. "' does not exist.")
+								return
+							end
+
+							local profileData = unitscan_scanlist.profiles[profileName] -- Get the profile table
+							unitscan_profileExportString = unitscan_SerializeTable(profileData) -- Serialize the profile table to a string
+
+							eFrame.b:SetText(unitscan_profileExportString)
+							eFrame.b:HighlightText()
+							eFrame.b:SetFocus(true)
+						end
+				)
+			end
+
+		end
+		if focuschat then unitscanLC.FactoryExportEditBoxFocusChat = true else unitscanLC.FactoryExportEditBoxFocusChat = nil end
+		unitscan_ProfileExportBtn:SetScript("OnClick",
+				function()
+					unitscan_profileExportString = nil
+					unitscanLC.FactoryExportEditBox.b:SetText("")
+					local profileName = unitscan_currentProfileBtnText -- Change this to the profile name you want to export
+					--print(profileName)
+
+					-- Check if the profile exists
+					if not unitscan_scanlist.profiles[profileName] then
+						print("Profile '" .. profileName .. "' does not exist.")
+						return
+					end
+
+					local profileData = unitscan_scanlist.profiles[profileName] -- Get the profile table
+					unitscan_profileExportString = unitscan_SerializeTable(profileData) -- Serialize the profile table to a string
+
+					unitscanLC.FactoryExportEditBox.b:SetText(unitscan_profileExportString)
+					unitscanLC.FactoryExportEditBox.b:HighlightText()
+					unitscanLC.FactoryExportEditBox.b:SetFocus(true)
+				end
+		)
+		unitscanLC.FactoryExportEditBox:Show()
+		unitscanLC.FactoryExportEditBox.b:SetAutoFocus(false)
+		unitscanLC.FactoryExportEditBox.b:SetText(userGuideText)
+		--unitscanLC.FactoryExportEditBox.b:HighlightText()
+		unitscanLC.FactoryExportEditBox.b:SetScript("OnChar", function(_, char)
+			--if char ~= 'W' and char ~= 'A' and char ~= 'S' and char ~= 'D' then
+			--	unitscanLC.FactoryExportEditBox:Hide()
+			--	unitscanLC.FactoryExportEditBox.b:SetFocus(false)
+			--end
+			--unitscanLC.FactoryExportEditBox.b:SetFocus(true)
+			if unitscan_profileExportString then
+				unitscanLC.FactoryExportEditBox.b:SetText(unitscan_profileExportString);
+			end
+			unitscanLC.FactoryExportEditBox.b:HighlightText()
+		end);
+
+		unitscanLC.FactoryExportEditBox.b:SetScript("OnKeyUp", function()
+			--unitscanLC.FactoryExportEditBox.b:SetFocus(true)
+			if unitscan_profileExportString then
+				unitscanLC.FactoryExportEditBox.b:SetText(unitscan_profileExportString);
+			end
+			unitscanLC.FactoryExportEditBox.b:HighlightText()
+		end)
+	end
+
+
 
 	-- Load a string variable or set it to default if it's not set to "On" or "Off"
 	function unitscanLC:LoadVarChk(var, def)
@@ -2143,6 +2511,102 @@
 				---- Convert old tables and populate new ones.
 				--------------------------------------------------------------------------------
 
+				----TODO: This Block needs heavy testing to avoid any mistakes.
+				--convert
+				function unitscanLC:ConvertOldTables()
+
+					function unitscanLC:PopulateOldTables()
+						--print(activeProfile)
+						--print(unitscan_scanlist["profiles"])
+						-- i expect this IF block to run only once per account.
+						if activeProfile == nil or unitscan_scanlist["profiles"] == nil or unitscan_scanlist["profiles"][activeProfile] == nil or unitscan_scanlist["profiles"][activeProfile]["targets"] == nil or unitscan_scanlist["profiles"][activeProfile]["history"] == nil then
+							print("Created profile: "..YELLOW.."default.")
+							if not unitscan_scanlist[activeProfile] then
+								--print(activeProfile)
+								unitscan_scanlist["activeProfile"] = "default"
+							end
+
+							-- Check if "profiles" table exists in unitscan_scanlist
+							if not unitscan_scanlist["profiles"] then
+								unitscan_scanlist["profiles"] = {}
+							end
+
+							-- Check if activeProfile table exists in unitscan_scanlist.profiles
+							if not unitscan_scanlist["profiles"]["default"] then
+								unitscan_scanlist["profiles"]["default"] = {}
+							end
+
+							-- Check if "history" table exists in unitscan_scanlist.profiles.default
+							if not unitscan_scanlist["profiles"]["default"]["history"] then
+								unitscan_scanlist["profiles"]["default"]["history"] = {}
+							end
+
+							-- Check if "targets" table exists in unitscan_scanlist.profiles.default
+							if not unitscan_scanlist["profiles"]["default"]["targets"] then
+								unitscan_scanlist["profiles"]["default"]["targets"] = {}
+							end
+							-- i expect this else block run every login, but not be inserting every time, only if some conditions are met.
+						else
+							if unitscan_scanlist["profiles"] == nil then print(RED.."Error:"..YELLOW.."please /reload or relog") return end
+							--print(YELLOW.."else is going")
+							--if next(unitscan_targets) then
+							--	print("unitscan_targets is NOT empty1")
+							--end
+							if unitscan_scanlist["profiles"]["default"] and next(unitscan_targets) then
+								--if next(unitscan_targets) and #unitscan_scanlist["profiles"]["default"]["history"] == 0 and #unitscan_scanlist["profiles"]["default"]["targets"] == 0 then
+								-- Populate "history" table with values from unitscan_scanlist["profiles"][activeProfile]["history"]
+								if not unitscanDB["TargetsTablePopulated"] or next(unitscan_targets) and (not next(unitscan_scanlist["profiles"]["default"]["targets"]) and not next(unitscan_scanlist["profiles"]["default"]["history"])) then
+									--print("populating history!")
+									for _, value in ipairs(unitscan_removed) do
+										local exists = false
+										for _, existingValue in ipairs(unitscan_scanlist["profiles"]["default"]["history"]) do
+											if existingValue == value then
+												exists = true
+												unitscanDB["HistoryTablePopulated"] = true
+												break
+											end
+										end
+										if not exists then
+											table.insert(unitscan_scanlist["profiles"]["default"]["history"], value)
+											--print("inserting", value)
+											unitscanDB["HistoryTablePopulated"] = true
+										end
+									end
+								end
+
+								-- Populate "targets" table with keys from unitscan_targets
+								if not unitscanDB["TargetsTablePopulated"] or next(unitscan_targets) and (not next(unitscan_scanlist["profiles"]["default"]["targets"]) and not next(unitscan_scanlist["profiles"]["default"]["history"])) then
+									print("Successfully Exported Old Profile!")
+									for key, _ in pairs(unitscan_targets) do
+										print(key)
+										unitscan_scanlist["profiles"]["default"]["targets"][key] = true
+										--print("setting true to", key)
+										unitscanDB["TargetsTablePopulated"] = true
+									end
+								end
+								--end
+							end
+
+						end
+					end
+
+					-- Run on call
+					unitscanLC:PopulateOldTables()
+					-- populate once again to insert targets
+					LibCompat.After(1.5, function()
+						--print("converting")
+						unitscanLC:PopulateOldTables()
+					end)
+
+
+				end
+				-- Run on startup
+				unitscanLC:ConvertOldTables()
+
+				-- Release memory
+				unitscanLC.ConvertOldTables = nil
+
+
 				-- populate
 				function unitscan_updateNewProfile()
 					if activeProfile ~= "default" then
@@ -2172,47 +2636,6 @@
 				end
 
 				unitscan_updateNewProfile()
-
-				--convert
-				function unitscanLC:ConvertOldTables()
-					-- Populate "history" table with values from unitscan_scanlist["profiles"][activeProfile]["history"]
-					if not unitscanDB["HistoryTablePopulated"] then
-						for _, value in ipairs(unitscan_removed) do
-							local exists = false
-							for _, existingValue in ipairs(unitscan_scanlist["profiles"]["default"]["history"]) do
-								if existingValue == value then
-									exists = true
-									unitscanDB["HistoryTablePopulated"] = true
-									break
-								end
-							end
-							if not exists then
-								table.insert(unitscan_scanlist["profiles"]["default"]["history"], value)
-								--print("inserting", value)
-								unitscanDB["HistoryTablePopulated"] = true
-							end
-						end
-					end
-
-					-- Populate "targets" table with keys from unitscan_targets
-					if not unitscanDB["TargetsTablePopulated"] then
-						for key, _ in pairs(unitscan_targets) do
-							unitscan_scanlist["profiles"]["default"]["targets"][key] = true
-							--print("setting true to", key)
-							unitscanDB["TargetsTablePopulated"] = true
-						end
-					end
-				end
-
-
-				-- Run on startup
-				unitscanLC:ConvertOldTables()
-
-				-- Release memory
-				unitscanLC.ConvertOldTables = nil
-
-
-
 
 
 				--------------------------------------------------------------------------------
@@ -2456,16 +2879,12 @@
 				end
 
 
-
-
-
-
-
-
-
+				--------------------------------------------------------------------------------
+				---- SerializeTable
+				--------------------------------------------------------------------------------
 
 				-- Function to serialize a table to a string
-				local function SerializeTable(tbl)
+				function unitscan_SerializeTable(tbl)
 					local str = "{"
 
 					for key, value in pairs(tbl) do
@@ -2476,7 +2895,7 @@
 						end
 
 						if type(value) == "table" then
-							str = str .. " = " .. SerializeTable(value) .. ","
+							str = str .. " = " .. unitscan_SerializeTable(value) .. ","
 						elseif type(value) == "string" then
 							str = str .. ' = "' .. value .. '",'
 						elseif type(value) == "boolean" then
@@ -2492,11 +2911,13 @@
 				end
 
 
-
+				--------------------------------------------------------------------------------
+				---- GenerateRandomProfile
+				--------------------------------------------------------------------------------
 
 
 				-- Function to generate a random profile name
-				local function GenerateRandomProfileName()
+				function unitscan_GenerateRandomProfileName()
 					local chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 					local length = 8 -- You can adjust the length of the generated profile name here
 					local name = ""
@@ -2511,6 +2932,10 @@
 				end
 
 
+				--------------------------------------------------------------------------------
+				---- Test EditBox
+				---- FIXME: Delete me before GUI push.
+				--------------------------------------------------------------------------------
 
 
 				-- Create the frame and edit box for the UI
@@ -2595,7 +3020,7 @@
 					end
 
 					local profileData = unitscan_scanlist.profiles[profileName] -- Get the profile table
-					local profileString = SerializeTable(profileData) -- Serialize the profile table to a string
+					local profileString = unitscan_SerializeTable(profileData) -- Serialize the profile table to a string
 
 					editBox:SetText(profileString)
 					editBox:HighlightText()
@@ -2612,20 +3037,6 @@
 				--------------------------------------------------------------------------------
 				-- End of Profiles setup
 				--------------------------------------------------------------------------------
-
-				--------------------------------------------------------------------------------
-				-- Escape colors
-				--------------------------------------------------------------------------------
-
-				local RED = "\124cffff0000"
-				local YELLOW = "\124cffffff00"
-				local GREEN = "\124cff00ff00"
-				local WHITE = "\124cffffffff"
-				local ORANGE = "\124cffffa500"
-				local BLUE = "\124cff0000ff"
-				local GREY = "\124cffb4b4b4"
-				local LYELLOW = "\124cffffff9a"
-
 
 				--------------------------------------------------------------------------------
 				---- Define urlencode function for Lua 5.3
@@ -2819,30 +3230,30 @@
 							--------------------------------------------------------------------------------
 
 
-							button:SetScript("OnMouseDown", function(self, button)
-								if button == "RightButton" then
-									local scan = self.Text:GetText()
-									local encodedScan = urlencode(scan)
-									encodedScan = string.gsub(encodedScan, " ", "+") -- Replace space with plus sign
-									local wowheadLocale = ""
-
-									if GameLocale == "deDE" then wowheadLocale = "de/search?q="
-									elseif GameLocale == "esMX" then wowheadLocale = "es/search?q="
-									elseif GameLocale == "esES" then wowheadLocale = "es/search?q="
-									elseif GameLocale == "frFR" then wowheadLocale = "fr/search?q="
-									elseif GameLocale == "itIT" then wowheadLocale = "it/search?q="
-									elseif GameLocale == "ptBR" then wowheadLocale = "pt/search?q="
-									elseif GameLocale == "ruRU" then wowheadLocale = "ru/search?q="
-									elseif GameLocale == "koKR" then wowheadLocale = "ko/search?q="
-									elseif GameLocale == "zhCN" then wowheadLocale = "cn/search?q="
-									elseif GameLocale == "zhTW" then wowheadLocale = "cn/search?q="
-									else wowheadLocale = "search?q="
-									end
-									local scanLink = "https://www.wowhead.com/wotlk/" .. wowheadLocale .. encodedScan .. "#npcs"
-									unitscanLC:ShowSystemEditBox(scanLink, false)
-									unitscan_searchbox:ClearFocus()
-								end
-							end)
+							--button:SetScript("OnMouseDown", function(self, button)
+							--	if button == "RightButton" then
+							--		local scan = self.Text:GetText()
+							--		local encodedScan = urlencode(scan)
+							--		encodedScan = string.gsub(encodedScan, " ", "+") -- Replace space with plus sign
+							--		local wowheadLocale = ""
+							--
+							--		if GameLocale == "deDE" then wowheadLocale = "de/search?q="
+							--		elseif GameLocale == "esMX" then wowheadLocale = "es/search?q="
+							--		elseif GameLocale == "esES" then wowheadLocale = "es/search?q="
+							--		elseif GameLocale == "frFR" then wowheadLocale = "fr/search?q="
+							--		elseif GameLocale == "itIT" then wowheadLocale = "it/search?q="
+							--		elseif GameLocale == "ptBR" then wowheadLocale = "pt/search?q="
+							--		elseif GameLocale == "ruRU" then wowheadLocale = "ru/search?q="
+							--		elseif GameLocale == "koKR" then wowheadLocale = "ko/search?q="
+							--		elseif GameLocale == "zhCN" then wowheadLocale = "cn/search?q="
+							--		elseif GameLocale == "zhTW" then wowheadLocale = "cn/search?q="
+							--		else wowheadLocale = "search?q="
+							--		end
+							--		local scanLink = "https://www.wowhead.com/wotlk/" .. wowheadLocale .. encodedScan .. "#npcs"
+							--		unitscanLC:ShowSystemEditBox(scanLink, false)
+							--		unitscan_searchbox:ClearFocus()
+							--	end
+							--end)
 
 							--------------------------------------------------------------------------------
 							-- Other Scripts
@@ -3228,12 +3639,17 @@
 				local ProfileCopyBtn = unitscanLC:CreateButton("ProfileCopyBtn", unitscan_profileFrame, "Copy My Profile", "TOPRIGHT", 100, -40, 101, 30, true, "", false)
 				local ProfileCreateBtn = unitscanLC:CreateButton("ProfileCreateBtn", unitscan_profileFrame, "New Profile", "TOPRIGHT", 100, -74, 101, 30, true, "", false)
 				local ProfileChooseBtn = unitscanLC:CreateButton("ProfileChooseBtn", unitscan_profileFrame, "Change Profile", "TOPRIGHT", 100, -108, 101, 30, true, "", false)
+				local ProfileImportBtn = unitscanLC:CreateButton("ProfileImportBtn", unitscanCB["ProfileChooseBtn"], "Import Profile", "CENTER", 0, -101, 101, 30, true, "", false)
+				local ProfileExportBtn = unitscanLC:CreateButton("ProfileExportBtn", unitscanCB["ProfileChooseBtn"], "Export Profile", "CENTER", 0, -135, 101, 30, true, "", false)
+
 
 				function unitscan_ProfileManageButtons_Hide()
 					unitscanCB["ProfileDeleteBtn"]:Hide()
 					unitscanCB["ProfileCopyBtn"]:Hide()
 					unitscanCB["ProfileCreateBtn"]:Hide()
 					unitscanCB["ProfileChooseBtn"]:Hide()
+					unitscanCB["ProfileImportBtn"]:Hide()
+					unitscanCB["ProfileExportBtn"]:Hide()
 				end
 
 				function unitscan_ProfileManageButtons_Show()
@@ -3241,6 +3657,8 @@
 					unitscanCB["ProfileCopyBtn"]:Show()
 					unitscanCB["ProfileCreateBtn"]:Show()
 					unitscanCB["ProfileChooseBtn"]:Show()
+					unitscanCB["ProfileImportBtn"]:Show()
+					unitscanCB["ProfileExportBtn"]:Show()
 				end
 
 				--------------------------------------------------------------------------------
@@ -3409,6 +3827,8 @@
 												-- Apply the clicked texture
 												button.Texture:SetTexture(0, 1.0, 0, 0.5)
 												profileTexture:Hide()
+												unitscan_currentProfileBtnText = button.Text:GetText()
+												--print(getCurrentProfileButtonText)
 
 												--------------------------------------------------------------------------------
 												---- Profile Configuration Buttons OnClick scripts
@@ -3432,6 +3852,16 @@
 												unitscanCB["ProfileChooseBtn"]:SetScript("OnClick", function()
 													ChangeProfile(profileName)
 												end)
+												unitscanCB["ProfileImportBtn"]:SetScript("OnClick", function()
+													unitscanLC:ShowImportEditBox("", false, true)
+												end)
+												unitscanCB["ProfileExportBtn"]:SetScript("OnClick", function()
+													--ChangeProfile(profileName)
+													unitscanLC:ShowExportEditBox(unitscan_currentProfileBtnText, false, true)
+												end)
+
+
+
 
 											else
 												-- Remove texture from other buttons
@@ -3552,14 +3982,18 @@
 								if event == "PLAYER_ENTERING_WORLD" then
 									--===== Click twice to populate the list properly after converting from old table =====--
 
-									--unitscan_profilesGUIButton:Click()
-									--LibCompat.After(1, function() unitscan_profilesGUIButton:Click() end)
+									--unitscan_scanlistGUIButton:Click()
+									--LibCompat.After(1, function()
+									--	unitscan_scanlistGUIButton:Click()
+									--	profileButton:UnregisterEvent("PLAYER_ENTERING_WORLD")
+									--end)
 
-									unitscan_scanlistGUIButton:Click()
+									unitscan_profilesGUIButton:Click()
 									LibCompat.After(1, function()
-										unitscan_scanlistGUIButton:Click()
+										unitscan_profilesGUIButton:Click()
 										profileButton:UnregisterEvent("PLAYER_ENTERING_WORLD")
 									end)
+
 								end
 							end)
 							profileButton:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -3741,9 +4175,9 @@
 						unitscan_myprofileGUIButton = expbtn[title]
 
 
-					--------------------------------------------------------------------------------
-					---- Menu Scan List Button
-					--------------------------------------------------------------------------------
+						--------------------------------------------------------------------------------
+						---- Menu Scan List Button
+						--------------------------------------------------------------------------------
 
 
 					elseif title == "Scan List" then
@@ -3757,6 +4191,7 @@
 							unitscan_sortHistory()
 							unitscan_sortScanList()
 							unitscan_ProfileManageButtons_Hide()
+							--print("hiding?")
 
 							menuSelectedButton = "ScanList"
 
@@ -3831,9 +4266,9 @@
 						unitscan_scanlistGUIButton = expbtn[title]
 
 
-					--------------------------------------------------------------------------------
-					---- Menu History Button
-					--------------------------------------------------------------------------------
+						--------------------------------------------------------------------------------
+						---- Menu History Button
+						--------------------------------------------------------------------------------
 
 
 					elseif title == "History" then
@@ -3917,27 +4352,27 @@
 								end
 							end
 
-								if selectedButton ~= expbtn[title] then
-									--if menuSelectedButton == "ScanList" then print("scanlist") else print("nope") end
-									menuSelectedButton = "HistoryList"
-									--print(menuSelectedButton)
-									expbtn[title].expTexture:Show()
-									if selectedButton then
-										selectedButton.expTexture:Hide()
-									end
-									selectedButton = expbtn[title]
+							if selectedButton ~= expbtn[title] then
+								--if menuSelectedButton == "ScanList" then print("scanlist") else print("nope") end
+								menuSelectedButton = "HistoryList"
+								--print(menuSelectedButton)
+								expbtn[title].expTexture:Show()
+								if selectedButton then
+									selectedButton.expTexture:Hide()
 								end
+								selectedButton = expbtn[title]
+							end
 
-							end)
+						end)
 
 						expbtn[title].text:SetTextColor(1, 0, 0) -- Set text color for the new button
 						unitscan_historyGUIButton = expbtn[title]
 
 
 
-					--------------------------------------------------------------------------------
-					---- Menu Profiles Button
-					--------------------------------------------------------------------------------
+						--------------------------------------------------------------------------------
+						---- Menu Profiles Button
+						--------------------------------------------------------------------------------
 
 
 					elseif title == "Profiles" then
@@ -5479,12 +5914,12 @@
 				edgeSize = 16,
 				edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
 			}
-			button:SetBackdropBorderColor(unpack(BROWN))
+			button:SetBackdropBorderColor(unpack(RGBBROWN))
 			button:SetScript('OnEnter', function(self)
-				self:SetBackdropBorderColor(unpack(YELLOW))
+				self:SetBackdropBorderColor(unpack(RGBYELLOW))
 			end)
 			button:SetScript('OnLeave', function(self)
-				self:SetBackdropBorderColor(unpack(BROWN))
+				self:SetBackdropBorderColor(unpack(RGBBROWN))
 			end)
 		end
 
@@ -5664,20 +6099,6 @@
 	        end
 	    end
 	end
-
-
---------------------------------------------------------------------------------
--- Escape colors
---------------------------------------------------------------------------------
-
-	local RED = "\124cffff0000"
-	local YELLOW = "\124cffffff00"
-	local GREEN = "\124cff00ff00"
-	local WHITE = "\124cffffffff"
-	local ORANGE = "\124cffffa500"
-	local BLUE = "\124cff0000ff"
-	local GREY = "\124cffb4b4b4"
-	local LYELLOW = "\124cffffff9a"
 
 
 --------------------------------------------------------------------------------
