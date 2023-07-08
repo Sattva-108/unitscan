@@ -279,6 +279,7 @@ local LYELLOW = "\124cffffff9a"
 
 	-- Show a single line prefilled editbox with copy functionality
 	function unitscanLC:ShowImportEditBox(word, focuschat, showImportButton)
+		if unitscanLC.FactoryExportEditBox and unitscanLC.FactoryExportEditBox:IsShown() then unitscan_toggleExportBox() end
 		if not unitscanLC.FactoryImportEditBox then
 			-- Create frame for first time
 			local eFrame = CreateFrame("FRAME", nil, unitscanLC["Page2"])
@@ -337,7 +338,7 @@ local LYELLOW = "\124cffffff9a"
 			-- eFrame.b:SetBlinkSpeed(0)
 			eFrame.b:SetHitRectInsets(99, 99, 99, 99)
 			eFrame.b:SetAutoFocus(true)
-			eFrame.b:SetAltArrowKeyMode(true)
+			eFrame.b:SetAltArrowKeyMode(false)
 			eFrame.b:EnableMouse(true)
 			eFrame.b:EnableKeyboard(true)
 			-- Editbox texture
@@ -377,64 +378,120 @@ local LYELLOW = "\124cffffff9a"
 			--	eFrame.b:HighlightText();
 			--end);
 
-			eFrame.b:SetScript("OnMouseUp", function() eFrame.b:HighlightText(); end);
+			--eFrame.b:SetScript("OnMouseUp", function() eFrame.b:HighlightText(); end);
 			eFrame.b:SetScript("OnEscapePressed", function() eFrame:Hide() end)
 			eFrame.b:SetFocus(true)
 			eFrame.b:HighlightText()
 			eFrame:Show()
 
-			if showImportButton then
+			--if showImportButton then
 				-- Create the import button
-				local ProfileImportBtn = unitscanLC:CreateButton("ProfileImportBtn", eFrame, "Import My Profile", "CENTER", 0, -18, 130, 40, true, "", false, true)
-				ProfileImportBtn:SetScript("OnClick",
-						function()
-							local profileString = eFrame.b:GetText()
-							local profileData = loadstring("return " .. profileString)() -- Convert the profile string back to a table
+				unitscan_ProfileImportBtn = unitscanLC:CreateButton("ProfileImportBtn", eFrame, "Import Profile", "CENTER", 0, -18, 130, 40, true, "", false, true)
+			unitscan_ProfileImportBtn:SetScript("OnClick", function()
+					local function ImportProfile(profileName, profileData)
+						-- Check if the new profile already exists
+						if unitscan_scanlist.profiles[profileName] then
+							print("Profile '" .. profileName .. "' already exists.")
+							return
+						end
 
-							if type(profileData) == "table" then
-								local newProfile = unitscan_GenerateRandomProfileName()
+						-- Create the new profile table
+						unitscan_scanlist.profiles[profileName] = {}
 
-								-- Check if the new profile already exists
-								if unitscan_scanlist.profiles[newProfile] then
-									print("Profile '" .. newProfile .. "' already exists.")
-									return
-								end
-
-								-- Create the new profile table
-								unitscan_scanlist.profiles[newProfile] = {}
-
-								-- Copy the 'history' table
-								if profileData.history then
-									unitscan_scanlist.profiles[newProfile].history = {}
-									for _, value in ipairs(profileData.history) do
-										table.insert(unitscan_scanlist.profiles[newProfile].history, value)
-									end
-								end
-
-								-- Copy the 'targets' table
-								if profileData.targets then
-									unitscan_scanlist.profiles[newProfile].targets = {}
-									for key, _ in pairs(profileData.targets) do
-										unitscan_scanlist.profiles[newProfile].targets[key] = true
-									end
-								end
-
-								-- Print success message
-								print("Imported profile to '" .. newProfile .. "'.")
-								-- Perform any additional actions or UI updates here
-								-- call these to update to new profile.
-								unitscan_sortScanList()
-								unitscan_sortHistory()
-								unitscan_scanListUpdate()
-								unitscan_historyListUpdate()
-								unitscan_profileButtons_FullUpdate()
-							else
-								print("Invalid profile data.")
+						-- Copy the 'history' table
+						if profileData.history then
+							unitscan_scanlist.profiles[profileName].history = {}
+							for _, value in ipairs(profileData.history) do
+								table.insert(unitscan_scanlist.profiles[profileName].history, value)
 							end
+						end
 
-							eFrame:Hide()
-						end)
-			end
+						-- Copy the 'targets' table
+						if profileData.targets then
+							unitscan_scanlist.profiles[profileName].targets = {}
+							for key, _ in pairs(profileData.targets) do
+								unitscan_scanlist.profiles[profileName].targets[key] = true
+							end
+						end
+
+						-- Print success message
+						print("Imported profile '" .. profileName .. "'.")
+						-- Perform any additional actions or UI updates here
+						-- Call these to update to the new profile.
+						unitscan_sortScanList()
+						unitscan_sortHistory()
+						unitscan_scanListUpdate()
+						unitscan_historyListUpdate()
+						unitscan_profileButtons_FullUpdate()
+					end
+
+					local function ShowImportProfilePopup()
+						StaticPopupDialogs["IMPORT_PROFILE_POPUP"] = {
+							text = "Enter name and profile data to import:",
+							button1 = "Import",
+							button2 = "Cancel",
+							hasEditBox = true,
+							editBoxWidth = 350,
+							OnShow = function(self)
+								self.editBox:SetFocus(true)
+							end,
+							OnAccept = function(self)
+								--local parent = self:GetParent()
+								local profileString = eFrame.b:GetText()
+
+								local profileData = loadstring("return " .. profileString)() -- Convert the profile string back to a table
+
+
+								local profileName = self.editBox:GetText()
+
+								---- TODO: Check for table structure before importing.
+								if type(profileData) == "table" then
+									ImportProfile(profileName, profileData)
+								else
+									print("Invalid profile data.")
+								end
+								self:Hide()
+								---- DONE ? HIDE EDITBOX TOO
+								eFrame:Hide()
+								--self:GetParent():Hide()
+							end,
+							EditBoxOnEnterPressed = function(self)
+								local parent = self:GetParent()
+								local profileString = parent.editBox:GetText()
+								local profileData = loadstring("return " .. profileString)()
+
+								local profileName = parent.editBoxName:GetText()
+								---- TODO: Check for table structure before importing.
+								if type(profileData) == "table" then
+									ImportProfile(profileName, profileData)
+								else
+									print("Invalid profile data.")
+								end
+								parent:Hide()
+								eFrame:Hide()
+							end,
+							EditBoxOnEscapePressed = function(self)
+								self:GetParent():Hide()
+							end,
+							timeout = 0,
+							whileDead = true,
+							hideOnEscape = true
+						}
+
+						local popupFrame = StaticPopup_Show("IMPORT_PROFILE_POPUP")
+						if popupFrame then
+							popupFrame.editBoxName = CreateFrame("EditBox", nil, popupFrame, "InputBoxTemplate")
+							popupFrame.editBoxName:SetSize(200, 20)
+							popupFrame.editBoxName:SetPoint("TOP", popupFrame.editBox, "BOTTOM", 0, -10)
+							popupFrame.editBoxName:SetMaxLetters(50)
+							popupFrame.editBoxName:SetAutoFocus(false)
+						end
+					end
+					ShowImportProfilePopup()
+
+				end)
+
+			--end
 
 		end
 		if focuschat then unitscanLC.FactoryImportEditBoxFocusChat = true else unitscanLC.FactoryImportEditBoxFocusChat = nil end
@@ -456,12 +513,124 @@ local LYELLOW = "\124cffffff9a"
 		--	unitscanLC.FactoryImportEditBox.b:SetText(word)
 		--	unitscanLC.FactoryImportEditBox.b:HighlightText()
 		--end)
+		unitscan_ProfileImportBtn:SetScript("OnClick", function()
+			local function ImportProfile(profileName, profileData)
+				-- Check if the new profile already exists
+				if unitscan_scanlist.profiles[profileName] then
+					print("Profile '" .. profileName .. "' already exists.")
+					return
+				end
+
+				-- Create the new profile table
+				unitscan_scanlist.profiles[profileName] = {}
+
+				-- Copy the 'history' table
+				if profileData.history then
+					unitscan_scanlist.profiles[profileName].history = {}
+					for _, value in ipairs(profileData.history) do
+						table.insert(unitscan_scanlist.profiles[profileName].history, value)
+					end
+				end
+
+				-- Copy the 'targets' table
+				if profileData.targets then
+					unitscan_scanlist.profiles[profileName].targets = {}
+					for key, _ in pairs(profileData.targets) do
+						unitscan_scanlist.profiles[profileName].targets[key] = true
+					end
+				end
+
+				-- Print success message
+				print("Imported profile '" .. profileName .. "'.")
+				-- Perform any additional actions or UI updates here
+				-- Call these to update to the new profile.
+				unitscan_sortScanList()
+				unitscan_sortHistory()
+				unitscan_scanListUpdate()
+				unitscan_historyListUpdate()
+				unitscan_profileButtons_FullUpdate()
+			end
+
+			local function ShowImportProfilePopup()
+				StaticPopupDialogs["IMPORT_PROFILE_POPUP"] = {
+					text = "Enter name and profile data to import:",
+					button1 = "Import",
+					button2 = "Cancel",
+					hasEditBox = true,
+					editBoxWidth = 350,
+					OnShow = function(self)
+						self.editBox:SetFocus(true)
+					end,
+					OnAccept = function(self)
+						--local parent = self:GetParent()
+						local profileString = unitscanLC.FactoryImportEditBox.b:GetText()
+
+						local profileData = loadstring("return " .. profileString)() -- Convert the profile string back to a table
+
+
+						local profileName = self.editBox:GetText()
+
+						---- TODO: Check for table structure before importing.
+						if type(profileData) == "table" then
+							ImportProfile(profileName, profileData)
+						else
+							print("Invalid profile data.")
+						end
+						self:Hide()
+						---- DONE ? HIDE EDITBOX TOO
+						unitscanLC.FactoryImportEditBox:Hide()
+						--self:GetParent():Hide()
+					end,
+					EditBoxOnEnterPressed = function(self)
+						local parent = self:GetParent()
+						local profileString = parent.editBox:GetText()
+						local profileData = loadstring("return " .. profileString)()
+
+						local profileName = parent.editBoxName:GetText()
+						---- TODO: Check for table structure before importing.
+						if type(profileData) == "table" then
+							ImportProfile(profileName, profileData)
+						else
+							print("Invalid profile data.")
+						end
+						parent:Hide()
+						unitscanLC.FactoryImportEditBox:Hide()
+					end,
+					EditBoxOnEscapePressed = function(self)
+						self:GetParent():Hide()
+					end,
+					timeout = 0,
+					whileDead = true,
+					hideOnEscape = true
+				}
+
+				local popupFrame = StaticPopup_Show("IMPORT_PROFILE_POPUP")
+				if popupFrame then
+					popupFrame.editBoxName = CreateFrame("EditBox", nil, popupFrame, "InputBoxTemplate")
+					popupFrame.editBoxName:SetSize(200, 20)
+					popupFrame.editBoxName:SetPoint("TOP", popupFrame.editBox, "BOTTOM", 0, -10)
+					popupFrame.editBoxName:SetMaxLetters(50)
+					popupFrame.editBoxName:SetAutoFocus(false)
+				end
+			end
+			ShowImportProfilePopup()
+
+		end)
+
+		local ToggleImportBoxName = unitscanLC.FactoryImportEditBox
+		function unitscan_toggleImportBox()
+			if ToggleImportBoxName:IsShown()
+			then ToggleImportBoxName:Hide()
+			else ToggleImportBoxName:Show()
+			end
+		end
 	end
 
 
 
 	-- Show a single line prefilled editbox with copy functionality
 	function unitscanLC:ShowExportEditBox(word, focuschat, showExportButton)
+		if unitscanLC.FactoryImportEditBox and unitscanLC.FactoryImportEditBox:IsShown() then unitscan_toggleImportBox() end
 		local userGuideText = "Click Export Profile to get a string for: "..YELLOW..unitscan_currentProfileBtnText..WHITE.." profile."
 		if not unitscanLC.FactoryExportEditBox then
 			-- Create frame for first time
@@ -584,6 +753,7 @@ local LYELLOW = "\124cffffff9a"
 
 		end
 		if focuschat then unitscanLC.FactoryExportEditBoxFocusChat = true else unitscanLC.FactoryExportEditBoxFocusChat = nil end
+		-- FIXME: Do i need this duplicate code, might remove showExportButton statement and it will be ok ? ?
 		unitscan_ProfileExportBtn:SetScript("OnClick",
 				function()
 					unitscan_profileExportString = nil
@@ -609,6 +779,7 @@ local LYELLOW = "\124cffffff9a"
 		unitscanLC.FactoryExportEditBox.b:SetAutoFocus(false)
 		unitscanLC.FactoryExportEditBox.b:SetText(userGuideText)
 		--unitscanLC.FactoryExportEditBox.b:HighlightText()
+
 		unitscanLC.FactoryExportEditBox.b:SetScript("OnChar", function(_, char)
 			--if char ~= 'W' and char ~= 'A' and char ~= 'S' and char ~= 'D' then
 			--	unitscanLC.FactoryExportEditBox:Hide()
@@ -628,6 +799,13 @@ local LYELLOW = "\124cffffff9a"
 			end
 			unitscanLC.FactoryExportEditBox.b:HighlightText()
 		end)
+		local ToggleEditBoxName = unitscanLC.FactoryExportEditBox
+		function unitscan_toggleExportBox()
+			if ToggleEditBoxName:IsShown()
+			then ToggleEditBoxName:Hide()
+			else ToggleEditBoxName:Show()
+			end
+		end
 	end
 
 
@@ -3661,6 +3839,10 @@ local LYELLOW = "\124cffffff9a"
 					unitscanCB["ProfileExportBtn"]:Show()
 				end
 
+
+				--------------------------------------------------------------------------------
+				---- Popups Create
+				--------------------------------------------------------------------------------
 				--------------------------------------------------------------------------------
 				---- Delete Popup
 				--------------------------------------------------------------------------------
