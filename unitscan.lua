@@ -2828,6 +2828,7 @@ local LYELLOW = "\124cffffff9a"
 					unitscan_profileButtons_FullUpdate()
 					unitscan_profileButtons_ScrollBar_Update()
 					unitscan_ProfileButtons_TextureUpdate()
+					unitscan_UpdateProfileNameText()
 
 					-- Check if "profiles" table exists in unitscan_scanlist
 					if not unitscan_scanlist["profiles"] then
@@ -2941,6 +2942,7 @@ local LYELLOW = "\124cffffff9a"
 							unitscan_scanListUpdate()
 							unitscan_historyListUpdate()
 							unitscan_ProfileButtons_TextureActiveStatic_Update()
+							unitscan_UpdateProfileNameText()
 						end
 
 					else
@@ -3014,6 +3016,7 @@ local LYELLOW = "\124cffffff9a"
 					unitscan_profileButtons_FullUpdate()
 					unitscan_profileButtons_ScrollBar_Update()
 					unitscan_ProfileButtons_TextureUpdate()
+					unitscan_UpdateProfileNameText()
 				end
 
 				-- Slash command handler for renaming a profile
@@ -3081,6 +3084,7 @@ local LYELLOW = "\124cffffff9a"
 					unitscan_scanListUpdate()
 					unitscan_historyListUpdate()
 					unitscan_profileButtons_FullUpdate()
+					unitscan_UpdateProfileNameText()
 				end
 
 				function PrintProfileContents(profileName)
@@ -4185,6 +4189,45 @@ local LYELLOW = "\124cffffff9a"
 							---- Useful Functions
 							--------------------------------------------------------------------------------
 
+							-- Function to update the text above unitscan_scanFrame
+							function unitscan_UpdateProfileNameText()
+								-- Check if the text frame for actual profile name already exists
+								if not unitscan_scanFrame.actualProfileNameText then
+									-- Create the text frame for actual profile name
+									unitscan_scanFrame.actualProfileNameText = unitscan_scanFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge") -- Change the font to "GameFontNormalLarge" for both texts
+									unitscan_scanFrame.actualProfileNameText:SetPoint("BOTTOM", unitscan_scanFrame, "TOP", 0, 10) -- Adjust the position as needed
+									unitscan_scanFrame.actualProfileNameText:SetTextColor(1, 1, 0) -- Set the text color to yellow
+								end
+
+								-- Check if the text frame for "Current Profile:" already exists
+								if not unitscan_scanFrame.currentProfileText then
+									-- Create the text frame for "Current Profile:"
+									unitscan_scanFrame.currentProfileText = unitscan_scanFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+									unitscan_scanFrame.currentProfileText:SetPoint("BOTTOM", unitscan_scanFrame.actualProfileNameText, "TOP", 0, 5) -- Adjust the position to center it below the second row
+								end
+
+								-- Set the text for the first row ("Current Profile:")
+								unitscan_scanFrame.currentProfileText:SetText("Active Profile:")
+
+								-- Set the text for the second row (actual profile name)
+								unitscan_scanFrame.actualProfileNameText:SetText(unitscan_getActiveProfile() or "None")
+
+								-- Center the second row text
+								unitscan_scanFrame.actualProfileNameText:SetJustifyH("CENTER")
+
+								-- Show or hide the text based on menuSelectedButton
+								if menuSelectedButton == "ProfileList" then
+									unitscan_scanFrame.currentProfileText:Show()
+									unitscan_scanFrame.actualProfileNameText:Show()
+								else
+									unitscan_scanFrame.currentProfileText:Hide()
+									unitscan_scanFrame.actualProfileNameText:Hide()
+								end
+							end
+
+
+
+
 							--------------------------------------------------------------------------------
 							---- Function to highlight current profile button.
 							--------------------------------------------------------------------------------
@@ -4546,6 +4589,8 @@ local LYELLOW = "\124cffffff9a"
 
 							unitscan_TextureCurrentYellow:Hide()
 
+							unitscan_UpdateProfileNameText()
+
 							unitscan_profileFrame:SetBackdropBorderColor(0.0, 1.0, 0.0, 0.5) -- Set profileFrame border color to green
 
 
@@ -4719,6 +4764,7 @@ local LYELLOW = "\124cffffff9a"
 							unitscan_ProfileButtons_TextureActiveStatic_Update()
 
 							unitscan_TextureCurrentYellow:Show()
+							unitscan_UpdateProfileNameText()
 
 
 
