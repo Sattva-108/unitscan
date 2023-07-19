@@ -4438,9 +4438,11 @@ local LYELLOW = "\124cffffff9a"
 				do
 					-- Declare visibleButtonsCount as a global variable
 					local visibleButtonsCount = 0
-					visibleButtonsCount = 0 -- Reset visibleButtonsCount
+
 
 					function unitscan_scanListScrollUpdate()
+						visibleButtonsCount = 0 -- Reset visibleButtonsCount
+						--print("called")
 						-- Show all scan units
 						for _, scan in pairs(sortedSpawns) do
 							local button = scanList.Buttons[visibleButtonsCount + 1]
@@ -4581,6 +4583,7 @@ local LYELLOW = "\124cffffff9a"
 							unitscan_sortHistory()
 							unitscan_sortScanList()
 							unitscan_ProfileManageButtons_Hide()
+							unitscan_scanListScrollUpdate()
 							--print("hiding?")
 
 
@@ -4639,6 +4642,7 @@ local LYELLOW = "\124cffffff9a"
 							unitscan_ProfileManageButtons_Hide()
 
 							unitscan_hideScanButtons()
+							unitscan_scanListScrollUpdate()
 
 
 
