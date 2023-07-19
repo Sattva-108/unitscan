@@ -2888,15 +2888,42 @@ local LYELLOW = "\124cffffff9a"
 						return
 					end
 
+					-- If the profile to be deleted is the active profile, switch to another profile
+					if profileName == activeProfile then
+						-- First, check if the "default" profile exists and is not the current profile
+						if unitscan_scanlist["profiles"]["default"] and profileName ~= "default" then
+							unitscanLC:ChangeProfile("default")
+						else
+							-- If the "default" profile doesn't exist or is the current profile, find another profile to switch to
+							local anotherProfile = nil
+							for key, _ in pairs(unitscan_scanlist["profiles"]) do
+								if key ~= profileName then
+									anotherProfile = key
+									break
+								end
+							end
+
+							-- If another profile is found, switch to it
+							if anotherProfile then
+								unitscanLC:ChangeProfile(anotherProfile)
+							else
+								print("Cannot delete the last remaining profile: " .. YELLOW .. profileName)
+								return
+							end
+						end
+					end
+
 					-- Delete the profile table
 					unitscan_scanlist["profiles"][profileName] = nil
 
 					-- Success message
-					print("Deleted profile: " .. profileName)
+					print("Deleted profile: " .. RED .. profileName)
 					unitscan_profileButtons_FullUpdate()
 					unitscan_profileButtons_ScrollBar_Update()
 					unitscan_ProfileButtons_TextureActiveStatic_Update()
 				end
+
+
 
 				-- Slash command handler for deleting a profile
 				SlashCmdList["DELETEPROFILE"] = function(msg)
@@ -2922,7 +2949,7 @@ local LYELLOW = "\124cffffff9a"
 
 
 				-- Function to change the active profile
-				local function ChangeProfile(profileName)
+				function unitscanLC:ChangeProfile(profileName)
 					-- Check if the "profiles" table exists in unitscan_scanlist
 					if not unitscan_scanlist["profiles"] then
 						unitscan_scanlist["profiles"] = {}
@@ -2964,7 +2991,7 @@ local LYELLOW = "\124cffffff9a"
 					end
 
 					-- Change the active profile
-					ChangeProfile(profileName)
+					unitscanLC:ChangeProfile(profileName)
 				end
 
 				-- Slash command handler for changing profiles
@@ -3006,7 +3033,7 @@ local LYELLOW = "\124cffffff9a"
 					if unitscan_scanlist["activeProfile"] == oldProfileName then
 						--print(unitscan_scanlist["activeProfile"])
 						--print(oldProfileName)
-						ChangeProfile(newProfileName)
+						unitscanLC:ChangeProfile(newProfileName)
 					end
 
 					-- Success message
@@ -4085,9 +4112,9 @@ local LYELLOW = "\124cffffff9a"
 									local profileName = self.Text:GetText()
 
 									if not menuSelectedButton == "ProfileList" then
-										ChangeProfile(profileName)
+										unitscanLC:ChangeProfile(profileName)
 									elseif menuSelectedButton == "ScanList" or menuSelectedButton == "HistoryList" then
-										ChangeProfile(profileName)
+										unitscanLC:ChangeProfile(profileName)
 									end
 
 									if menuSelectedButton == "ScanList" then
@@ -4117,11 +4144,11 @@ local LYELLOW = "\124cffffff9a"
 
 												unitscanCB["ProfileDeleteBtn"]:SetScript("OnClick", function()
 													--print("DELETE: " .. profileName)
-													if profileName ~= activeProfile then
+													--if profileName ~= activeProfile then
 														ShowDeleteProfileConfirmation(profileName)
-													else
-														print("Cannot Delete Your Active Profile: " .. YELLOW ..profileName)
-													end
+													--else
+													--	print("Cannot Delete Your Active Profile: " .. YELLOW ..profileName)
+													--end
 												end)
 												unitscanCB["ProfileCopyBtn"]:SetScript("OnClick", function()
 													unitscan_ClickCurrentProfileButton()
@@ -4131,13 +4158,13 @@ local LYELLOW = "\124cffffff9a"
 													ShowNewProfilePopup()
 												end)
 												unitscanCB["ProfileChooseBtn"]:SetScript("OnClick", function()
-													ChangeProfile(profileName)
+													unitscanLC:ChangeProfile(profileName)
 												end)
 												unitscanCB["ProfileImportBtn"]:SetScript("OnClick", function()
 													unitscanLC:ShowImportEditBox("", false, true)
 												end)
 												unitscanCB["ProfileExportBtn"]:SetScript("OnClick", function()
-													--ChangeProfile(profileName)
+													--unitscanLC:ChangeProfile(profileName)
 													unitscanLC:ShowExportEditBox(unitscan_currentProfileBtnText, false, true)
 												end)
 												unitscanCB["ProfileRenameBtn"]:SetScript("OnClick", function()
