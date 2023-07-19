@@ -2943,6 +2943,7 @@ local LYELLOW = "\124cffffff9a"
 							unitscan_historyListUpdate()
 							unitscan_ProfileButtons_TextureActiveStatic_Update()
 							unitscan_UpdateProfileNameText()
+							unitscan_scanListScrollUpdate()
 						end
 
 					else
@@ -3868,14 +3869,14 @@ local LYELLOW = "\124cffffff9a"
 				---- Profile configuration buttons: Delete,Copy,New Profile, ...
 				--------------------------------------------------------------------------------
 
-				local ProfileDeleteBtn = unitscanLC:CreateButton("ProfileDeleteBtn", unitscan_profileFrame, "Delete Profile", "TOPRIGHT", 100, -6, 100, 30, true, "", false)
-				local ProfileCopyBtn = unitscanLC:CreateButton("ProfileCopyBtn", unitscan_profileFrame, "Copy My Profile", "TOPRIGHT", 100, -40, 101, 30, true, "", false)
-				local ProfileCreateBtn = unitscanLC:CreateButton("ProfileCreateBtn", unitscan_profileFrame, "New Profile", "TOPRIGHT", 100, -74, 101, 30, true, "", false)
-				local ProfileChooseBtn = unitscanLC:CreateButton("ProfileChooseBtn", unitscan_profileFrame, "Change Profile", "TOPRIGHT", 100, -108, 101, 30, true, "", false)
-				local ProfileRenameBtn = unitscanLC:CreateButton("ProfileRenameBtn", unitscan_profileFrame, "Rename Profile", "TOPRIGHT", 100, -142, 101, 30, true, "", false)
+				local ProfileChooseBtn = unitscanLC:CreateButton("ProfileChooseBtn", unitscan_profileFrame, "Change Profile", "TOPRIGHT", 100, -6, 101, 30, true, "", false)
+				local ProfileCreateBtn = unitscanLC:CreateButton("ProfileCreateBtn", unitscan_profileFrame, "New Profile", "TOPRIGHT", 100, -40, 101, 30, true, "", false)
+				local ProfileRenameBtn = unitscanLC:CreateButton("ProfileRenameBtn", unitscan_profileFrame, "Rename Profile", "TOPRIGHT", 100, -74, 101, 30, true, "", false)
+				local ProfileCopyBtn = unitscanLC:CreateButton("ProfileCopyBtn", unitscan_profileFrame, "Copy My Profile", "TOPRIGHT", 100, -108, 101, 30, true, "", false)
+				local ProfileDeleteBtn = unitscanLC:CreateButton("ProfileDeleteBtn", unitscan_profileFrame, "Delete Profile", "TOPRIGHT", 100, -142, 101, 30, true, "", false)
 
-				local ProfileImportBtn = unitscanLC:CreateButton("ProfileImportBtn", unitscanCB["ProfileChooseBtn"], "Import Profile", "CENTER", 0, -101, 101, 30, true, "", false)
-				local ProfileExportBtn = unitscanLC:CreateButton("ProfileExportBtn", unitscanCB["ProfileChooseBtn"], "Export Profile", "CENTER", 0, -135, 101, 30, true, "", false)
+				local ProfileExportBtn = unitscanLC:CreateButton("ProfileExportBtn", unitscan_profileFrame, "Export Profile", "TOPRIGHT", 100, -210, 101, 30, true, "", false)
+				local ProfileImportBtn = unitscanLC:CreateButton("ProfileImportBtn", unitscan_profileFrame, "Import Profile", "TOPRIGHT", 100, -244, 101, 30, true, "", false)
 
 
 				function unitscan_ProfileManageButtons_Hide()
