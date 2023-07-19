@@ -2894,6 +2894,7 @@ local LYELLOW = "\124cffffff9a"
 					print("Deleted profile: " .. profileName)
 					unitscan_profileButtons_FullUpdate()
 					unitscan_profileButtons_ScrollBar_Update()
+					unitscan_ProfileButtons_TextureActiveStatic_Update()
 				end
 
 				-- Slash command handler for deleting a profile
@@ -2939,6 +2940,7 @@ local LYELLOW = "\124cffffff9a"
 							unitscan_sortHistory()
 							unitscan_scanListUpdate()
 							unitscan_historyListUpdate()
+							unitscan_ProfileButtons_TextureActiveStatic_Update()
 						end
 
 					else
@@ -3816,7 +3818,7 @@ local LYELLOW = "\124cffffff9a"
 				local visibleProfileButtonsCount = 0
 				local profileFrame = CreateFrame("Frame", nil, unitscanLC["Page2"])
 				profileFrame:SetSize(120, 280)
-				profileFrame:SetPoint("TOPRIGHT", scanFrame, "TOPLEFT", 0, 0)
+				profileFrame:SetPoint("TOPLEFT", 300, -80)
 				profileFrame:SetBackdrop({
 					bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
 					edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight",
@@ -4057,6 +4059,12 @@ local LYELLOW = "\124cffffff9a"
 							profileButton.Texture:SetAllPoints(true)
 							profileButton.Texture:SetTexture(nil)
 
+							--===== Texture for selected button =====--
+							profileButton.TextureCurrentYellow = profileButton:CreateTexture(nil, "BACKGROUND")
+							profileButton.TextureCurrentYellow:SetAllPoints(true)
+							profileButton.TextureCurrentYellow:SetTexture(nil)
+							unitscan_TextureCurrentYellow = profileButton.TextureCurrentYellow
+
 
 							profileButton.Text = profileButton:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 							profileButton.Text:SetPoint("LEFT", 5, 0)
@@ -4184,15 +4192,32 @@ local LYELLOW = "\124cffffff9a"
 							function unitscan_ProfileButtons_TextureUpdate()
 								--===== Texture for selected button =====--
 								for _, button in ipairs(profileList.Buttons) do
-									local activeProfileButtonText = button.Text:GetText()
+									unitscan_activeProfileButtonText = button.Text:GetText()
 
-									if activeProfileButtonText == activeProfile then
+									if unitscan_activeProfileButtonText == activeProfile then
 										button.Texture:SetTexture(0, 1.0, 0, 0.5)
 										profileTexture:Hide()
 										--print("set")
 									else
 										-- Remove texture from other buttons
 										button.Texture:SetTexture(nil)
+									end
+								end
+							end
+
+							function unitscan_ProfileButtons_TextureActiveStatic_Update()
+								--===== Texture for selected button =====--
+								for _, button in ipairs(profileList.Buttons) do
+									local activeProfileButtonTextYellow = button.Text:GetText()
+
+									if activeProfileButtonTextYellow == activeProfile and menuSelectedButton == "ProfileList" then
+										button.TextureCurrentYellow:SetTexture(0, 1.0, 1, 0.5)
+										--profileTexture:Hide()
+										--print("set")
+									else
+										--print("else is going")
+										-- Remove texture from other buttons
+										button.TextureCurrentYellow:SetTexture(nil)
 									end
 								end
 							end
@@ -4271,7 +4296,7 @@ local LYELLOW = "\124cffffff9a"
 							profileButton:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 							--------------------------------------------------------------------------------
-							---- Other Scripts
+							---- Other Profile Button Scripts
 							--------------------------------------------------------------------------------
 
 							profileButton:SetScript("OnShow", function(self)
@@ -4366,6 +4391,52 @@ local LYELLOW = "\124cffffff9a"
 				--	end
 				--end
 
+				do
+					-- Declare visibleButtonsCount as a global variable
+					local visibleButtonsCount = 0
+					visibleButtonsCount = 0 -- Reset visibleButtonsCount
+
+					function unitscan_scanListScrollUpdate()
+						-- Show all scan units
+						for _, scan in pairs(sortedSpawns) do
+							local button = scanList.Buttons[visibleButtonsCount + 1]
+							if not button then
+								button = CreateFrame("Button", nil, scanList)
+								button:SetSize(scanList:GetWidth(), buttonHeight)
+								scanList.Buttons[visibleButtonsCount + 1] = button
+							end
+
+							-- Set button text and position
+							if button.Text then
+								button.Text:SetText(scan)
+							end
+
+							button:SetPoint("TOPLEFT", 0, -(visibleButtonsCount * buttonHeight))
+							button:Show()
+
+							visibleButtonsCount = visibleButtonsCount + 1
+
+
+							if visibleButtonsCount <= 13 or visibleButtonsCount == 0 then
+								scanFrame.scroll.ScrollBar:Hide()
+								scanFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
+							elseif visibleButtonsCount >= 14 and visibleButtonsCount <= 26 then
+								scanFrame.scroll.ScrollBar:Show()
+								scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleButtonsCount + 715))
+							elseif visibleButtonsCount >= 27 and visibleButtonsCount <= 39 then
+								scanFrame.scroll.ScrollBar:Show()
+								scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleButtonsCount + 940))
+							elseif visibleButtonsCount >= 40 and visibleButtonsCount <= 49 then
+								scanFrame.scroll.ScrollBar:Show()
+								scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleButtonsCount + 1160))
+							elseif visibleButtonsCount >= 50 and visibleButtonsCount <= 100 then
+								scanFrame.scroll.ScrollBar:Show()
+								scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleButtonsCount + 2000))
+							end
+						end
+					end
+				end
+
 
 				--------------------------------------------------------------------------------
 				---- Menu Frame
@@ -4457,6 +4528,9 @@ local LYELLOW = "\124cffffff9a"
 							unitscan_ProfileButtons_TextureUpdate()
 							-- hide
 							unitscan_scanFrame:Show()
+							unitscan_scanFrame:SetSize(260, 280)
+							unitscan_scanFrame:SetPoint("TOPLEFT", 420, -80)
+
 							unitscan_historyFrame:Hide()
 							-- update
 							unitscan_scanListUpdate()
@@ -4465,7 +4539,12 @@ local LYELLOW = "\124cffffff9a"
 							unitscan_ProfileManageButtons_Hide()
 							--print("hiding?")
 
+
 							menuSelectedButton = "ScanList"
+
+							unitscan_ProfileButtons_TextureActiveStatic_Update()
+
+							unitscan_TextureCurrentYellow:Hide()
 
 							unitscan_profileFrame:SetBackdropBorderColor(0.0, 1.0, 0.0, 0.5) -- Set profileFrame border color to green
 
@@ -4478,49 +4557,7 @@ local LYELLOW = "\124cffffff9a"
 							unitscan_searchbox:ClearFocus()
 
 
-
-							visibleButtonsCount = 0 -- Reset visibleButtonsCount
-
-							-- Show all scan units
-							for _, scan in pairs(sortedSpawns) do
-								local button = scanList.Buttons[visibleButtonsCount + 1]
-								if not button then
-									button = CreateFrame("Button", nil, scanList)
-									button:SetSize(scanList:GetWidth(), buttonHeight)
-									scanList.Buttons[visibleButtonsCount + 1] = button
-								end
-
-								-- Set button text and position
-								if button.Text then
-									button.Text:SetText(scan)
-								end
-
-								button:SetPoint("TOPLEFT", 0, -(visibleButtonsCount * buttonHeight))
-								button:Show()
-
-								visibleButtonsCount = visibleButtonsCount + 1
-
-
-								if visibleButtonsCount <= 13 or visibleButtonsCount == 0 then
-									scanFrame.scroll.ScrollBar:Hide()
-									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, 1)
-								elseif visibleButtonsCount >= 14 and visibleButtonsCount <= 26 then
-									scanFrame.scroll.ScrollBar:Show()
-									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleButtonsCount + 715))
-								elseif visibleButtonsCount >= 27 and visibleButtonsCount <= 39 then
-									scanFrame.scroll.ScrollBar:Show()
-									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleButtonsCount + 940))
-								elseif visibleButtonsCount >= 40 and visibleButtonsCount <= 49 then
-									scanFrame.scroll.ScrollBar:Show()
-									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleButtonsCount + 1160))
-								elseif visibleButtonsCount >= 50 and visibleButtonsCount <= 100 then
-									scanFrame.scroll.ScrollBar:Show()
-									scanFrame.scroll.ScrollBar:SetMinMaxValues(1, (visibleButtonsCount + 2000))
-								end
-								--print(visibleButtonsCount)
-								--print(actualMaxVisibleButtons)
-
-							end
+							unitscan_scanListScrollUpdate()
 
 							if selectedButton ~= expbtn[title] then
 								expbtn[title].expTexture:Show()
@@ -4558,7 +4595,13 @@ local LYELLOW = "\124cffffff9a"
 							unitscan_hideScanButtons()
 
 
+
+
 							menuSelectedButton = "HistoryList"
+
+							unitscan_ProfileButtons_TextureActiveStatic_Update()
+
+							unitscan_TextureCurrentYellow:Hide()
 
 
 							unitscan_profileFrame:SetBackdropBorderColor(1.0, 0.0, 0.0, 0.5) -- Set profileFrame border color to red
@@ -4651,17 +4694,31 @@ local LYELLOW = "\124cffffff9a"
 						expbtn[title]:SetScript("OnClick", function()
 							visibleButtonsCount = 0
 							--unitscan_profileListUpdate()
-							unitscan_scanFrame:Hide()
-							unitscan_historyFrame:Hide()
 
+
+							unitscan_scanFrame:Show()
+							unitscan_scanFrame:SetSize(160, 280)
+							unitscan_scanFrame:SetPoint("TOPLEFT", 520, -80)
+
+							unitscan_historyFrame:Hide()
 							unitscan_historyListUpdate()
 							unitscan_sortHistory()
+
 							unitscan_sortScanList()
+							unitscan_scanListUpdate()
+							unitscan_scanListScrollUpdate()
+
 							unitscan_ProfileManageButtons_Show()
 
 							unitscan_profileFrame:SetBackdropBorderColor(1, 1, 0.0, 0.5)
 
-							unitscan_hideScanButtons()
+							--unitscan_hideScanButtons()
+
+							menuSelectedButton = "ProfileList"
+
+							unitscan_ProfileButtons_TextureActiveStatic_Update()
+
+							unitscan_TextureCurrentYellow:Show()
 
 
 

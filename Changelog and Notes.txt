@@ -46,6 +46,8 @@ Profiles - think and check and test for if TargetsTablePopulated and HistoryTabl
 
 Profiles - test for scrollbar, if many profiles, will it expand?
 
+DeleteProfile - permit deleting current profile. But what will we be jumping on ? Not sure if we should do it. May be jump only if "default" is present.
+
 
 --------------------------------------------------------------------------------
 -- User Interface To-Do list.
