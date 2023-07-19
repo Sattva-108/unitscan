@@ -426,6 +426,11 @@ local LYELLOW = "\124cffffff9a"
 					end
 
 					local function ShowImportProfilePopup()
+						-- Store the original anchor points of StaticPopup1
+						local originalAnchor = {}
+						if StaticPopup1 then
+							originalAnchor.point, originalAnchor.relativeTo, originalAnchor.relativePoint, originalAnchor.xOfs, originalAnchor.yOfs = StaticPopup1:GetPoint()
+						end
 						StaticPopupDialogs["IMPORT_PROFILE_POPUP"] = {
 							text = "Enter name and profile data to import:",
 							button1 = "Import",
@@ -434,6 +439,19 @@ local LYELLOW = "\124cffffff9a"
 							editBoxWidth = 350,
 							OnShow = function(self)
 								self.editBox:SetFocus(true)
+
+								-- Change the anchor of StaticPopup1 to be relative to eFrame
+								if StaticPopup1 then
+									StaticPopup1:ClearAllPoints()
+									StaticPopup1:SetPoint("BOTTOM", eFrame, "TOP")
+								end
+							end,
+							OnHide = function(self)
+								-- Restore the original anchor points of StaticPopup1
+								if StaticPopup1 then
+									StaticPopup1:ClearAllPoints()
+									StaticPopup1:SetPoint(originalAnchor.point, originalAnchor.relativeTo, originalAnchor.relativePoint, originalAnchor.xOfs, originalAnchor.yOfs)
+								end
 							end,
 							OnAccept = function(self)
 								--local parent = self:GetParent()
