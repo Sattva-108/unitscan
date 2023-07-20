@@ -4880,57 +4880,60 @@ local LYELLOW = "\124cffffff9a"
 						return text
 					end
 
-				local function SearchButtons(text)
-					GameTooltip:Hide()
-					unitscan_HideSelectedScanButtonExpTexture()
-					text = Sanitize(string.lower(text))
+					local function SearchButtons(text)
+						GameTooltip:Hide()
+						unitscan_HideSelectedScanButtonExpTexture()
+						text = Sanitize(string.lower(text))
 
-					local activeProfile = unitscan_getActiveProfile()
-					local activeProfileMobs = unitscan_scanlist["profiles"][activeProfile]["targets"]
+						local activeProfile = unitscan_getActiveProfile()
+						local activeProfileMobs = unitscan_scanlist["profiles"][activeProfile]["targets"]
 
-					-- Create a list of buttons that belong to the active profile
-					local activeProfileButtons = {}
-					for index, button in ipairs(scanList.Buttons) do
-						local buttonMob = button.Text:GetText()
-						if activeProfileMobs[buttonMob] then
-							table.insert(activeProfileButtons, button)
+						-- Create a list of buttons that belong to the active profile
+						local activeProfileButtons = {}
+						local addedMobs = {}  -- New table to keep track of added mobs
+
+						for index, button in ipairs(scanList.Buttons) do
+							local buttonMob = button.Text:GetText()
+							if activeProfileMobs[buttonMob] and not addedMobs[buttonMob] then
+								table.insert(activeProfileButtons, button)
+								addedMobs[buttonMob] = true  -- Mark this mob as added
+							end
+						end
+
+						-- Now, search only within the active profile buttons
+						for _, button in ipairs(activeProfileButtons) do
+							local buttonMob = button.Text:GetText()
+							local lowerButtonMob = string.lower(buttonMob)
+
+							if not string.find(lowerButtonMob, text, 1, true) then
+								button:Hide()
+							else
+								button:Show()
+							end
+						end
+
+						-- Sort the visible buttons based on mob names
+						local visibleButtons = {}
+						for _, button in ipairs(activeProfileButtons) do
+							if button:IsShown() then
+								table.insert(visibleButtons, button)
+							end
+						end
+
+						table.sort(visibleButtons, function(a, b)
+							local mobA = a.Text:GetText()
+							local mobB = b.Text:GetText()
+							return mobA < mobB
+						end)
+
+						-- Update the button positions based on the sorted table
+						local index = 1
+						for _, button in ipairs(visibleButtons) do
+							button:ClearAllPoints()
+							button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
+							index = index + 1
 						end
 					end
-
-					-- Now, search only within the active profile buttons
-					for _, button in ipairs(activeProfileButtons) do
-						local buttonMob = button.Text:GetText()
-						local lowerButtonMob = string.lower(buttonMob)
-
-						if not string.find(lowerButtonMob, text, 1, true) then
-							button:Hide()
-						else
-							button:Show()
-						end
-					end
-
-					-- Sort the visible buttons based on mob names
-					local visibleButtons = {}
-					for _, button in ipairs(activeProfileButtons) do
-						if button:IsShown() then
-							table.insert(visibleButtons, button)
-						end
-					end
-
-					table.sort(visibleButtons, function(a, b)
-						local mobA = a.Text:GetText()
-						local mobB = b.Text:GetText()
-						return mobA < mobB
-					end)
-
-					-- Update the button positions based on the sorted table
-					local index = 1
-					for _, button in ipairs(visibleButtons) do
-						button:ClearAllPoints()
-						button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
-						index = index + 1
-					end
-				end
 
 				--------------------------------------------------------------------------------
 				---- Functions for editbox scripts - OnTextChanged, OnEnterPressed, etc...
