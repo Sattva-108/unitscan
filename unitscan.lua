@@ -415,7 +415,7 @@ local LYELLOW = "\124cffffff9a"
 						end
 
 						-- Print success message
-						print("Imported profile '" .. profileName .. "'.")
+						print("Imported profile " .. GREEN .. profileName)
 						-- Perform any additional actions or UI updates here
 						-- Call these to update to the new profile.
 						unitscan_sortScanList()
@@ -486,8 +486,12 @@ local LYELLOW = "\124cffffff9a"
 
 								local profileData = loadstring("return " .. profileString)() -- Convert the profile string back to a table
 
-
 								local profileName = self.editBox:GetText()
+
+								if profileName == "" then
+									print("Please provide a profile name.")
+									return
+								end
 
 								---- TODO: Check for table structure before importing.
 								if type(profileData) == "table" then
@@ -506,6 +510,12 @@ local LYELLOW = "\124cffffff9a"
 								local profileData = loadstring("return " .. profileString)()
 
 								local profileName = parent.editBoxName:GetText()
+
+								if profileName == "" then
+									print("Please provide a profile name.")
+									return
+								end
+
 								---- TODO: Check for table structure before importing.
 								if type(profileData) == "table" then
 									ImportProfile(profileName, profileData)
@@ -3218,12 +3228,12 @@ local LYELLOW = "\124cffffff9a"
 
 
 				--------------------------------------------------------------------------------
-				---- GenerateRandomProfile
+				---- GenerateRandomProfileName
 				--------------------------------------------------------------------------------
 
 
 				-- Function to generate a random profile name
-				function unitscan_GenerateRandomProfileName()
+				function unitscanLC:GenerateRandomProfileName()
 					local chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 					local length = 8 -- You can adjust the length of the generated profile name here
 					local name = ""
@@ -3236,109 +3246,6 @@ local LYELLOW = "\124cffffff9a"
 
 					return name
 				end
-
-
-				----------------------------------------------------------------------------------
-				------ Test EditBox
-				------ FIXME: Delete me before GUI push.
-				----------------------------------------------------------------------------------
-				--
-				--
-				---- Create the frame and edit box for the UI
-				--local frame = CreateFrame("Frame", "ProfileUIFrame", UIParent)
-				--frame:SetSize(400, 300)
-				--frame:SetPoint("CENTER")
-				--frame:Hide()
-				--
-				--local editBox = CreateFrame("EditBox", "ProfileEditBox", frame, "InputBoxTemplate")
-				--editBox:SetSize(350, 200)
-				--editBox:SetPoint("TOP", frame, "TOP", 0, -40)
-				--editBox:SetMultiLine(true)
-				--editBox:SetAutoFocus(false)
-				--editBox:SetFontObject(GameFontNormal)
-				--editBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
-				--
-				---- Create the import button
-				--local importButton = CreateFrame("Button", "ImportButton", frame, "UIPanelButtonTemplate")
-				--importButton:SetText("Import")
-				--importButton:SetSize(100, 30)
-				--importButton:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 30, 20)
-				--importButton:SetScript("OnClick", function()
-				--	local profileString = editBox:GetText()
-				--	local profileData = loadstring("return " .. profileString)() -- Convert the profile string back to a table
-				--
-				--	if type(profileData) == "table" then
-				--		local newProfile = GenerateRandomProfileName()
-				--
-				--		-- Check if the new profile already exists
-				--		if unitscan_scanlist.profiles[newProfile] then
-				--			print("Profile '" .. newProfile .. "' already exists.")
-				--			return
-				--		end
-				--
-				--		-- Create the new profile table
-				--		unitscan_scanlist.profiles[newProfile] = {}
-				--
-				--		-- Copy the 'history' table
-				--		if profileData.history then
-				--			unitscan_scanlist.profiles[newProfile].history = {}
-				--			for _, value in ipairs(profileData.history) do
-				--				table.insert(unitscan_scanlist.profiles[newProfile].history, value)
-				--			end
-				--		end
-				--
-				--		-- Copy the 'targets' table
-				--		if profileData.targets then
-				--			unitscan_scanlist.profiles[newProfile].targets = {}
-				--			for key, _ in pairs(profileData.targets) do
-				--				unitscan_scanlist.profiles[newProfile].targets[key] = true
-				--			end
-				--		end
-				--
-				--		-- Print success message
-				--		print("Imported profile to '" .. newProfile .. "'.")
-				--		-- Perform any additional actions or UI updates here
-				--		-- call these to update to new profile.
-				--		unitscan_sortScanList()
-				--		unitscan_sortHistory()
-				--		unitscan_scanListUpdate()
-				--		unitscan_historyListUpdate()
-				--		unitscan_profileButtons_FullUpdate()
-				--	else
-				--		print(RED.."Invalid profile data.")
-				--	end
-				--
-				--	frame:Hide()
-				--end)
-				--
-				---- Create the export button
-				--local exportButton = CreateFrame("Button", "ExportButton", frame, "UIPanelButtonTemplate")
-				--exportButton:SetText("Export")
-				--exportButton:SetSize(100, 30)
-				--exportButton:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -30, 20)
-				--exportButton:SetScript("OnClick", function()
-				--	local profileName = "Higi" -- Change this to the profile name you want to export
-				--
-				--	-- Check if the profile exists
-				--	if not unitscan_scanlist.profiles[profileName] then
-				--		print("Profile '" .. profileName .. "' does not exist.")
-				--		return
-				--	end
-				--
-				--	local profileData = unitscan_scanlist.profiles[profileName] -- Get the profile table
-				--	local profileString = unitscan_SerializeTable(profileData) -- Serialize the profile table to a string
-				--
-				--	editBox:SetText(profileString)
-				--	editBox:HighlightText()
-				--	editBox:SetAutoFocus(true)
-				--
-				--end)
-				--
-				---- Show the UI frame when a specific command is entered in chat
-				--SLASH_PROFILEUI1 = "/profileui"
-				--SlashCmdList["PROFILEUI"] = function()
-				--	frame:Show()
-				--end
 
 				--------------------------------------------------------------------------------
 				-- End of Profiles setup
@@ -4015,12 +3922,21 @@ local LYELLOW = "\124cffffff9a"
 						end,
 						OnAccept = function(self)
 							local name = self.editBox:GetText()
+							if name == "" then
+								print("Please provide a profile name.")
+								return
+							end
 							-- Create profile with name here
 							CreateProfile(name)
 						end,
 						EditBoxOnEnterPressed = function(self)
 							local parent = self:GetParent();
-							CreateProfile(parent.editBox:GetText());
+							local name = parent.editBox:GetText()
+							if name == "" then
+								print("Please provide a profile name.")
+								return
+							end
+							CreateProfile(name);
 							parent:Hide();
 						end,
 						EditBoxOnEscapePressed = function(self)
@@ -4050,13 +3966,22 @@ local LYELLOW = "\124cffffff9a"
 						end,
 						OnAccept = function(self)
 							local name = self.editBox:GetText()
+							if name == "" then
+								print("Please provide a profile name.")
+								return
+							end
 							-- Create a copy of the active profile with the entered name
 							CopyProfile(unitscan_getActiveProfile(), name)
 							unitscan_ProfileButtons_TextureUpdate()
 						end,
 						EditBoxOnEnterPressed = function(self)
 							local parent = self:GetParent();
-							CopyProfile(unitscan_getActiveProfile(), parent.editBox:GetText())
+							local name = parent.editBox:GetText()
+							if name == "" then
+								print("Please provide a profile name.")
+								return
+							end
+							CopyProfile(unitscan_getActiveProfile(), name)
 							parent:Hide();
 							unitscan_ProfileButtons_TextureUpdate()
 						end,
@@ -4082,13 +4007,22 @@ local LYELLOW = "\124cffffff9a"
 						end,
 						OnAccept = function(self)
 							local newName = self.editBox:GetText()
+							if newName == "" then
+								print("Please provide a profile name.")
+								return
+							end
 							-- Rename the current profile with the entered name
 							RenameProfile(unitscan_currentProfileBtnText, newName)
 							unitscan_ProfileButtons_TextureUpdate()
 						end,
 						EditBoxOnEnterPressed = function(self)
 							local parent = self:GetParent();
-							RenameProfile(unitscan_currentProfileBtnText, parent.editBox:GetText())
+							local newName = parent.editBox:GetText()
+							if newName == "" then
+								print("Please provide a profile name.")
+								return
+							end
+							RenameProfile(unitscan_currentProfileBtnText, newName)
 							parent:Hide();
 							unitscan_ProfileButtons_TextureUpdate()
 						end,
