@@ -4881,57 +4881,114 @@ local LYELLOW = "\124cffffff9a"
 					end
 
 					local function SearchButtons(text)
-						GameTooltip:Hide()
-						unitscan_HideSelectedScanButtonExpTexture()
-						text = Sanitize(string.lower(text))
+						if menuSelectedButton == "HistoryList" then
 
-						local activeProfile = unitscan_getActiveProfile()
-						local activeProfileMobs = unitscan_scanlist["profiles"][activeProfile]["targets"]
+							GameTooltip:Hide()
+							--unitscan_HideSelectedScanButtonExpTexture()
+							text = Sanitize(string.lower(text))
 
-						-- Create a list of buttons that belong to the active profile
-						local activeProfileButtons = {}
-						local addedMobs = {}  -- New table to keep track of added mobs
+							local activeProfile = unitscan_getActiveProfile()
+							local activeProfileHistory = unitscan_scanlist["profiles"][activeProfile]["history"]
 
-						for index, button in ipairs(scanList.Buttons) do
-							local buttonMob = button.Text:GetText()
-							if activeProfileMobs[buttonMob] and not addedMobs[buttonMob] then
-								table.insert(activeProfileButtons, button)
-								addedMobs[buttonMob] = true  -- Mark this mob as added
+
+							-- Create a list of buttons that belong to the active profile history
+							local activeProfileHistoryButtons = {}
+							for index, button in ipairs(historyList.Buttons) do
+								local buttonMob = button.Text:GetText()
+								if tContains(activeProfileHistory, buttonMob) then
+									table.insert(activeProfileHistoryButtons, button)
+								end
 							end
-						end
 
-						-- Now, search only within the active profile buttons
-						for _, button in ipairs(activeProfileButtons) do
-							local buttonMob = button.Text:GetText()
-							local lowerButtonMob = string.lower(buttonMob)
 
-							if not string.find(lowerButtonMob, text, 1, true) then
-								button:Hide()
-							else
-								button:Show()
+							-- Now, search only within the active profile history buttons
+							for _, button in ipairs(activeProfileHistoryButtons) do
+								local buttonMob = button.Text:GetText()
+								local lowerButtonMob = string.lower(buttonMob)
+
+								if not string.find(lowerButtonMob, text, 1, true) then
+									button:Hide()
+								else
+									button:Show()
+								end
 							end
-						end
 
-						-- Sort the visible buttons based on mob names
-						local visibleButtons = {}
-						for _, button in ipairs(activeProfileButtons) do
-							if button:IsShown() then
-								table.insert(visibleButtons, button)
+							-- Sort the visible buttons based on mob names
+							local visibleHistoryButtons = {}
+							for _, button in ipairs(activeProfileHistoryButtons) do
+								if button:IsShown() then
+									table.insert(visibleHistoryButtons, button)
+								end
 							end
-						end
 
-						table.sort(visibleButtons, function(a, b)
-							local mobA = a.Text:GetText()
-							local mobB = b.Text:GetText()
-							return mobA < mobB
-						end)
+							table.sort(visibleHistoryButtons, function(a, b)
+								local mobA = a.Text:GetText()
+								local mobB = b.Text:GetText()
+								return mobA < mobB
+							end)
 
-						-- Update the button positions based on the sorted table
-						local index = 1
-						for _, button in ipairs(visibleButtons) do
-							button:ClearAllPoints()
-							button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
-							index = index + 1
+							-- Update the button positions based on the sorted table
+							local index = 1
+							for _, button in ipairs(visibleHistoryButtons) do
+								button:ClearAllPoints()
+								button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
+								index = index + 1
+							end
+
+						else
+
+							GameTooltip:Hide()
+							--unitscan_HideSelectedScanButtonExpTexture()
+							text = Sanitize(string.lower(text))
+
+							local activeProfile = unitscan_getActiveProfile()
+							local activeProfileMobs = unitscan_scanlist["profiles"][activeProfile]["targets"]
+
+							-- Create a list of buttons that belong to the active profile
+							local activeProfileButtons = {}
+							local addedMobs = {}  -- New table to keep track of added mobs
+
+							for index, button in ipairs(scanList.Buttons) do
+								local buttonMob = button.Text:GetText()
+								if activeProfileMobs[buttonMob] and not addedMobs[buttonMob] then
+									table.insert(activeProfileButtons, button)
+									addedMobs[buttonMob] = true  -- Mark this mob as added
+								end
+							end
+
+							-- Now, search only within the active profile buttons
+							for _, button in ipairs(activeProfileButtons) do
+								local buttonMob = button.Text:GetText()
+								local lowerButtonMob = string.lower(buttonMob)
+
+								if not string.find(lowerButtonMob, text, 1, true) then
+									button:Hide()
+								else
+									button:Show()
+								end
+							end
+
+							-- Sort the visible buttons based on mob names
+							local visibleButtons = {}
+							for _, button in ipairs(activeProfileButtons) do
+								if button:IsShown() then
+									table.insert(visibleButtons, button)
+								end
+							end
+
+							table.sort(visibleButtons, function(a, b)
+								local mobA = a.Text:GetText()
+								local mobB = b.Text:GetText()
+								return mobA < mobB
+							end)
+
+							-- Update the button positions based on the sorted table
+							local index = 1
+							for _, button in ipairs(visibleButtons) do
+								button:ClearAllPoints()
+								button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
+								index = index + 1
+							end
 						end
 					end
 
