@@ -4914,12 +4914,12 @@ local LYELLOW = "\124cffffff9a"
 					local addedMobs = {}  -- New table to keep track of added mobs
 
 					for index, button in ipairs(buttonList) do
-						local buttonMob = button.Text:GetText()
+							local buttonMob = button.Text:GetText()
 						local shouldAdd = isHistory and tContains(activeProfileData, buttonMob) or activeProfileData[buttonMob]
 						if shouldAdd and not addedMobs[buttonMob] then
-							table.insert(activeProfileButtons, button)
-							addedMobs[buttonMob] = true  -- Mark this mob as added
-						end
+								table.insert(activeProfileButtons, button)
+								addedMobs[buttonMob] = true  -- Mark this mob as added
+							end
 					end
 
 					return activeProfileButtons
