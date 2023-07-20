@@ -4880,117 +4880,67 @@ local LYELLOW = "\124cffffff9a"
 						return text
 					end
 
-					local function SearchButtons(text)
-						if menuSelectedButton == "HistoryList" then
+				local function SortAndDisplayButtons(buttons, text)
+					local visibleButtons = {}
 
-							GameTooltip:Hide()
-							--unitscan_HideSelectedScanButtonExpTexture()
-							text = Sanitize(string.lower(text))
+					for _, button in ipairs(buttons) do
+						local buttonMob = button.Text:GetText()
+						local lowerButtonMob = string.lower(buttonMob)
 
-							local activeProfile = unitscan_getActiveProfile()
-							local activeProfileHistory = unitscan_scanlist["profiles"][activeProfile]["history"]
-
-
-							-- Create a list of buttons that belong to the active profile history
-							local activeProfileHistoryButtons = {}
-							for index, button in ipairs(historyList.Buttons) do
-								local buttonMob = button.Text:GetText()
-								if tContains(activeProfileHistory, buttonMob) then
-									table.insert(activeProfileHistoryButtons, button)
-								end
-							end
-
-
-							-- Now, search only within the active profile history buttons
-							for _, button in ipairs(activeProfileHistoryButtons) do
-								local buttonMob = button.Text:GetText()
-								local lowerButtonMob = string.lower(buttonMob)
-
-								if not string.find(lowerButtonMob, text, 1, true) then
-									button:Hide()
-								else
-									button:Show()
-								end
-							end
-
-							-- Sort the visible buttons based on mob names
-							local visibleHistoryButtons = {}
-							for _, button in ipairs(activeProfileHistoryButtons) do
-								if button:IsShown() then
-									table.insert(visibleHistoryButtons, button)
-								end
-							end
-
-							table.sort(visibleHistoryButtons, function(a, b)
-								local mobA = a.Text:GetText()
-								local mobB = b.Text:GetText()
-								return mobA < mobB
-							end)
-
-							-- Update the button positions based on the sorted table
-							local index = 1
-							for _, button in ipairs(visibleHistoryButtons) do
-								button:ClearAllPoints()
-								button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
-								index = index + 1
-							end
-
+						if string.find(lowerButtonMob, text, 1, true) then
+							button:Show()
+							table.insert(visibleButtons, button)
 						else
-
-							GameTooltip:Hide()
-							--unitscan_HideSelectedScanButtonExpTexture()
-							text = Sanitize(string.lower(text))
-
-							local activeProfile = unitscan_getActiveProfile()
-							local activeProfileMobs = unitscan_scanlist["profiles"][activeProfile]["targets"]
-
-							-- Create a list of buttons that belong to the active profile
-							local activeProfileButtons = {}
-							local addedMobs = {}  -- New table to keep track of added mobs
-
-							for index, button in ipairs(scanList.Buttons) do
-								local buttonMob = button.Text:GetText()
-								if activeProfileMobs[buttonMob] and not addedMobs[buttonMob] then
-									table.insert(activeProfileButtons, button)
-									addedMobs[buttonMob] = true  -- Mark this mob as added
-								end
-							end
-
-							-- Now, search only within the active profile buttons
-							for _, button in ipairs(activeProfileButtons) do
-								local buttonMob = button.Text:GetText()
-								local lowerButtonMob = string.lower(buttonMob)
-
-								if not string.find(lowerButtonMob, text, 1, true) then
-									button:Hide()
-								else
-									button:Show()
-								end
-							end
-
-							-- Sort the visible buttons based on mob names
-							local visibleButtons = {}
-							for _, button in ipairs(activeProfileButtons) do
-								if button:IsShown() then
-									table.insert(visibleButtons, button)
-								end
-							end
-
-							table.sort(visibleButtons, function(a, b)
-								local mobA = a.Text:GetText()
-								local mobB = b.Text:GetText()
-								return mobA < mobB
-							end)
-
-							-- Update the button positions based on the sorted table
-							local index = 1
-							for _, button in ipairs(visibleButtons) do
-								button:ClearAllPoints()
-								button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
-								index = index + 1
-							end
+							button:Hide()
 						end
 					end
+
+					table.sort(visibleButtons, function(a, b)
+						local mobA = a.Text:GetText()
+						local mobB = b.Text:GetText()
+						return mobA < mobB
+					end)
+
+					local index = 1
+					for _, button in ipairs(visibleButtons) do
+						button:ClearAllPoints()
+						button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
+						index = index + 1
+					end
+				end
+
+				local function GetActiveProfileButtons(buttonList, activeProfileData, isHistory)
+					local activeProfileButtons = {}
+					local addedMobs = {}  -- New table to keep track of added mobs
+
+					for index, button in ipairs(buttonList) do
+						local buttonMob = button.Text:GetText()
+						local shouldAdd = isHistory and tContains(activeProfileData, buttonMob) or activeProfileData[buttonMob]
+						if shouldAdd and not addedMobs[buttonMob] then
+							table.insert(activeProfileButtons, button)
+							addedMobs[buttonMob] = true  -- Mark this mob as added
+						end
+					end
+
+					return activeProfileButtons
+				end
+
+				local function SearchButtons(text)
+					GameTooltip:Hide()
+					text = Sanitize(string.lower(text))
+
+					local activeProfile = unitscan_getActiveProfile()
+
+					if menuSelectedButton == "HistoryList" then
+						local activeProfileHistory = unitscan_scanlist["profiles"][activeProfile]["history"]
+						local activeProfileHistoryButtons = GetActiveProfileButtons(historyList.Buttons, activeProfileHistory, true)
+						SortAndDisplayButtons(activeProfileHistoryButtons, text)
+					else
+						local activeProfileMobs = unitscan_scanlist["profiles"][activeProfile]["targets"]
+						local activeProfileButtons = GetActiveProfileButtons(scanList.Buttons, activeProfileMobs)
+						SortAndDisplayButtons(activeProfileButtons, text)
+					end
+				end
 
 				--------------------------------------------------------------------------------
 				---- Functions for editbox scripts - OnTextChanged, OnEnterPressed, etc...
