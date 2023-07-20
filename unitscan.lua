@@ -3267,304 +3267,304 @@ local LYELLOW = "\124cffffff9a"
 				--------------------------------------------------------------------------------
 
 
-				local scanFrame = CreateFrame("Frame", nil, unitscanLC["Page2"])
-				scanFrame:SetSize(260, 280)
-				scanFrame:SetPoint("TOPLEFT", 420, -80)
-				scanFrame:SetBackdrop({
-					bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-					edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight",
-					edgeSize = 16,
-					insets = {left = 8, right = 6, top = 8, bottom = 8},
-				})
-				scanFrame:SetBackdropBorderColor(0.0, 1.0, 0.0, 0.5)
-				scanFrame:SetScale(0.8)
+					local scanFrame = CreateFrame("Frame", nil, unitscanLC["Page2"])
+					scanFrame:SetSize(260, 280)
+					scanFrame:SetPoint("TOPLEFT", 420, -80)
+					scanFrame:SetBackdrop({
+						bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+						edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight",
+						edgeSize = 16,
+						insets = {left = 8, right = 6, top = 8, bottom = 8},
+					})
+					scanFrame:SetBackdropBorderColor(0.0, 1.0, 0.0, 0.5)
+					scanFrame:SetScale(0.8)
 
-				unitscan_scanFrame = scanFrame
+					unitscan_scanFrame = scanFrame
 
-				scanFrame.scroll = CreateFrame("ScrollFrame", nil, scanFrame)
-				scanFrame.scroll:SetPoint("TOPLEFT", scanFrame, 12, -10)
-				scanFrame.scroll:SetPoint("BOTTOMRIGHT", scanFrame, -30, 10)
+					scanFrame.scroll = CreateFrame("ScrollFrame", nil, scanFrame)
+					scanFrame.scroll:SetPoint("TOPLEFT", scanFrame, 12, -10)
+					scanFrame.scroll:SetPoint("BOTTOMRIGHT", scanFrame, -30, 10)
 
-				local buttonHeight = 20
-				local maxVisibleButtons = 450
-				-- FIXME: im not using these two locals, but may keep them for now
-				local scanListContains = false
-				local historyListContains = false
+					local buttonHeight = 20
+					local maxVisibleButtons = 450
+					-- FIXME: im not using these two locals, but may keep them for now
+					local scanListContains = false
+					local historyListContains = false
 
-				local scanList = CreateFrame("Frame", nil, scanFrame.scroll)
-				scanList:SetSize(scanFrame:GetWidth() - 30, maxVisibleButtons * buttonHeight)
-				scanList.Buttons = {}
+					local scanList = CreateFrame("Frame", nil, scanFrame.scroll)
+					scanList:SetSize(scanFrame:GetWidth() - 30, maxVisibleButtons * buttonHeight)
+					scanList.Buttons = {}
 
-				--TODO: Rename sortedSpawns to be exclusive name, to be different from rarespawns list table.
-				local sortedSpawns = {}
-				-- Function to sort the scan list based on the active profile
-				function unitscan_sortScanList()
-					activeProfile = unitscan_getActiveProfile()
-					-- Check if the "profiles" table exists in unitscan_scanlist
-					if not unitscan_scanlist["profiles"] then
-						unitscan_scanlist["profiles"] = {}
-					end
-
-
-					-- Check if the active profile exists in unitscan_scanlist.profiles
-					if unitscan_scanlist["activeProfile"] then
-						-- Clear the sortedSpawns table before sorting
-						sortedSpawns = {}
-
-						-- Iterate over the keys in unitscan_scanlist.profiles[activeProfile]
-						for name in pairs(unitscan_scanlist["profiles"][activeProfile]["targets"]) do
-							--print(activeProfile)
-							table.insert(sortedSpawns, name)
-							--print(name)
+					--TODO: Rename sortedSpawns to be exclusive name, to be different from rarespawns list table.
+					local sortedSpawns = {}
+					-- Function to sort the scan list based on the active profile
+					function unitscan_sortScanList()
+						activeProfile = unitscan_getActiveProfile()
+						-- Check if the "profiles" table exists in unitscan_scanlist
+						if not unitscan_scanlist["profiles"] then
+							unitscan_scanlist["profiles"] = {}
 						end
 
-						-- Sort the scan list
-						table.sort(sortedSpawns)
 
-						-- Print the sorted scan list
-						for i, name in ipairs(sortedSpawns) do
-							--print("Sorted spawn:", name)
+						-- Check if the active profile exists in unitscan_scanlist.profiles
+						if unitscan_scanlist["activeProfile"] then
+							-- Clear the sortedSpawns table before sorting
+							sortedSpawns = {}
+
+							-- Iterate over the keys in unitscan_scanlist.profiles[activeProfile]
+							for name in pairs(unitscan_scanlist["profiles"][activeProfile]["targets"]) do
+								--print(activeProfile)
+								table.insert(sortedSpawns, name)
+								--print(name)
+							end
+
+							-- Sort the scan list
+							table.sort(sortedSpawns)
+
+							-- Print the sorted scan list
+							for i, name in ipairs(sortedSpawns) do
+								--print("Sorted spawn:", name)
+							end
+						elseif not unitscan_scanlist["activeProfile"] then
+							--FIXME: is it really needed to declare "default" and can it somehow break our profiles swap?
+							unitscan_scanlist["activeProfile"] = activeProfile or "default"
+							--print("return")
+							return
+						else
+							-- Active profile does not exist
+							print("Active profile '" .. activeProfile .. "' does not exist or empty.")
 						end
-					elseif not unitscan_scanlist["activeProfile"] then
-						--FIXME: is it really needed to declare "default" and can it somehow break our profiles swap?
-						unitscan_scanlist["activeProfile"] = activeProfile or "default"
-						--print("return")
-						return
-					else
-						-- Active profile does not exist
-						print("Active profile '" .. activeProfile .. "' does not exist or empty.")
 					end
-				end
 
-				unitscan_sortScanList()
+					unitscan_sortScanList()
 
-				local index = 1
-				-- Check if sortedSpawns is empty
-				if #sortedSpawns == 0 then
-					local emptyButton = CreateFrame("Button", nil, scanList)
-					emptyButton:SetSize(scanList:GetWidth(), buttonHeight)
-					emptyButton:SetPoint("TOPLEFT", 0, 0)
+					local index = 1
+					-- Check if sortedSpawns is empty
+					if #sortedSpawns == 0 then
+						local emptyButton = CreateFrame("Button", nil, scanList)
+						emptyButton:SetSize(scanList:GetWidth(), buttonHeight)
+						emptyButton:SetPoint("TOPLEFT", 0, 0)
 
-					--emptyButton.Text = emptyButton:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-					--emptyButton.Text:SetPoint("LEFT", 5, 0)
-					--emptyButton.Text:SetText("Scan list is empty")
+						--emptyButton.Text = emptyButton:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+						--emptyButton.Text:SetPoint("LEFT", 5, 0)
+						--emptyButton.Text:SetText("Scan list is empty")
 
-					scanList.Buttons[1] = emptyButton
+						scanList.Buttons[1] = emptyButton
 
-				end
-				function unitscan_scanListUpdate()
-					--print("called")
-					for _, button in ipairs(scanList.Buttons) do
-						button:Hide()
-						index = 1
 					end
-					for profile, mobs in pairs(sortedSpawns) do
-						--print(profile .. mobs)
-						profileButtons[profile] = {}
-						--for _, name in ipairs(mobs) do
-						if index <= maxVisibleButtons then
-							local button = CreateFrame("Button", nil, scanList)
-							button:SetSize(scanList:GetWidth(), buttonHeight)
+					function unitscan_scanListUpdate()
+						--print("called")
+						for _, button in ipairs(scanList.Buttons) do
+							button:Hide()
+							index = 1
+						end
+						for profile, mobs in pairs(sortedSpawns) do
+							--print(profile .. mobs)
+							profileButtons[profile] = {}
+							--for _, name in ipairs(mobs) do
+							if index <= maxVisibleButtons then
+								local button = CreateFrame("Button", nil, scanList)
+								button:SetSize(scanList:GetWidth(), buttonHeight)
 
-							button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
+								button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
 
-							-- Create a texture region within the button frame
-							local texture = button:CreateTexture(nil, "BACKGROUND")
-							texture:SetAllPoints(true)
-							texture:SetTexture(1.0, 0.5, 0.0, 0.8)
-							texture:Hide()
-
-							-- Create a texture region within the button frame
-							button.IgnoreTexture = button:CreateTexture(nil, "BACKGROUND")
-							button.IgnoreTexture:SetAllPoints(true)
-
-							button.Text = button:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-							button.Text:SetPoint("LEFT", 5, 0)
-
-							button:SetScript("OnClick", function(self)
-
-								-- Get the unit name from the button's text
-								local key = strupper(self.Text:GetText())
-
-								if not unitscan_scanlist["profiles"][activeProfile]["targets"][key] then
-									-- Add unit to scan list
-									unitscan_scanlist["profiles"][activeProfile]["targets"][key] = true
-									unitscan.print(YELLOW .. "+ " .. key)
-									unitscan_sortScanList()
-									self.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
-									texture:Show()
-
-									-- Check if the key is in unitscan_scanlist["profiles"][activeProfile]["history"] table and remove it
-									for i, value in ipairs(unitscan_scanlist["profiles"][activeProfile]["history"]) do
-										if value == key then
-											table.remove(unitscan_scanlist["profiles"][activeProfile]["history"], i)
-											--print("Removed from unitscan_scanlist["profiles"][activeProfile]["history"]:", key)
-											break
-										end
-									end
-									unitscan_historyListUpdate()
-									unitscan_sortHistory()
-
-								else
-									-- Remove unit from scan list
-									unitscan_scanlist["profiles"][activeProfile]["targets"][key] = nil
-									unitscan.print(RED .. "- " .. key)
-									found[key] = nil
-									unitscan_sortScanList()
-									self.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
-									texture:Hide()
-
-									-- Check if the key is already in unitscan_scanlist["profiles"][activeProfile]["history"] table
-									local isDuplicate = false
-									for _, value in ipairs(unitscan_scanlist["profiles"][activeProfile]["history"]) do
-										--print(value)
-										if value == key then
-											isDuplicate = true
-											break
-										end
-									end
-
-									-- Insert the key into unitscan_scanlist["profiles"][activeProfile]["history"] table if it's not a duplicate
-									if not isDuplicate then
-										table.insert(unitscan_scanlist["profiles"][activeProfile]["history"], key)
-										--print("Added to unitscan_scanlist["profiles"][activeProfile]["history"]:", key)
-									end
-									unitscan_historyListUpdate()
-									unitscan_sortHistory()
-
-								end
-
-								-- Clear focus of search box
-								unitscan_searchbox:ClearFocus()
-							end)
-
-							--------------------------------------------------------------------------------
-							-- WowHead Link OnMouseDown for scan unit
-							--------------------------------------------------------------------------------
-
-
-							--button:SetScript("OnMouseDown", function(self, button)
-							--	if button == "RightButton" then
-							--		local scan = self.Text:GetText()
-							--		local encodedScan = urlencode(scan)
-							--		encodedScan = string.gsub(encodedScan, " ", "+") -- Replace space with plus sign
-							--		local wowheadLocale = ""
-							--
-							--		if GameLocale == "deDE" then wowheadLocale = "de/search?q="
-							--		elseif GameLocale == "esMX" then wowheadLocale = "es/search?q="
-							--		elseif GameLocale == "esES" then wowheadLocale = "es/search?q="
-							--		elseif GameLocale == "frFR" then wowheadLocale = "fr/search?q="
-							--		elseif GameLocale == "itIT" then wowheadLocale = "it/search?q="
-							--		elseif GameLocale == "ptBR" then wowheadLocale = "pt/search?q="
-							--		elseif GameLocale == "ruRU" then wowheadLocale = "ru/search?q="
-							--		elseif GameLocale == "koKR" then wowheadLocale = "ko/search?q="
-							--		elseif GameLocale == "zhCN" then wowheadLocale = "cn/search?q="
-							--		elseif GameLocale == "zhTW" then wowheadLocale = "cn/search?q="
-							--		else wowheadLocale = "search?q="
-							--		end
-							--		local scanLink = "https://www.wowhead.com/wotlk/" .. wowheadLocale .. encodedScan .. "#npcs"
-							--		unitscanLC:ShowSystemEditBox(scanLink, false)
-							--		unitscan_searchbox:ClearFocus()
-							--	end
-							--end)
-
-							--------------------------------------------------------------------------------
-							-- Other Scripts
-							--------------------------------------------------------------------------------
-
-
-							-- Set button texture update function for OnShow event
-							button:SetScript("OnShow", function(self)
-								-- DONE: Rename rare to something
-								local mob = string.upper(button.Text:GetText())
-
-								if unitscan_scanlist["profiles"][activeProfile]["history"][mob] then
-									button.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
-								else
-									button.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
-								end
-								--unitscan_ClickCurrentProfileButton()
-							end)
-
-
-							button:SetScript("OnEnter", function(self)
-								-- Handle button click event here
-								texture:Show()
-							end)
-
-							button:SetScript("OnLeave", function(self)
-								-- Handle button click event here
+								-- Create a texture region within the button frame
+								local texture = button:CreateTexture(nil, "BACKGROUND")
+								texture:SetAllPoints(true)
+								texture:SetTexture(1.0, 0.5, 0.0, 0.8)
 								texture:Hide()
-							end)
 
-							button.Text:SetText(mobs)
-							scanListContains = true
+								-- Create a texture region within the button frame
+								button.IgnoreTexture = button:CreateTexture(nil, "BACKGROUND")
+								button.IgnoreTexture:SetAllPoints(true)
+
+								button.Text = button:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+								button.Text:SetPoint("LEFT", 5, 0)
+
+								button:SetScript("OnClick", function(self)
+
+									-- Get the unit name from the button's text
+									local key = strupper(self.Text:GetText())
+
+									if not unitscan_scanlist["profiles"][activeProfile]["targets"][key] then
+										-- Add unit to scan list
+										unitscan_scanlist["profiles"][activeProfile]["targets"][key] = true
+										unitscan.print(YELLOW .. "+ " .. key)
+										unitscan_sortScanList()
+										self.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
+										texture:Show()
+
+										-- Check if the key is in unitscan_scanlist["profiles"][activeProfile]["history"] table and remove it
+										for i, value in ipairs(unitscan_scanlist["profiles"][activeProfile]["history"]) do
+											if value == key then
+												table.remove(unitscan_scanlist["profiles"][activeProfile]["history"], i)
+												--print("Removed from unitscan_scanlist["profiles"][activeProfile]["history"]:", key)
+												break
+											end
+										end
+										unitscan_historyListUpdate()
+										unitscan_sortHistory()
+
+									else
+										-- Remove unit from scan list
+										unitscan_scanlist["profiles"][activeProfile]["targets"][key] = nil
+										unitscan.print(RED .. "- " .. key)
+										found[key] = nil
+										unitscan_sortScanList()
+										self.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
+										texture:Hide()
+
+										-- Check if the key is already in unitscan_scanlist["profiles"][activeProfile]["history"] table
+										local isDuplicate = false
+										for _, value in ipairs(unitscan_scanlist["profiles"][activeProfile]["history"]) do
+											--print(value)
+											if value == key then
+												isDuplicate = true
+												break
+											end
+										end
+
+										-- Insert the key into unitscan_scanlist["profiles"][activeProfile]["history"] table if it's not a duplicate
+										if not isDuplicate then
+											table.insert(unitscan_scanlist["profiles"][activeProfile]["history"], key)
+											--print("Added to unitscan_scanlist["profiles"][activeProfile]["history"]:", key)
+										end
+										unitscan_historyListUpdate()
+										unitscan_sortHistory()
+
+									end
+
+									-- Clear focus of search box
+									unitscan_searchbox:ClearFocus()
+								end)
+
+								--------------------------------------------------------------------------------
+								-- WowHead Link OnMouseDown for scan unit
+								--------------------------------------------------------------------------------
+
+
+								--button:SetScript("OnMouseDown", function(self, button)
+								--	if button == "RightButton" then
+								--		local scan = self.Text:GetText()
+								--		local encodedScan = urlencode(scan)
+								--		encodedScan = string.gsub(encodedScan, " ", "+") -- Replace space with plus sign
+								--		local wowheadLocale = ""
+								--
+								--		if GameLocale == "deDE" then wowheadLocale = "de/search?q="
+								--		elseif GameLocale == "esMX" then wowheadLocale = "es/search?q="
+								--		elseif GameLocale == "esES" then wowheadLocale = "es/search?q="
+								--		elseif GameLocale == "frFR" then wowheadLocale = "fr/search?q="
+								--		elseif GameLocale == "itIT" then wowheadLocale = "it/search?q="
+								--		elseif GameLocale == "ptBR" then wowheadLocale = "pt/search?q="
+								--		elseif GameLocale == "ruRU" then wowheadLocale = "ru/search?q="
+								--		elseif GameLocale == "koKR" then wowheadLocale = "ko/search?q="
+								--		elseif GameLocale == "zhCN" then wowheadLocale = "cn/search?q="
+								--		elseif GameLocale == "zhTW" then wowheadLocale = "cn/search?q="
+								--		else wowheadLocale = "search?q="
+								--		end
+								--		local scanLink = "https://www.wowhead.com/wotlk/" .. wowheadLocale .. encodedScan .. "#npcs"
+								--		unitscanLC:ShowSystemEditBox(scanLink, false)
+								--		unitscan_searchbox:ClearFocus()
+								--	end
+								--end)
+
+								--------------------------------------------------------------------------------
+								-- Other Scripts
+								--------------------------------------------------------------------------------
+
+
+								-- Set button texture update function for OnShow event
+								button:SetScript("OnShow", function(self)
+									-- DONE: Rename rare to something
+									local mob = string.upper(button.Text:GetText())
+
+									if unitscan_scanlist["profiles"][activeProfile]["history"][mob] then
+										button.IgnoreTexture:SetTexture(1.0, 0.0, 0.0, 0.6) -- Set button texture to red color
+									else
+										button.IgnoreTexture:SetTexture(nil) -- Set button texture to default color
+									end
+									--unitscan_ClickCurrentProfileButton()
+								end)
+
+
+								button:SetScript("OnEnter", function(self)
+									-- Handle button click event here
+									texture:Show()
+								end)
+
+								button:SetScript("OnLeave", function(self)
+									-- Handle button click event here
+									texture:Hide()
+								end)
+
+								button.Text:SetText(mobs)
+								scanListContains = true
 
 
 
-							-- Initially hide buttons that don't belong to the selected profile
-							--if profile == selectedProfile then
-							--	button:Show()
-							--else
-							--	button:Hide()
+								-- Initially hide buttons that don't belong to the selected profile
+								--if profile == selectedProfile then
+								--	button:Show()
+								--else
+								--	button:Hide()
+								--end
+
+								scanList.Buttons[index] = button
+								table.insert(profileButtons[profile], button)
+							end
+							index = index + 1
+							-- prints how many buttons we have
+							--print(index - 1)
 							--end
-
-							scanList.Buttons[index] = button
-							table.insert(profileButtons[profile], button)
 						end
-						index = index + 1
-						-- prints how many buttons we have
-						--print(index - 1)
-						--end
 					end
-				end
-				-- call above function
-				unitscan_scanListUpdate()
+					-- call above function
+					unitscan_scanListUpdate()
 
-				function unitscan_hideScanButtons()
-					--scanList.Buttons = {}
-					for _, button in ipairs(scanList.Buttons) do
-						button:Hide()
+					function unitscan_hideScanButtons()
+						--scanList.Buttons = {}
+						for _, button in ipairs(scanList.Buttons) do
+							button:Hide()
+						end
 					end
-				end
 
 
-				scanFrame.scroll:SetScrollChild(scanList)
+					scanFrame.scroll:SetScrollChild(scanList)
 
-				-- Scroll functionality
-				local scrollbar = CreateFrame("Slider", nil, scanFrame.scroll, "UIPanelScrollBarTemplate")
-				scrollbar:SetPoint("TOPRIGHT", scanFrame.scroll, "TOPRIGHT", 20, -14)
-				scrollbar:SetPoint("BOTTOMRIGHT", scanFrame.scroll, "BOTTOMRIGHT", 20, 14)
+					-- Scroll functionality
+					local scrollbar = CreateFrame("Slider", nil, scanFrame.scroll, "UIPanelScrollBarTemplate")
+					scrollbar:SetPoint("TOPRIGHT", scanFrame.scroll, "TOPRIGHT", 20, -14)
+					scrollbar:SetPoint("BOTTOMRIGHT", scanFrame.scroll, "BOTTOMRIGHT", 20, 14)
 
-				--scrollbar:SetMinMaxValues(1, 8300)
-				local actualMaxVisibleButtons = index - 1
-				scrollbar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
+					--scrollbar:SetMinMaxValues(1, 8300)
+					local actualMaxVisibleButtons = index - 1
+					scrollbar:SetMinMaxValues(1, (actualMaxVisibleButtons + 400))
 
-				scrollbar:SetValueStep(1)
-				scrollbar:SetValue(1)
-				scrollbar:SetWidth(16)
-				scrollbar:SetScript("OnValueChanged", function(self, value)
-					local min, max = self:GetMinMaxValues()
-					local scrollRange = max - maxVisibleButtons + 1
-					local newValue = math.max(1, math.min(value, scrollRange))
-					self:GetParent():SetVerticalScroll(newValue)
-				end)
+					scrollbar:SetValueStep(1)
+					scrollbar:SetValue(1)
+					scrollbar:SetWidth(16)
+					scrollbar:SetScript("OnValueChanged", function(self, value)
+						local min, max = self:GetMinMaxValues()
+						local scrollRange = max - maxVisibleButtons + 1
+						local newValue = math.max(1, math.min(value, scrollRange))
+						self:GetParent():SetVerticalScroll(newValue)
+					end)
 
 
-				scanFrame.scroll.ScrollBar = scrollbar
+					scanFrame.scroll.ScrollBar = scrollbar
 
-				-- Mouse wheel scrolling
-				scanFrame.scroll:EnableMouseWheel(true)
-				scanFrame.scroll:SetScript("OnMouseWheel", function(self, delta)
-					scrollbar:SetValue(scrollbar:GetValue() - delta * 250)
-				end)
+					-- Mouse wheel scrolling
+					scanFrame.scroll:EnableMouseWheel(true)
+					scanFrame.scroll:SetScript("OnMouseWheel", function(self, delta)
+						scrollbar:SetValue(scrollbar:GetValue() - delta * 250)
+					end)
 
-				-- Hide unused buttons
-				for i = index, maxVisibleButtons do
-					if scanList.Buttons[i] then
-						scanList.Buttons[i]:Hide()
+					-- Hide unused buttons
+					for i = index, maxVisibleButtons do
+						if scanList.Buttons[i] then
+							scanList.Buttons[i]:Hide()
+						end
 					end
-				end
 
 
 				--------------------------------------------------------------------------------
@@ -4859,80 +4859,76 @@ local LYELLOW = "\124cffffff9a"
 
 
 
-
-
-
 				--------------------------------------------------------------------------------
 				---- Create Search Box
 				--------------------------------------------------------------------------------
 
 
-				local sBox = unitscanLC:CreateEditBox("RareListSearchBox", unitscanLC["Page2"], 60, 10, "TOPLEFT", 150, -260, "RareListSearchBox", "RareListSearchBox")
-				sBox:SetMaxLetters(50)
+					local sBox = unitscanLC:CreateEditBox("RareListSearchBox", unitscanLC["Page2"], 60, 10, "TOPLEFT", 150, -260, "RareListSearchBox", "RareListSearchBox")
+					sBox:SetMaxLetters(50)
 
 
 				--------------------------------------------------------------------------------
 				---- Main Searching Logic Functions
 				--------------------------------------------------------------------------------
 
-				local function Sanitize(text)
-					if type(text) == "string" then
-						text = string.gsub(text, "'", "")
-						text = string.gsub(text, "%d", "")
+					local function Sanitize(text)
+						if type(text) == "string" then
+							text = string.gsub(text, "'", "")
+							text = string.gsub(text, "%d", "")
+						end
+						return text
 					end
-					return text
-				end
 
 				local function SearchButtons(text)
 					GameTooltip:Hide()
 					unitscan_HideSelectedScanButtonExpTexture()
 					text = Sanitize(string.lower(text))
 
-					for profileIndex, profileButton in ipairs(profileList.Buttons) do
-						profileButton.Texture:SetTexture(nil)
-						local profile = profileButton.Text:GetText()
-						local lowerProfile = string.lower(profile) -- Convert profile name to lowercase
+					local activeProfile = unitscan_getActiveProfile()
+					local activeProfileMobs = unitscan_scanlist["profiles"][activeProfile]["targets"]
 
-						-- Find the corresponding mobs for the profile
-						local mobs = sortedSpawns[profile]
-						if mobs then
-							local shouldHideButton = true
-							for _, data in ipairs(mobs) do
-								if string.find(data.expansion, "TBC") or string.find(data.expansion, "CLASSIC") or string.find(data.expansion, "WOTLK") then
-									shouldHideButton = false -- Show buttons with any expansion
-									break
-								end
-							end
-
-							-- Perform case-insensitive search by comparing lowercase profile name
-							if shouldHideButton or not string.find(lowerProfile, text, 1, true) then
-								profileButton:Hide()
-							else
-								profileButton:Show()
-							end
+					-- Create a list of buttons that belong to the active profile
+					local activeProfileButtons = {}
+					for index, button in ipairs(scanList.Buttons) do
+						local buttonMob = button.Text:GetText()
+						if activeProfileMobs[buttonMob] then
+							table.insert(activeProfileButtons, button)
 						end
 					end
 
-					-- Sort the visible profile buttons based on profile names
-					local visibleProfileButtons = {}
-					for profileIndex, profileButton in ipairs(profileList.Buttons) do
-						if profileButton:IsShown() then
-							table.insert(visibleProfileButtons, profileButton)
+					-- Now, search only within the active profile buttons
+					for _, button in ipairs(activeProfileButtons) do
+						local buttonMob = button.Text:GetText()
+						local lowerButtonMob = string.lower(buttonMob)
+
+						if not string.find(lowerButtonMob, text, 1, true) then
+							button:Hide()
+						else
+							button:Show()
 						end
 					end
 
-					table.sort(visibleProfileButtons, function(a, b)
-						local profileA = a.Text:GetText()
-						local profileB = b.Text:GetText()
-						return profileA < profileB
+					-- Sort the visible buttons based on mob names
+					local visibleButtons = {}
+					for _, button in ipairs(activeProfileButtons) do
+						if button:IsShown() then
+							table.insert(visibleButtons, button)
+						end
+					end
+
+					table.sort(visibleButtons, function(a, b)
+						local mobA = a.Text:GetText()
+						local mobB = b.Text:GetText()
+						return mobA < mobB
 					end)
 
 					-- Update the button positions based on the sorted table
-					local profileIndex = 1
-					for _, profileButton in ipairs(visibleProfileButtons) do
-						profileButton:ClearAllPoints()
-						profileButton:SetPoint("TOPLEFT", 0, -(profileIndex - 1) * buttonHeight)
-						profileIndex = profileIndex + 1
+					local index = 1
+					for _, button in ipairs(visibleButtons) do
+						button:ClearAllPoints()
+						button:SetPoint("TOPLEFT", 0, -(index - 1) * buttonHeight)
+						index = index + 1
 					end
 				end
 
@@ -4941,132 +4937,132 @@ local LYELLOW = "\124cffffff9a"
 				--------------------------------------------------------------------------------
 
 
-				local function SearchEditBox_OnTextChanged(editBox)
-					--scroll to top if text changed
-					unitscan_profileScrollbar:SetValue(unitscan_profileScrollbar:GetMinMaxValues())
+					local function SearchEditBox_OnTextChanged(editBox)
+						--scroll to top if text changed
+						unitscan_profileScrollbar:SetValue(unitscan_profileScrollbar:GetMinMaxValues())
 
-					local text = editBox:GetText()
-					if not text or text:trim() == "" then
-						sBox.clearButton:Hide()
-					else
-						sBox.clearButton:Show()
-						SearchButtons(text)
-					end
-					-- Count visible profile buttons
-					local visibleButtonCount = 0
-					for _, button in ipairs(profileList.Buttons) do
-						if button:IsShown() then
-							visibleButtonCount = visibleButtonCount + 1
+						local text = editBox:GetText()
+						if not text or text:trim() == "" then
+							sBox.clearButton:Hide()
+						else
+							sBox.clearButton:Show()
+							SearchButtons(text)
 						end
+						-- Count visible profile buttons
+						local visibleButtonCount = 0
+						for _, button in ipairs(profileList.Buttons) do
+							if button:IsShown() then
+								visibleButtonCount = visibleButtonCount + 1
+							end
+						end
+
+
+						-- Multiply by button height to get scrollbar maximum
+						local maxValue = visibleButtonCount * 20
+						if visibleButtonCount >= 1 then
+							-- Set scrollbar minimum and maximum values
+
+
+							-- TODO FIX this values, do i even need this ?
+							-- Hide scrollbar if less than 5 buttons visible
+							--if visibleButtonCount <= 13 then
+							--	unitscan_profileScrollbar:SetMinMaxValues(1, 1)
+							--	unitscan_profileScrollbar:Hide()
+							--else
+							--	unitscan_profileScrollbar:SetMinMaxValues(1, maxValue)
+							--	unitscan_profileScrollbar:Show()
+							--end
+
+						end
+
+						if visibleButtonCount == 0 then unitscan_profileScrollbar:SetMinMaxValues(1, 1); unitscan_profileScrollbar:Hide() end
+						-- Print count in chat
+						--print(visibleButtonCount .. " profile buttons visible.")
 					end
 
+					sBox:SetScript("OnTextChanged", SearchEditBox_OnTextChanged)
 
-					-- Multiply by button height to get scrollbar maximum
-					local maxValue = visibleButtonCount * 20
-					if visibleButtonCount >= 1 then
-						-- Set scrollbar minimum and maximum values
-
-
-						-- TODO FIX this values, do i even need this ?
-						-- Hide scrollbar if less than 5 buttons visible
-						--if visibleButtonCount <= 13 then
-						--	unitscan_profileScrollbar:SetMinMaxValues(1, 1)
-						--	unitscan_profileScrollbar:Hide()
-						--else
-						--	unitscan_profileScrollbar:SetMinMaxValues(1, maxValue)
-						--	unitscan_profileScrollbar:Show()
-						--end
-
+					local function SearchEditBox_OnEscapePressed()
+						sBox.searchIcon:Show()
+						sBox:ClearFocus()
+						sBox:SetText('')
+						SearchButtons("")
 					end
 
-					if visibleButtonCount == 0 then unitscan_profileScrollbar:SetMinMaxValues(1, 1); unitscan_profileScrollbar:Hide() end
-					-- Print count in chat
-					--print(visibleButtonCount .. " profile buttons visible.")
-				end
+					sBox:SetScript("OnEscapePressed", SearchEditBox_OnEscapePressed)
 
-				sBox:SetScript("OnTextChanged", SearchEditBox_OnTextChanged)
+					local function SearchEditBox_OnEnterPressed(self)
+						self:ClearFocus()
+					end
 
-				local function SearchEditBox_OnEscapePressed()
-					sBox.searchIcon:Show()
-					sBox:ClearFocus()
-					sBox:SetText('')
-					SearchButtons("")
-				end
-
-				sBox:SetScript("OnEscapePressed", SearchEditBox_OnEscapePressed)
-
-				local function SearchEditBox_OnEnterPressed(self)
-					self:ClearFocus()
-				end
-
-				sBox:SetScript("OnEnterPressed", SearchEditBox_OnEnterPressed)
+					sBox:SetScript("OnEnterPressed", SearchEditBox_OnEnterPressed)
 
 
-				--===== Setup Tooltip =====--
-				local function onEnterSearchBox()
-					--GameTooltip:SetOwner(sBox, "ANCHOR_RIGHT")
-					--GameTooltip:SetOwner(sBox, "ANCHOR_CURSOR_RIGHT",0,-80)
-					GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+					--===== Setup Tooltip =====--
+					local function onEnterSearchBox()
+						--GameTooltip:SetOwner(sBox, "ANCHOR_RIGHT")
+						--GameTooltip:SetOwner(sBox, "ANCHOR_CURSOR_RIGHT",0,-80)
+						GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
 
-					GameTooltip:SetText("Profile Search")
-					GameTooltip:AddLine("Enter your search query.")
-					GameTooltip:Show()
-				end
+						GameTooltip:SetText("Profile Search")
+						GameTooltip:AddLine("Enter your search query.")
+						GameTooltip:Show()
+					end
 
-				local function onLeaveSearchBox()
-					GameTooltip:Hide()
-				end
+					local function onLeaveSearchBox()
+						GameTooltip:Hide()
+					end
 
-				sBox:SetScript("OnEnter", onEnterSearchBox)
-				sBox:SetScript("OnLeave", onLeaveSearchBox)
+					sBox:SetScript("OnEnter", onEnterSearchBox)
+					sBox:SetScript("OnLeave", onLeaveSearchBox)
 
 
-				sBox:SetScript("OnEditFocusGained", function(self)
-					self.searchIcon:Hide()
-					self.clearButton:Hide()
-				end)
-				sBox:SetScript("OnEditFocusLost", function(self)
-					if self:GetText() == "" then
-						self.searchIcon:SetVertexColor(0.6, 0.6, 0.6)
+					sBox:SetScript("OnEditFocusGained", function(self)
+						self.searchIcon:Hide()
 						self.clearButton:Hide()
-					end
-				end)
+					end)
+					sBox:SetScript("OnEditFocusLost", function(self)
+						if self:GetText() == "" then
+							self.searchIcon:SetVertexColor(0.6, 0.6, 0.6)
+							self.clearButton:Hide()
+						end
+					end)
 
-				unitscan_searchbox = sBox
+					unitscan_searchbox = sBox
 
 
 				--------------------------------------------------------------------------------
 				---- Create Search & Close Button, source code from ElvUI - Enhanced.
 				--------------------------------------------------------------------------------
 
-				--===== Search Button =====--
-				sBox.searchIcon = sBox:CreateTexture(nil, "OVERLAY")
-				sBox.searchIcon:SetTexture("Interface\\Common\\UI-Searchbox-Icon")
-				sBox.searchIcon:SetVertexColor(0.6, 0.6, 0.6)
-				sBox.searchIcon:SetSize(14,14)
-				sBox.searchIcon:SetPoint("LEFT", 0, -2)
+					--===== Search Button =====--
+					sBox.searchIcon = sBox:CreateTexture(nil, "OVERLAY")
+					sBox.searchIcon:SetTexture("Interface\\Common\\UI-Searchbox-Icon")
+					sBox.searchIcon:SetVertexColor(0.6, 0.6, 0.6)
+					sBox.searchIcon:SetSize(14,14)
+					sBox.searchIcon:SetPoint("LEFT", 0, -2)
 
-				--===== Close Button =====--
-				local searchClearButton = CreateFrame("Button", nil, sBox)
-				searchClearButton.texture = searchClearButton:CreateTexture()
-				searchClearButton.texture:SetTexture("Interface\\FriendsFrame\\ClearBroadcastIcon")
-				searchClearButton.texture:SetSize(17,17)
-				searchClearButton.texture:SetPoint("CENTER", 0, 0)
-				searchClearButton:SetAlpha(0.5)
-				searchClearButton:SetScript("OnEnter", function(self) self:SetAlpha(1.0) end)
-				searchClearButton:SetScript("OnLeave", function(self) self:SetAlpha(0.5) end)
-				searchClearButton:SetScript("OnMouseDown", function(self) if self:IsEnabled() then self:SetPoint("CENTER", 1, -1) end end)
-				searchClearButton:SetScript("OnMouseUp", function(self) self:SetPoint("CENTER") end)
-				searchClearButton:SetPoint("RIGHT")
-				searchClearButton:SetSize(20, 20)
-				searchClearButton:SetText("X")
-				searchClearButton:Hide()
-				searchClearButton:SetScript('OnClick', SearchEditBox_OnEscapePressed)
+					--===== Close Button =====--
+					local searchClearButton = CreateFrame("Button", nil, sBox)
+					searchClearButton.texture = searchClearButton:CreateTexture()
+					searchClearButton.texture:SetTexture("Interface\\FriendsFrame\\ClearBroadcastIcon")
+					searchClearButton.texture:SetSize(17,17)
+					searchClearButton.texture:SetPoint("CENTER", 0, 0)
+					searchClearButton:SetAlpha(0.5)
+					searchClearButton:SetScript("OnEnter", function(self) self:SetAlpha(1.0) end)
+					searchClearButton:SetScript("OnLeave", function(self) self:SetAlpha(0.5) end)
+					searchClearButton:SetScript("OnMouseDown", function(self) if self:IsEnabled() then self:SetPoint("CENTER", 1, -1) end end)
+					searchClearButton:SetScript("OnMouseUp", function(self) self:SetPoint("CENTER") end)
+					searchClearButton:SetPoint("RIGHT")
+					searchClearButton:SetSize(20, 20)
+					searchClearButton:SetText("X")
+					searchClearButton:Hide()
+					searchClearButton:SetScript('OnClick', SearchEditBox_OnEscapePressed)
 
-				sBox.clearButton = searchClearButton
+					sBox.clearButton = searchClearButton
 
 
-				--===== End of whole big scan_list function =====--
+					--===== End of whole big scan_list function =====--
 			end
 
 		-- do end
