@@ -426,11 +426,40 @@ local LYELLOW = "\124cffffff9a"
 					end
 
 					local function ShowImportProfilePopup()
-						-- Store the original anchor points of StaticPopup1
-						local originalAnchor = {}
-						if StaticPopup1 then
-							originalAnchor.point, originalAnchor.relativeTo, originalAnchor.relativePoint, originalAnchor.xOfs, originalAnchor.yOfs = StaticPopup1:GetPoint()
+						-- Find an available StaticPopup frame
+						local popupFrame
+						for i = 1, 4 do
+							local frame = _G["StaticPopup" .. i]
+							if frame and not frame:IsShown() then
+								popupFrame = frame
+								break
+							end
 						end
+
+						if not popupFrame then
+							print("No available StaticPopup frames.")
+							return
+						end
+
+						-- Store the original anchor points and frame strata of the popup frame
+						local originalSettings = {}
+						originalSettings.point, originalSettings.relativeTo, originalSettings.relativePoint, originalSettings.xOfs, originalSettings.yOfs = popupFrame:GetPoint()
+						originalSettings.strata = popupFrame:GetFrameStrata()
+
+						-- Define frame strata levels
+						local strataLevels = {"BACKGROUND", "LOW", "MEDIUM", "HIGH", "DIALOG", "FULLSCREEN", "FULLSCREEN_DIALOG", "TOOLTIP"}
+
+						-- Find the current strata level and increase it by one
+						for i, strata in ipairs(strataLevels) do
+							if strata == originalSettings.strata and strataLevels[i + 1] then
+								popupFrame:SetFrameStrata(strataLevels[i + 1])
+								break
+							end
+						end
+
+						-- Make the frame clamped to screen
+						popupFrame:SetClampedToScreen(true)
+
 						StaticPopupDialogs["IMPORT_PROFILE_POPUP"] = {
 							text = "Enter name and profile data to import:",
 							button1 = "Import",
@@ -440,18 +469,16 @@ local LYELLOW = "\124cffffff9a"
 							OnShow = function(self)
 								self.editBox:SetFocus(true)
 
-								-- Change the anchor of StaticPopup1 to be relative to eFrame
-								if StaticPopup1 then
-									StaticPopup1:ClearAllPoints()
-									StaticPopup1:SetPoint("BOTTOM", eFrame, "TOP")
-								end
+								-- Change the anchor of the popup frame to be relative to eFrame
+								popupFrame:ClearAllPoints()
+								popupFrame:SetPoint("BOTTOM", eFrame, "TOP")
 							end,
 							OnHide = function(self)
-								-- Restore the original anchor points of StaticPopup1
-								if StaticPopup1 then
-									StaticPopup1:ClearAllPoints()
-									StaticPopup1:SetPoint(originalAnchor.point, originalAnchor.relativeTo, originalAnchor.relativePoint, originalAnchor.xOfs, originalAnchor.yOfs)
-								end
+								-- Restore the original anchor points and frame strata of the popup frame
+								popupFrame:ClearAllPoints()
+								popupFrame:SetPoint(originalSettings.point, originalSettings.relativeTo, originalSettings.relativePoint, originalSettings.xOfs, originalSettings.yOfs)
+								popupFrame:SetFrameStrata(originalSettings.strata)
+								popupFrame:SetClampedToScreen(false) -- Unclamp the frame from the screen
 							end,
 							OnAccept = function(self)
 								--local parent = self:GetParent()
