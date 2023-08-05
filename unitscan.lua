@@ -3351,7 +3351,7 @@ local LYELLOW = "\124cffffff9a"
 				unitscan_scanFrame = scanFrame
 
 
-				local AddUnitButton = unitscanLC:CreateButton("AddUnitButton", unitscan_scanFrame, "Add Unit", "TOP", 74, 15, 101, 30, true, "", false)
+				local AddUnitButton = unitscanLC:CreateButton("AddUnitButton", unitscan_scanFrame, "Add Unit", "TOP", 73, 23, 101, 30, true, "", false)
 
 				unitscanCB["AddUnitButton"]:SetScript("OnClick", function()
 					ShowAddUnitPopup()
@@ -3519,7 +3519,7 @@ local LYELLOW = "\124cffffff9a"
 								end
 
 								-- Clear focus of search box
-								unitscan_searchbox:ClearFocus()
+								unitscan_scanSearchBox:ClearFocus()
 							end)
 
 							--------------------------------------------------------------------------------
@@ -3548,7 +3548,7 @@ local LYELLOW = "\124cffffff9a"
 							--		end
 							--		local scanLink = "https://www.wowhead.com/wotlk/" .. wowheadLocale .. encodedScan .. "#npcs"
 							--		unitscanLC:ShowSystemEditBox(scanLink, false)
-							--		unitscan_searchbox:ClearFocus()
+							--		unitscan_scanSearchBox:ClearFocus()
 							--	end
 							--end)
 
@@ -4269,7 +4269,7 @@ local LYELLOW = "\124cffffff9a"
 
 
 									-- Clear focus of search box
-									unitscan_searchbox:ClearFocus()
+									unitscan_scanSearchBox:ClearFocus()
 								end)
 
 							end
@@ -4695,7 +4695,7 @@ local LYELLOW = "\124cffffff9a"
 							unitscan_hideHistoryButtons()
 							scanFrame.scroll.ScrollBar:Hide()
 							---- call searchbox
-							unitscan_searchbox:ClearFocus()
+							unitscan_scanSearchBox:ClearFocus()
 
 
 							unitscan_scanListScrollUpdate()
@@ -4755,7 +4755,7 @@ local LYELLOW = "\124cffffff9a"
 							--unitscan_profileScrollbar:Hide()
 							scanFrame.scroll.ScrollBar:Hide()
 							-- call searchbox
-							unitscan_searchbox:ClearFocus()
+							unitscan_scanSearchBox:ClearFocus()
 
 
 
@@ -4901,7 +4901,7 @@ local LYELLOW = "\124cffffff9a"
 
 							end
 							-- Clear focus of search box
-							unitscan_searchbox:ClearFocus()
+							unitscan_scanSearchBox:ClearFocus()
 
 							if selectedButton ~= expbtn[title] then
 								--if menuSelectedButton == "ScanList" then print("scanlist") else print("nope") end
@@ -5105,7 +5105,7 @@ local LYELLOW = "\124cffffff9a"
 					--GameTooltip:SetOwner(sBox, "ANCHOR_CURSOR_RIGHT",0,-80)
 					GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
 
-					GameTooltip:SetText("Profile Search")
+					GameTooltip:SetText("Unit Search")
 					GameTooltip:AddLine("Enter your search query.")
 					GameTooltip:Show()
 				end
@@ -5129,8 +5129,8 @@ local LYELLOW = "\124cffffff9a"
 					end
 				end)
 
-				-- TODO: RENAME ME
-				unitscan_searchbox = sBox
+				-- DONE: RENAME ME
+				unitscan_scanSearchBox = sBox
 
 
 				--------------------------------------------------------------------------------
