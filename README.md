@@ -4,7 +4,7 @@ Backport of **unitscan-rares** with extra functionality, that already has all ra
 ![unitscan](https://user-images.githubusercontent.com/74269253/233365890-eac8b750-d256-4852-abb5-67f0224a7fe1.gif)
 
 ## Support
-- Support my development on **[Boosty](https://boosty.to/sattva108)**
+- Show **Love and Support** my goals **[Boosty](https://boosty.to/sattva108)**
 
 
 ## Credit
