@@ -6299,6 +6299,41 @@ local LYELLOW = "\124cffffff9a"
 				unitscan.play_sound()
 				unitscan.flash.animation:Play()
 				unitscan.discovered_unit = name
+				-- Start timer to hide the button after 120 seconds
+				LibCompat.After(120, function()
+					if unitscan.button:GetText() == name then
+						unitscan.button:Hide()
+						if unitscan.countdown then
+							unitscan.countdown:Hide() -- Hide the countdown frame
+						end
+					end
+				end)
+
+				-- Create a countdown frame if it doesn't exist
+				if not unitscan.countdown then
+					unitscan.countdown = CreateFrame("Frame", "unitscanCountdown", unitscan.button)
+					unitscan.countdown:SetPoint("TOP", unitscan.button, "TOP", 0, 5)
+					unitscan.countdown:SetSize(50, 20)
+					unitscan.countdown.text = unitscan.countdown:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+					unitscan.countdown.text:SetAllPoints()
+					unitscan.countdown.text:SetJustifyH("CENTER")
+					unitscan.countdown:Hide() -- Initially hide the countdown
+				end
+
+				-- Start countdown timer (manual repeating timer)
+				local countdownTime = 15
+				local function updateCountdown()
+					if unitscan.button:GetText() == name then
+						unitscan.countdown:Show()
+						unitscan.countdown.text:SetText(countdownTime)
+						countdownTime = countdownTime - 1
+						if countdownTime >= 0 then
+							LibCompat.After(1, updateCountdown) -- Schedule the next update
+						end
+					end
+				end
+				LibCompat.After(105, updateCountdown) -- Start the countdown after 105 seconds
+
 				if InCombatLockdown() then
 					print("\124cFF00FF00" .. "unitscan found - " .. "\124cffffff00" .. name)
 				end
