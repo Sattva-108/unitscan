@@ -6312,7 +6312,7 @@ local LYELLOW = "\124cffffff9a"
 				-- Create a countdown frame if it doesn't exist
 				if not unitscan.countdown then
 					unitscan.countdown = CreateFrame("Frame", "unitscanCountdown", unitscan.button)
-					unitscan.countdown:SetPoint("TOP", unitscan.button, "TOP", 0, 5)
+					unitscan.countdown:SetPoint("TOP", unitscan.button, "BOTTOM", 0, 0)
 					unitscan.countdown:SetSize(50, 20)
 					unitscan.countdown.text = unitscan.countdown:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
 					unitscan.countdown.text:SetAllPoints()
