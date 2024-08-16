@@ -6303,6 +6303,7 @@ local LYELLOW = "\124cffffff9a"
 				if InCombatLockdown() then
 					print("\124cFF00FF00" .. "unitscan found - " .. "\124cffffff00" .. name)
 				end
+				unitscan.resetCountdown()
 			end
 		else
 			found[name] = false
@@ -6548,8 +6549,9 @@ local LYELLOW = "\124cffffff9a"
 				self:Show()
 				button:SetAlpha(1)
 			end
-			do
 
+
+			do
 				-- Add a timeRemaining property to the button
 				button.timeRemaining = 5
 
@@ -6564,29 +6566,36 @@ local LYELLOW = "\124cffffff9a"
 					unitscan.countdown:Hide() -- Initially hide the countdown
 				end
 
-				-- Start countdown timer whenever the button is shown
-				button:SetScript("OnShow", function(self)
-					self.timeRemaining = 5 -- Reset timer when button is shown
+				-- Function to reset the countdown timer
+				function unitscan.resetCountdown()
+					button.timeRemaining = 5 -- Reset timer
+					unitscan.countdown:Show()
+					unitscan.countdown.text:SetText(button.timeRemaining)
+				end
 
-					local function updateCountdown()
-						if self:IsShown() then
-							unitscan.countdown:Show()
-							unitscan.countdown.text:SetText(self.timeRemaining) -- Use button's timeRemaining
-							self.timeRemaining = self.timeRemaining - 1
-							if self.timeRemaining >= 0 then
-								LibCompat.After(1, updateCountdown)
-							else
-								unitscan.countdown:Hide()
-								if not InCombatLockdown() then
-									self:Hide() -- Only hide the button if not in combat
-								end
+				-- Update the countdown
+				local function updateCountdown()
+					if button:IsShown() then
+						button.timeRemaining = button.timeRemaining - 1
+						if button.timeRemaining >= 0 then
+							unitscan.countdown.text:SetText(button.timeRemaining)
+							LibCompat.After(1, updateCountdown)
+						else
+							unitscan.countdown:Hide()
+							if not InCombatLockdown() then
+								button:Hide()
 							end
 						end
 					end
-					LibCompat.After(10, updateCountdown)
-				end)
+				end
 
+				-- Start countdown timer when the button is shown
+				button:SetScript("OnShow", function(self)
+					unitscan.resetCountdown() -- Reset timer on button show
+					LibCompat.After(1, updateCountdown)
+				end)
 			end
+
 		end
 	end
 
