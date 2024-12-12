@@ -5863,7 +5863,9 @@ local LYELLOW = "\124cffffff9a"
 			-- Set skinned button textures
 			if not naked then
 				mbtn:SetNormalTexture("Interface\\AddOns\\unitscan\\Leatrix_Plus.blp")
-				mbtn:GetNormalTexture():SetTexCoord(0.125, 0.25, 0.4375, 0.5)
+				if mbtn:GetNormalTexture() then
+					mbtn:GetNormalTexture():SetTexCoord(0.125, 0.25, 0.4375, 0.5)
+				end
 			end
 			mbtn:SetHighlightTexture("Interface\\AddOns\\unitscan\\Leatrix_Plus.blp")
 			mbtn:GetHighlightTexture():SetTexCoord(0, 0.125, 0.4375, 0.5)
@@ -5872,7 +5874,9 @@ local LYELLOW = "\124cffffff9a"
 			--===== 3.3.5 texture disables =====--
 
 			-- mbtn:GetNormalTexture():SetTexture(nil)
-			mbtn:GetPushedTexture():SetTexture(nil)
+			if mbtn:GetPushedTexture() then
+				mbtn:GetPushedTexture():SetTexture(nil)
+			end
 			-- mbtn:GetDisabledTexture():SetTexture(nil)
 			-- mbtn:GetHighlightTexture():SetTexture(nil)
 
@@ -6273,7 +6277,7 @@ local LYELLOW = "\124cffffff9a"
 		function unitscan.play_sound()
 			if not last_played or GetTime() - last_played > 3 then
 				--PlaySoundFile([[Interface\AddOns\unitscan\assets\Event_wardrum_ogre.ogg]], 'Sound')
-				--PlaySoundFile([[Sound\Interface\MapPing.wav]], 'Sound')
+				PlaySoundFile([[Sound\Interface\MapPing.wav]], 'Sound')
 				last_played = GetTime()
 			end
 		end
@@ -6553,7 +6557,7 @@ local LYELLOW = "\124cffffff9a"
 
 			do
 				-- Add a timeRemaining property to the button
-				button.timeRemaining = 5
+				button.timeRemaining = 120 -- 120 seconds total
 
 				-- Create the countdown frame
 				if not unitscan.countdown then
@@ -6568,31 +6572,33 @@ local LYELLOW = "\124cffffff9a"
 
 				-- Function to reset the countdown timer
 				function unitscan.resetCountdown()
-					button.timeRemaining = 5 -- Reset timer
-					unitscan.countdown:Show()
-					unitscan.countdown.text:SetText(button.timeRemaining)
+					button.timeRemaining = 120 -- Reset to 120 seconds
 				end
 
 				-- Update the countdown
 				local function updateCountdown()
 					if button:IsShown() then
 						button.timeRemaining = button.timeRemaining - 1
-						if button.timeRemaining >= 0 then
+
+						-- Only show the countdown for the last 15 seconds
+						if button.timeRemaining <= 15 then
+							unitscan.countdown:Show()
 							unitscan.countdown.text:SetText(button.timeRemaining)
+						end
+
+						if button.timeRemaining >= 0 then
 							LibCompat.After(1, updateCountdown)
 						else
 							unitscan.countdown:Hide()
-							if not InCombatLockdown() then
-								button:Hide()
-							end
+							button:Hide() -- Hide the button after 120 seconds
 						end
 					end
 				end
 
-				-- Start countdown timer when the button is shown
+				-- Start the countdown timer after 105 seconds
 				button:SetScript("OnShow", function(self)
-					unitscan.resetCountdown() -- Reset timer on button show
-					LibCompat.After(1, updateCountdown)
+					unitscan.resetCountdown()
+					LibCompat.After(105, updateCountdown) -- Start updating after 105 seconds
 				end)
 			end
 
@@ -6727,6 +6733,25 @@ local LYELLOW = "\124cffffff9a"
 		end
 	end
 
+--------------------------------------------------------------------------------
+---- hook to pfQuest map to allow Alt+Click on node to toggle unitscan target.
+--------------------------------------------------------------------------------
+
+hooksecurefunc(pfMap, "NodeClick", function(this)
+	local nodeName
+
+	if this.spawn then
+		nodeName = this.spawn
+	else
+		nodeName = this.title
+	end
+
+
+	if IsAltKeyDown() then
+		unitscan.toggle_target(nodeName)
+	end
+
+end)
 
 --------------------------------------------------------------------------------
 -- Slash Commands /unitscan
