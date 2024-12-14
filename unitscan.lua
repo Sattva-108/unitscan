@@ -6737,21 +6737,23 @@ local LYELLOW = "\124cffffff9a"
 ---- hook to pfQuest map to allow Alt+Click on node to toggle unitscan target.
 --------------------------------------------------------------------------------
 
-hooksecurefunc(pfMap, "NodeClick", function(this)
-	local nodeName
+if pfMap then
+	hooksecurefunc(pfMap, "NodeClick", function(this)
+		local nodeName
 
-	if this.spawn then
-		nodeName = this.spawn
-	else
-		nodeName = this.title
-	end
+		if this.spawn then
+			nodeName = this.spawn
+		else
+			nodeName = this.title
+		end
 
 
-	if IsAltKeyDown() then
-		unitscan.toggle_target(nodeName)
-	end
+		if IsAltKeyDown() then
+			unitscan.toggle_target(nodeName)
+		end
 
-end)
+	end)
+end
 
 --------------------------------------------------------------------------------
 -- Slash Commands /unitscan
