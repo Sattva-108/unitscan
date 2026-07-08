@@ -99,6 +99,8 @@ local LYELLOW = "\124cffffff9a"
 	--===== DB Table for Default Settings =====--
 	unitscan_defaults = {
 		CHECK_INTERVAL = .3,
+		SoundAlert = "On",
+		FlashAlert = "On",
 	}
 
 	--FIXME After ScanList is done: need to remove this table.
@@ -5284,6 +5286,15 @@ local LYELLOW = "\124cffffff9a"
 				unitscanLC:LoadVarNum("PlusPanelScale", 1, 1, 2)				-- Panel scale
 				unitscanLC:LoadVarNum("PlusPanelAlpha", 0, 0, 1)				-- Panel alpha
 
+				-- General settings
+				unitscanLC:LoadVarChk("SoundAlert", "On")					-- Sound alert on unit found
+				unitscanLC:LoadVarChk("FlashAlert", "On")					-- Flash alert on unit found
+				unitscanLC:LoadVarNum("CheckInterval", 0.1, 0.1, 2.0)		-- Scan interval in seconds
+				-- Apply loaded interval to defaults
+				if unitscanDB["CheckInterval"] then
+					unitscan_defaults.CHECK_INTERVAL = unitscanDB["CheckInterval"]
+				end
+
 				-- Panel position
 				unitscanLC:LoadVarAnc("MainPanelA", "CENTER")				-- Panel anchor
 				unitscanLC:LoadVarAnc("MainPanelR", "CENTER")				-- Panel relative
@@ -6162,7 +6173,7 @@ local LYELLOW = "\124cffffff9a"
 	unitscanLC["Page0"] = unitscanLC:MakePage("Page0", "Home"			, "unitscanNav0", "Home"			, unitscanLC["PageF"], "TOPLEFT", 16, -72, 112, 20)
 	unitscanLC["Page1"] = unitscanLC:MakePage("Page1", "Rare Ignore List"	, "unitscanNav1", "Rare Ignore"	, unitscanLC["PageF"], "TOPLEFT", 16, -112, 112, 20)
 	unitscanLC["Page2"] = unitscanLC:MakePage("Page2", "Custom Scan List"		, "unitscanNav2", "Scan List"		, unitscanLC["PageF"], "TOPLEFT", 16, -132, 112, 20)
-	unitscanLC["Page3"] = unitscanLC:MakePage("Page3", "Chat"			, "unitscanNav3", "Chat"			, unitscanLC["PageF"], "TOPLEFT", 16, -152, 112, 20, true)
+	unitscanLC["Page3"] = unitscanLC:MakePage("Page3", "General"		, "unitscanNav3", "General"		, unitscanLC["PageF"], "TOPLEFT", 16, -152, 112, 20)
 	unitscanLC["Page4"] = unitscanLC:MakePage("Page4", "Text"			, "unitscanNav4", "Text"			, unitscanLC["PageF"], "TOPLEFT", 16, -172, 112, 20, true)
 	unitscanLC["Page5"] = unitscanLC:MakePage("Page5", "Interface"	, "unitscanNav5", "Interface"	, unitscanLC["PageF"], "TOPLEFT", 16, -192, 112, 20, true)
 	unitscanLC["Page6"] = unitscanLC:MakePage("Page6", "Frames"		, "unitscanNav6", "Frames"		, unitscanLC["PageF"], "TOPLEFT", 16, -212, 112, 20, true)
@@ -6215,10 +6226,26 @@ local LYELLOW = "\124cffffff9a"
 
 
 ----------------------------------------------------------------------
--- 	LC3: Chat
+-- 	LC3: General
 ----------------------------------------------------------------------
 
 	pg = "Page3";
+
+	unitscanLC:MakeTx(unitscanLC[pg], "Scanning", 146, -72);
+
+	unitscanLC:MakeSL(unitscanLC[pg], "CheckInterval", "How often to scan for units (in seconds).", 0.1, 2.0, 0.1, 146, -92, "%.1f")
+
+	-- Apply slider value to CHECK_INTERVAL on change
+	unitscanCB["CheckInterval"]:HookScript("OnValueChanged", function(self, value)
+		unitscan_defaults.CHECK_INTERVAL = value
+	end)
+
+	unitscanLC:MakeTx(unitscanLC[pg], "Alerts", 146, -152);
+
+	unitscanLC:MakeCB(unitscanLC[pg], "SoundAlert"			, "Play sound on unit found"			, 146, -172, false,
+		"If checked, a sound will play when a scanned unit is found.")
+	unitscanLC:MakeCB(unitscanLC[pg], "FlashAlert"			, "Flash screen on unit found"			, 146, -192, false,
+		"If checked, the screen will flash when a scanned unit is found.")
 
 
 ----------------------------------------------------------------------
@@ -6275,6 +6302,7 @@ local LYELLOW = "\124cffffff9a"
 		local last_played
 
 		function unitscan.play_sound()
+			if unitscanLC["SoundAlert"] == "Off" then return end
 			if not last_played or GetTime() - last_played > 3 then
 				--PlaySoundFile([[Interface\AddOns\unitscan\assets\Event_wardrum_ogre.ogg]], 'Sound')
 				PlaySoundFile([[Sound\Interface\MapPing.wav]], 'Sound')
@@ -6301,7 +6329,9 @@ local LYELLOW = "\124cffffff9a"
 				found[name] = true
 				--FlashClientIcon()
 				unitscan.play_sound()
-				unitscan.flash.animation:Play()
+				if unitscanLC["FlashAlert"] ~= "Off" then
+					unitscan.flash.animation:Play()
+				end
 				unitscan.discovered_unit = name
 
 				if InCombatLockdown() then
